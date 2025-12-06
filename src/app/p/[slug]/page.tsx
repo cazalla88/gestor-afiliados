@@ -6,6 +6,37 @@ import Link from "next/link";
 import Image from "next/image";
 import ShareButtons from "@/components/ShareButtons";
 import { notFound } from "next/navigation";
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const product = await getCampaign(slug);
+
+    if (!product) {
+        return {
+            title: 'Product Not Found',
+        };
+    }
+
+    return {
+        title: `${product.title} - Best Price & Review`,
+        description: product.description.substring(0, 160),
+        openGraph: {
+            title: product.title,
+            description: product.description.substring(0, 160),
+            images: [product.imageUrl || ''],
+            url: `https://gestor-afiliados-web.vercel.app/p/${slug}`,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: product.title,
+            description: product.description.substring(0, 160),
+            images: [product.imageUrl || ''],
+        },
+    };
+}
+
 
 export default async function ProductLandingPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
