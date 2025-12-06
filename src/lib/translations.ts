@@ -40,7 +40,15 @@ export const translations = {
             confirmDelete: "Are you sure you want to delete this campaign?",
             errorDelete: "Error deleting",
             landingBadge: "Landing Page",
-            blogBadge: "Blog Review"
+            blogBadge: "Blog Review",
+            total: "Total:",
+            campaigns: "campaigns",
+            search: "🔍 Search campaigns...",
+            noResults: "No campaigns found",
+            duplicateError: "Failed to duplicate campaign",
+            edit: "Edit",
+            duplicate: "Duplicate",
+            views: "views"
         },
         footer: {
             disclaimer: "As an Amazon Associate I earn from qualifying purchases. This site is a participant in the Amazon Services LLC Associates Program.",
@@ -86,7 +94,15 @@ export const translations = {
             confirmDelete: "¿Estás seguro de que quieres eliminar esta campaña?",
             errorDelete: "Error al eliminar",
             landingBadge: "Landing Page",
-            blogBadge: "Reseña de Blog"
+            blogBadge: "Reseña de Blog",
+            total: "Total:",
+            campaigns: "campañas",
+            search: "🔍 Buscar campañas...",
+            noResults: "No se encontraron campañas",
+            duplicateError: "Error al duplicar campaña",
+            edit: "Editar",
+            duplicate: "Duplicar",
+            views: "vistas"
         },
         footer: {
             disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",

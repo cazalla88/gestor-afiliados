@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
 import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign } from "@/app/actions";
 import { CATEGORIES, type CategorySlug } from "@/lib/categories";
+import LandingTemplate from "@/components/templates/LandingTemplate";
+import BlogTemplate from "@/components/templates/BlogTemplate";
 
 interface CreateCampaignFormProps {
     editSlug?: string;
@@ -31,6 +33,15 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
     const [showApiKey, setShowApiKey] = useState(false);
     const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+
+    // Load API Key from local storage
+    useEffect(() => {
+        const storedKey = localStorage.getItem("gemini_api_key");
+        if (storedKey) {
+            setFormData(prev => ({ ...prev, apiKey: storedKey }));
+        }
+    }, []);
 
     // Load existing campaign data if in edit mode
     useEffect(() => {
@@ -92,14 +103,13 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
     };
 
     const handleAiOptimize = async () => {
-        if (!formData.apiKey) {
-            setShowApiKey(true);
-            alert("Please enter a Google Gemini API Key first");
-            return;
-        }
         if (!formData.productName) {
             alert("Please enter a product name first");
             return;
+        }
+
+        if (formData.apiKey) {
+            localStorage.setItem("gemini_api_key", formData.apiKey);
         }
 
         setIsOptimizing(true);
@@ -145,16 +155,55 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             alert("Please enter a product name first");
             return;
         }
-
-        const slug = editSlug || formData.productName
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/(^-|-$)+/g, "");
-
-        const previewUrl = `/${formData.category}/${slug}`;
-
-        window.open(previewUrl, '_blank');
+        setShowPreview(true);
     };
+
+    if (showPreview) {
+        const previewData = {
+            id: 'preview-mode',
+            slug: 'preview-slug',
+            type: formData.type,
+            productName: formData.productName,
+            title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title || formData.productName,
+            description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction || formData.description,
+            affiliateLink: formData.affiliateLink || "#",
+            imageUrl: formData.imageUrl,
+            category: formData.category,
+            language: language,
+            createdAt: new Date(),
+            content: generatedBlogData ? JSON.stringify(generatedBlogData) : null
+        };
+
+        return (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 9999, overflowY: 'auto', background: 'white' }}>
+                <button
+                    onClick={() => setShowPreview(false)}
+                    style={{
+                        position: 'fixed', bottom: '20px', right: '20px', zIndex: 10000,
+                        padding: '12px 24px', background: '#111', color: 'white',
+                        borderRadius: '50px', border: 'none', fontWeight: 'bold',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)', cursor: 'pointer'
+                    }}
+                >
+                    ✏️ Back to Editor
+                </button>
+
+                {formData.type === 'landing' ? (
+                    <LandingTemplate
+                        product={previewData}
+                        currentSlug="preview"
+                        relatedProducts={[]}
+                    />
+                ) : (
+                    <BlogTemplate
+                        campaign={previewData}
+                        currentSlug="preview"
+                        relatedProducts={[]}
+                    />
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className={styles.formContainer}>

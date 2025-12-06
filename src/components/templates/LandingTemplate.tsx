@@ -17,7 +17,10 @@ const LABELS = {
         reviews: "Reviews",
         guarantee: "🔒 30-Day Money-Back Guarantee",
         whyChoose: "Why Choose",
-        disclaimer: "As an Amazon Associate we earn from qualifying purchases."
+        disclaimer: "As an Amazon Associate we earn from qualifying purchases.",
+        featureTitle: "Premium Feature",
+        featureDesc: "This product comes with outstanding capabilities that outperform the competition in every way.",
+        rights: "Promotions. All rights reserved."
     },
     es: {
         buyNow: "Comprar Ahora",
@@ -25,7 +28,10 @@ const LABELS = {
         reviews: "Opiniones",
         guarantee: "🔒 Garantía de Devolución de 30 Días",
         whyChoose: "¿Por qué elegir",
-        disclaimer: "Como Afiliado de Amazon ganamos por compras adscritas."
+        disclaimer: "Como Afiliado de Amazon ganamos por compras adscritas.",
+        featureTitle: "Característica Premium",
+        featureDesc: "Este producto incluye capacidades excepcionales que superan a la competencia en todos los sentidos.",
+        rights: "Promociones. Todos los derechos reservados."
     }
 };
 
@@ -114,8 +120,8 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
                     <div className={styles.featuresGrid}>
                         {[1, 2, 3].map((i) => (
                             <div key={i} className={styles.featureCard}>
-                                <h3>Premium Feature {i}</h3>
-                                <p>This product comes with outstanding capabilities that outperform the competition in every way.</p>
+                                <h3>{t.featureTitle} {i}</h3>
+                                <p>{t.featureDesc}</p>
                             </div>
                         ))}
                     </div>
@@ -129,7 +135,7 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
             />
 
             <footer className={styles.lpFooter}>
-                <p>&copy; {new Date().getFullYear()} {product.productName} Promotions. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} {product.productName} {t.rights}</p>
                 <p className={styles.disclaimer}>{t.disclaimer}</p>
             </footer>
         </div>

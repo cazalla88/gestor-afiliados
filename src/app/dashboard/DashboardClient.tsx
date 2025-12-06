@@ -40,7 +40,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
             router.refresh();
             window.location.reload(); // Force reload to show new campaign
         } else {
-            alert("Failed to duplicate campaign");
+            alert(t.dashboard.duplicateError);
         }
     };
 
@@ -54,7 +54,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
             <header className={styles.header}>
                 <div>
                     <h1>{t.dashboard.title}</h1>
-                    <p className={styles.statsCount}>Total: {list.length} campaigns</p>
+                    <p className={styles.statsCount}>{t.dashboard.total} {list.length} {t.dashboard.campaigns}</p>
                 </div>
                 <Link href="/" className={styles.createBtn}>{t.dashboard.create}</Link>
             </header>
@@ -63,7 +63,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                 <div className={styles.searchContainer}>
                     <input
                         type="text"
-                        placeholder="🔍 Search campaigns..."
+                        placeholder={t.dashboard.search}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className={styles.searchInput}
@@ -73,7 +73,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
 
             {filteredList.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <p>{searchQuery ? "No campaigns found" : t.dashboard.empty}</p>
+                    <p>{searchQuery ? t.dashboard.noResults : t.dashboard.empty}</p>
                     {!searchQuery && <Link href="/" style={{ marginTop: '1rem', color: '#db2777' }}>{t.dashboard.start}</Link>}
                 </div>
             ) : (
@@ -89,7 +89,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                                 <span className={`${styles.badge} ${camp.type === 'blog' ? styles.blogBadge : styles.landingBadge}`}>
-                                    {camp.type === 'landing' ? "LANDING" : "BLOG"}
+                                    {camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
                                 </span>
                                 <a href={`/${camp.category}/${camp.slug}`} target="_blank" className={styles.viewLink} style={{ opacity: 0 }}>
                                     {/* Invisble link for SEO/Structure, real click handled by actions */}
@@ -99,14 +99,14 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                 <h3>{camp.productName}</h3>
                                 <div className={styles.date}>
                                     <span>{new Date(camp.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                    <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()}</span>
+                                    <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} {t.dashboard.views}</span>
                                 </div>
 
                                 <div className={styles.actions}>
                                     <a href={`/${camp.category || 'general'}/${camp.slug}`} target="_blank" className={`${styles.actionBtn} ${styles.viewLink}`} title={t.dashboard.view}>
                                         👁️
                                     </a>
-                                    <Link href={`/?edit=${camp.slug}`} className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
+                                    <Link href={`/?edit=${camp.slug}`} className={`${styles.actionBtn} ${styles.editBtn}`} title={t.dashboard.edit}>
                                         ✏️
                                     </Link>
                                     <button onClick={() => handleDelete(camp.slug)} className={`${styles.actionBtn} ${styles.deleteBtn}`} title={t.dashboard.delete}>
