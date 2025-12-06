@@ -4,6 +4,7 @@ import { deleteCampaign, duplicateCampaign } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 import { useLanguage } from "@/context/LanguageContext";
@@ -80,8 +81,13 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                     {filteredList.map((camp) => (
                         <div key={camp.id} className={styles.card}>
                             <div className={styles.cardImage}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={camp.imageUrl || "https://placehold.co/300x200"} alt={camp.productName} />
+                                <Image
+                                    src={camp.imageUrl || "https://placehold.co/300x200"}
+                                    alt={camp.productName}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
                                 <span className={`${styles.badge} ${camp.type === 'blog' ? styles.blogBadge : styles.landingBadge}`}>
                                     {camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
                                 </span>

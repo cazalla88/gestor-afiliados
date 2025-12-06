@@ -3,6 +3,7 @@
 import { getCampaign } from "@/app/actions";
 import styles from "./page.module.css";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export default async function ProductLandingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -57,11 +58,13 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
                 <div className="container">
                     <div className={styles.heroGrid}>
                         <div className={`${styles.imageWrapper} animate-fade-in`}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <Image
                                 src={product.imageUrl || "https://placehold.co/600x400/121212/FFF?text=Product+Image"}
                                 alt={product.productName}
+                                width={600}
+                                height={400}
                                 className={styles.productImage}
+                                priority
                             />
                         </div>
                         <div className={styles.contentWrapper}>
