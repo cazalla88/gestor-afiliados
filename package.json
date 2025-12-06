@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "generate:secrets": "node scripts/generate-secrets.js",
     "clean:images": "node scripts/clean-images.js",
-    "clean:drafts": "node scripts/clean-drafts.js"
+    "clean:drafts": "node scripts/clean-drafts.js",
+    "deploy": "node scripts/deploy.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
