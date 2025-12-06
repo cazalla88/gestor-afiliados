@@ -161,6 +161,7 @@ export async function createCampaign(data: any) {
       data: {
         slug: data.id,
         type: data.type,
+        category: data.category || 'general',
         productName: data.productName,
         title: data.title || data.productName,
         description: data.description || data.introduction || "",
@@ -190,6 +191,7 @@ export async function updateCampaign(slug: string, data: any) {
     const campaign = await prisma.campaign.update({
       where: { slug },
       data: {
+        category: data.category || 'general',
         productName: data.productName,
         title: data.title || data.productName,
         description: data.description || data.introduction || "",
