@@ -4,6 +4,7 @@ import { getCampaign } from "@/app/actions";
 import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import ShareButtons from "@/components/ShareButtons";
 import { notFound } from "next/navigation";
 
 export default async function ProductLandingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -80,6 +81,10 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
                                 </a>
                                 <p className={styles.guarantee}>🔒 30-Day Money-Back Guarantee</p>
                             </div>
+                            <ShareButtons
+                                url={`https://gestor-afiliados-web.vercel.app/p/${slug}`}
+                                title={product.title}
+                            />
                         </div>
                     </div>
                 </div>
