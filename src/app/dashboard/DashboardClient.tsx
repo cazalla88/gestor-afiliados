@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteCampaign } from "@/app/actions";
+import { deleteCampaign, duplicateCampaign } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import Link from "next/link";
@@ -30,6 +30,16 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
             router.refresh();
         } else {
             alert(t.dashboard.errorDelete);
+        }
+    };
+
+    const handleDuplicate = async (slug: string) => {
+        const res = await duplicateCampaign(slug);
+        if (res.success) {
+            router.refresh();
+            window.location.reload(); // Force reload to show new campaign
+        } else {
+            alert("Failed to duplicate campaign");
         }
     };
 
@@ -86,8 +96,10 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} views</span>
                                 </div>
                                 <div className={styles.actions}>
+                                    <button onClick={() => handleDuplicate(camp.slug)} className={styles.duplicateBtn} title="Duplicate campaign">
+                                        📋
+                                    </button>
                                     <button onClick={() => handleDelete(camp.slug)} className={styles.deleteBtn}>{t.dashboard.delete}</button>
-                                    {/* Edit would go here */}
                                 </div>
                             </div>
                         </div>

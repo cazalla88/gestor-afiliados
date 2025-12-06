@@ -220,6 +220,39 @@ export async function deleteCampaign(slug: string) {
   }
 }
 
+export async function duplicateCampaign(slug: string) {
+  try {
+    const original = await prisma.campaign.findUnique({ where: { slug } });
+    if (!original) return { error: "Campaign not found" };
+
+    // Generate unique slug
+    let newSlug = `${slug}-copy`;
+    let counter = 1;
+    while (await prisma.campaign.findUnique({ where: { slug: newSlug } })) {
+      newSlug = `${slug}-copy-${counter}`;
+      counter++;
+    }
+
+    const duplicate = await prisma.campaign.create({
+      data: {
+        slug: newSlug,
+        type: original.type,
+        productName: `${original.productName} (Copy)`,
+        title: original.title,
+        description: original.description,
+        affiliateLink: original.affiliateLink,
+        imageUrl: original.imageUrl,
+        content: original.content,
+      }
+    });
+
+    return { success: true, slug: duplicate.slug };
+  } catch (error) {
+    console.error("Duplicate Error:", error);
+    return { error: "Failed to duplicate campaign" };
+  }
+}
+
 export async function scrapeAmazonProduct(url: string) {
   if (!url.includes('amazon') && !url.includes('amzn')) {
     return { error: 'Not a valid Amazon URL' };
