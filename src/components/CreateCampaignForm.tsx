@@ -85,11 +85,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             return;
         }
 
-        if (formData.type === 'landing') {
-            router.push(`/p/${result.slug || slug}`);
-        } else {
-            router.push(`/blog/${result.slug || slug}`);
-        }
+        // Redirect to new category-based URL
+        router.push(`/${formData.category}/${result.slug || slug}`);
     };
 
     const handleAiOptimize = async () => {
@@ -152,9 +149,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)+/g, "");
 
-        const previewUrl = formData.type === 'landing'
-            ? `/p/${slug}`
-            : `/blog/${slug}`;
+        const previewUrl = `/${formData.category}/${slug}`;
 
         window.open(previewUrl, '_blank');
     };
