@@ -49,6 +49,12 @@ a {
   padding: 0 2rem;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
 .glass-panel {
   background: rgba(18, 18, 18, 0.6);
   backdrop-filter: blur(12px);

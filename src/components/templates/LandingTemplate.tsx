@@ -10,7 +10,29 @@ interface LandingTemplateProps {
     relatedProducts: any[];
 }
 
+const LABELS = {
+    en: {
+        buyNow: "Buy Now",
+        checkPrice: "Check Price on Amazon",
+        reviews: "Reviews",
+        guarantee: "🔒 30-Day Money-Back Guarantee",
+        whyChoose: "Why Choose",
+        disclaimer: "As an Amazon Associate we earn from qualifying purchases."
+    },
+    es: {
+        buyNow: "Comprar Ahora",
+        checkPrice: "Ver Precio en Amazon",
+        reviews: "Opiniones",
+        guarantee: "🔒 Garantía de Devolución de 30 Días",
+        whyChoose: "¿Por qué elegir",
+        disclaimer: "Como Afiliado de Amazon ganamos por compras adscritas."
+    }
+};
+
 export default function LandingTemplate({ product, currentSlug, relatedProducts }: LandingTemplateProps) {
+    const lang = (product.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
+    const t = LABELS[lang];
+
     const jsonLd = {
         "@context": "https://schema.org/",
         "@type": "Product",
@@ -46,7 +68,7 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
                 <div className="container">
                     <span className={styles.brand}>{product.productName}</span>
                     <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.buyBtnNav}>
-                        Buy Now
+                        {t.buyNow}
                     </a>
                 </div>
             </nav>
@@ -67,15 +89,15 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
                         <div className={styles.contentWrapper}>
                             <h1 className={`${styles.productTitle} animate-slide-up delay-100`}>{product.title}</h1>
                             <div className={`${styles.rating} animate-slide-up delay-200`}>
-                                ★★★★★ <span className={styles.reviewCount}>(4,892 Reviews)</span>
+                                ★★★★★ <span className={styles.reviewCount}>(4,892 {t.reviews})</span>
                             </div>
                             <div className={`${styles.mainDescription} animate-slide-up delay-200`} dangerouslySetInnerHTML={{ __html: product.description }} />
 
                             <div className={`${styles.ctaContainer} animate-slide-up delay-300`}>
                                 <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.bigBuyBtn}>
-                                    Check Price on Amazon
+                                    {t.checkPrice}
                                 </a>
-                                <p className={styles.guarantee}>🔒 30-Day Money-Back Guarantee</p>
+                                <p className={styles.guarantee}>{t.guarantee}</p>
                             </div>
                             <ShareButtons
                                 url={`https://gestor-afiliados-web.vercel.app/${product.category || 'general'}/${currentSlug}`}
@@ -88,7 +110,7 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
 
             <section className={styles.featuresSection}>
                 <div className="container">
-                    <h2 className={styles.sectionTitle}>Why Choose {product.productName}?</h2>
+                    <h2 className={styles.sectionTitle}>{t.whyChoose} {product.productName}?</h2>
                     <div className={styles.featuresGrid}>
                         {[1, 2, 3].map((i) => (
                             <div key={i} className={styles.featureCard}>
@@ -108,7 +130,7 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
 
             <footer className={styles.lpFooter}>
                 <p>&copy; {new Date().getFullYear()} {product.productName} Promotions. All rights reserved.</p>
-                <p className={styles.disclaimer}>As an Amazon Associate we earn from qualifying purchases.</p>
+                <p className={styles.disclaimer}>{t.disclaimer}</p>
             </footer>
         </div>
     );

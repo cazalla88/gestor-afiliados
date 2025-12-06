@@ -72,6 +72,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
             description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
             category: formData.category,
+            language: language,
             ...generatedBlogData
         };
 

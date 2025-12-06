@@ -162,6 +162,7 @@ export async function createCampaign(data: any) {
         slug: data.id,
         type: data.type,
         category: data.category || 'general',
+        language: data.language || 'en',
         productName: data.productName,
         title: data.title || data.productName,
         description: data.description || data.introduction || "",
@@ -192,6 +193,7 @@ export async function updateCampaign(slug: string, data: any) {
       where: { slug },
       data: {
         category: data.category || 'general',
+        language: data.language || 'en',
         productName: data.productName,
         title: data.title || data.productName,
         description: data.description || data.introduction || "",

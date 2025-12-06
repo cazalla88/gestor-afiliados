@@ -8,7 +8,47 @@ interface BlogTemplateProps {
     relatedProducts: any[];
 }
 
+const LABELS = {
+    en: {
+        review: "Review",
+        by: "By",
+        whoFor: "🎯 Who is this for?",
+        score: "📊 Performance Score",
+        features: "Main Features",
+        pros: "✅ The Good",
+        cons: "❌ The Bad",
+        comparison: "Comparison vs Competitors",
+        verdict: "Final Verdict",
+        checkPrice: "Check Best Price for",
+        buyNow: "Buy Now",
+        product: "Product",
+        price: "Price",
+        rating: "Rating",
+        mainFeature: "Main Feature"
+    },
+    es: {
+        review: "Análisis",
+        by: "Por",
+        whoFor: "🎯 ¿Para quién es esto?",
+        score: "📊 Puntuación",
+        features: "Características Principales",
+        pros: "✅ Lo Bueno",
+        cons: "❌ Lo Malo",
+        comparison: "Comparativa vs Competidores",
+        verdict: "Veredicto Final",
+        checkPrice: "Ver Mejor Precio para",
+        buyNow: "Comprar Ahora",
+        product: "Producto",
+        price: "Precio",
+        rating: "Valoración",
+        mainFeature: "Característica"
+    }
+};
+
 export default function BlogTemplate({ campaign, currentSlug, relatedProducts }: BlogTemplateProps) {
+    const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
+    const t = LABELS[lang];
+
     // Parse structured content JSON
     let content: any = {};
     try {
@@ -17,9 +57,11 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
         console.error("Error parsing content JSON", e);
     }
 
-    const date = new Date(campaign.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+    const date = new Date(campaign.createdAt).toLocaleDateString(lang === 'es' ? "es-ES" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const jsonLd = {
+    const jsonLd = { /* ... keep jsonLd same ... */ }; // Simplify for brevity in this replace call if possible, acts as context
+
+    const jsonLdFull = {
         "@context": "https://schema.org/",
         "@type": "Review",
         "itemReviewed": {
@@ -48,18 +90,18 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
         <article className={styles.articleContainer}>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFull) }}
             />
             <header className={styles.header}>
                 <div className="container">
                     <div className={styles.meta}>
-                        <span className={styles.category}>Review</span>
+                        <span className={styles.category}>{t.review}</span>
                         <span className={styles.date}>{date}</span>
                     </div>
                     <h1 className={styles.title}>{campaign.title}</h1>
                     <div className={styles.author}>
                         <div className={styles.avatar}>A</div>
-                        <span>By <strong>AffiliateNexus Editor</strong></span>
+                        <span>{t.by} <strong>AffiliateNexus Editor</strong></span>
                     </div>
                 </div>
             </header>
@@ -83,32 +125,32 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
 
                     {content.targetAudience && (
                         <section className={styles.features} style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
-                            <h3 style={{ marginTop: 0, color: '#111' }}>🎯 Who is this for?</h3>
+                            <h3 style={{ marginTop: 0, color: '#111' }}>{t.whoFor}</h3>
                             <p style={{ marginBottom: 0, color: '#444' }}>{content.targetAudience}</p>
                         </section>
                     )}
 
                     {content.quantitativeAnalysis && (
                         <section className={styles.features}>
-                            <h3>📊 Performance Score</h3>
+                            <h3>{t.score}</h3>
                             <p className={styles.scoreText}>{content.quantitativeAnalysis}</p>
                         </section>
                     )}
 
                     <section className={styles.features}>
-                        <h2>Main Features</h2>
+                        <h2>{t.features}</h2>
                         <p>{content.features || "Features to be added."}</p>
                     </section>
 
                     <section className={styles.prosCons}>
                         <div className={styles.pros}>
-                            <h3>✅ The Good</h3>
+                            <h3>{t.pros}</h3>
                             <ul>
                                 {content.pros?.map((p: string, i: number) => <li key={i}>{p}</li>) || <li>Great Product</li>}
                             </ul>
                         </div>
                         <div className={styles.cons}>
-                            <h3>❌ The Bad</h3>
+                            <h3>{t.cons}</h3>
                             <ul>
                                 {content.cons?.map((c: string, i: number) => <li key={i}>{c}</li>) || <li>None observed</li>}
                             </ul>
@@ -117,15 +159,15 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
 
                     {content.comparisonTable && (
                         <section className={styles.comparison}>
-                            <h2>Comparison vs Competitors</h2>
+                            <h2>{t.comparison}</h2>
                             <div className={styles.tableWrapper}>
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Rating</th>
-                                            <th>Main Feature</th>
+                                            <th>{t.product}</th>
+                                            <th>{t.price}</th>
+                                            <th>{t.rating}</th>
+                                            <th>{t.mainFeature}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -144,11 +186,11 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                     )}
 
                     <section className={styles.verdict}>
-                        <h2>Final Verdict</h2>
+                        <h2>{t.verdict}</h2>
                         <p>{content.verdict || "Highly Recommended."}</p>
                         <div className={styles.verdictCta}>
                             <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.ctaButton}>
-                                Check Best Price for {campaign.productName}
+                                {t.checkPrice} {campaign.productName}
                             </a>
                         </div>
                     </section>
@@ -159,7 +201,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                         <h3>{campaign.productName}</h3>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
-                        <a href={campaign.affiliateLink} className={styles.sidebarBtn}>Buy Now</a>
+                        <a href={campaign.affiliateLink} className={styles.sidebarBtn}>{t.buyNow}</a>
                     </div>
                 </aside>
             </div>
