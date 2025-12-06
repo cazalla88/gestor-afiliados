@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/context/LanguageContext";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <LanguageProvider>
           {children}
+          <Footer />
         </LanguageProvider>
       </body>
     </html>

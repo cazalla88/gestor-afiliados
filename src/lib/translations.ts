@@ -41,6 +41,10 @@ export const translations = {
             errorDelete: "Error deleting",
             landingBadge: "Landing Page",
             blogBadge: "Blog Review"
+        },
+        footer: {
+            disclaimer: "As an Amazon Associate I earn from qualifying purchases. This site is a participant in the Amazon Services LLC Associates Program.",
+            rights: "All rights reserved."
         }
     },
     es: {
@@ -83,6 +87,10 @@ export const translations = {
             errorDelete: "Error al eliminar",
             landingBadge: "Landing Page",
             blogBadge: "Reseña de Blog"
+        },
+        footer: {
+            disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",
+            rights: "Todos los derechos reservados."
         }
     },
 };
