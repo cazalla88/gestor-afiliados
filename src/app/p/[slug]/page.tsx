@@ -5,8 +5,10 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import ShareButtons from "@/components/ShareButtons";
+import RelatedProducts from "@/components/RelatedProducts";
 import { notFound } from "next/navigation";
 import type { Metadata } from 'next';
+import { getCampaignsByCategory } from "@/app/actions";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
@@ -45,6 +47,9 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
     if (!product) {
         notFound();
     }
+
+    // Fetch related products for internal linking
+    const relatedProducts = await getCampaignsByCategory(product.category || 'general', 5);
 
     const jsonLd = {
         "@context": "https://schema.org/",
@@ -134,6 +139,12 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
                     </div>
                 </div>
             </section>
+
+            <RelatedProducts
+                currentSlug={slug}
+                category={product.category || 'general'}
+                products={relatedProducts}
+            />
 
             <footer className={styles.lpFooter}>
                 <p>&copy; {new Date().getFullYear()} {product.productName} Promotions. All rights reserved.</p>
