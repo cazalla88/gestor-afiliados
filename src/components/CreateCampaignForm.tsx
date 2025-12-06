@@ -1,0 +1,248 @@
+"use client";
+
+import { useState } from "react";
+import styles from "./CreateCampaignForm.module.css";
+import { useLanguage } from "@/context/LanguageContext";
+import { useRouter } from "next/navigation";
+import RichTextEditor from "@/components/RichTextEditor";
+import { generateSeoContent, debugAiConnection, createCampaign } from "@/app/actions";
+
+export default function CreateCampaignForm() {
+    const { t, language } = useLanguage();
+    const router = useRouter();
+    const [formData, setFormData] = useState({
+        productName: "",
+        description: "",
+        affiliateLink: "",
+        imageUrl: "",
+        apiKey: "",
+        type: "landing" as "landing" | "blog",
+        tone: "Professional"
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
+    const [showApiKey, setShowApiKey] = useState(false);
+    const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        const slug = formData.productName
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+
+        // Save to Database via Server Action
+        const result = await createCampaign({
+            id: slug,
+            type: formData.type,
+            productName: formData.productName,
+            affiliateLink: formData.affiliateLink,
+            imageUrl: formData.imageUrl,
+            // For landing pages
+            title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
+            description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
+            // For blogs (passed as generic data object to be stringified)
+            ...generatedBlogData
+        });
+
+        if (result.error) {
+            alert("Error saving: " + result.error);
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (formData.type === 'landing') {
+            router.push(`/p/${slug}`);
+        } else {
+            router.push(`/blog/${slug}`);
+        }
+    };
+
+    const handleAiOptimize = async () => {
+        if (!formData.apiKey) {
+            setShowApiKey(true);
+            alert("Please enter a Google Gemini API Key first");
+            return;
+        }
+        if (!formData.productName) {
+            alert("Please enter a product name first");
+            return;
+        }
+
+        setIsOptimizing(true);
+        const result = await generateSeoContent(
+            formData.productName,
+            formData.description,
+            formData.apiKey,
+            formData.type,
+            language,
+            formData.tone
+        );
+
+        if (result.error) {
+            alert("AI Error: " + result.error + "\n\nTrying to debug connection...");
+            const debug = await debugAiConnection(formData.apiKey);
+            if (debug.models) {
+                alert("Available models found on your key: " + debug.models.join(", "));
+            } else {
+                alert("Debug Check Failed: " + (debug.error || "Unknown error"));
+            }
+        } else {
+            if (formData.type === 'landing') {
+                setFormData(prev => ({
+                    ...prev,
+                    productName: result.optimizedTitle || prev.productName,
+                    description: result.optimizedDescription || prev.description
+                }));
+            } else {
+                setGeneratedBlogData(result);
+                alert("Blog Post Generated! Click 'Create' to publish.");
+            }
+        }
+        setIsOptimizing(false);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    return (
+        <div className={styles.formContainer}>
+            <div className={styles.header}>
+                <h2>{t.form.title}</h2>
+                <p>{t.form.subtitle}</p>
+            </div>
+
+            <div className={styles.typeSelector}>
+                <button
+                    type="button"
+                    className={`${styles.typeBtn} ${formData.type === 'landing' ? styles.activeType : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'landing' }))}
+                >
+                    Landing Page
+                </button>
+                <button
+                    type="button"
+                    className={`${styles.typeBtn} ${formData.type === 'blog' ? styles.activeType : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'blog' }))}
+                >
+                    Blog Review
+                </button>
+            </div>
+
+            <div className={styles.aiToggle}>
+                <button
+                    type="button"
+                    className={styles.aiButton}
+                    onClick={handleAiOptimize}
+                    disabled={isOptimizing}
+                >
+                    {isOptimizing ? "✨ Generating Content..." : (formData.type === 'blog' ? "✨ Generate Full Review" : "✨ AI Magic Optimize")}
+                </button>
+            </div>
+
+            {showApiKey && (
+                <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
+                    <label htmlFor="apiKey" style={{ color: '#fbbf24' }}>Google Gemini API Key</label>
+                    <input
+                        type="password"
+                        id="apiKey"
+                        name="apiKey"
+                        className="input-field"
+                        value={formData.apiKey}
+                        onChange={handleChange}
+                    />
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.inputGroup}>
+                    <label htmlFor="productName">{t.form.productName}</label>
+                    <input
+                        type="text"
+                        id="productName"
+                        name="productName"
+                        className="input-field"
+                        placeholder={t.form.productPlaceholder}
+                        value={formData.productName}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className={styles.inputGroup}>
+                    <RichTextEditor
+                        label={formData.type === 'blog' ? "Product/Topic Details & Post Content" : t.form.description}
+                        content={formData.description}
+                        onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
+                    />
+                </div>
+
+                <div className={styles.inputGroup}>
+                    <label htmlFor="affiliateLink">{t.form.affiliateLink}</label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="url"
+                            id="affiliateLink"
+                            name="affiliateLink"
+                            className="input-field"
+                            placeholder={t.form.linkPlaceholder}
+                            value={formData.affiliateLink}
+                            onChange={handleChange}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                if (!formData.affiliateLink) return alert("Paste link first!");
+                                setIsSubmitting(true); // Reuse spinner or create new state
+                                const data = await import("@/app/actions").then(mod => mod.scrapeAmazonProduct(formData.affiliateLink));
+                                setIsSubmitting(false);
+
+                                if (data.error) {
+                                    alert(data.error);
+                                } else {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        productName: data.title || prev.productName,
+                                        imageUrl: data.image || prev.imageUrl
+                                    }));
+                                }
+                            }}
+                            className={styles.typeBtn}
+                            style={{ padding: '0 1rem', whiteSpace: 'nowrap' }}
+                            title="Auto-fill Title & Image from Amazon"
+                        >
+                            🪄 Auto-Fill
+                        </button>
+                    </div>
+                </div>
+
+                <div className={styles.inputGroup}>
+                    <label htmlFor="imageUrl">{t.form.image}</label>
+                    <input
+                        type="url"
+                        id="imageUrl"
+                        name="imageUrl"
+                        className="input-field"
+                        placeholder={t.form.imagePlaceholder}
+                        value={formData.imageUrl}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <span className={styles.loadingSpinner}>{t.form.buttonLoading}</span>
+                    ) : (
+                        formData.type === 'blog' ? "Publish Review" : t.form.button
+                    )}
+                </button>
+            </form>
+        </div>
+    );
+}

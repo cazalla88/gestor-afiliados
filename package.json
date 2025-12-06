@@ -1,0 +1,33 @@
+{
+  "name": "gestor-afiliados",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@tiptap/extension-link": "^3.13.0",
+    "@tiptap/extension-underline": "^3.13.0",
+    "@tiptap/react": "^3.13.0",
+    "@tiptap/starter-kit": "^3.13.0",
+    "axios": "^1.13.2",
+    "cheerio": "^1.1.2",
+    "next": "16.0.7",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.10.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.7",
+    "prisma": "^5.10.0",
+    "typescript": "^5"
+  }
+}

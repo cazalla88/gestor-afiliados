@@ -1,0 +1,68 @@
+"use client";
+
+import { deleteCampaign } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import styles from "./dashboard.module.css";
+import Link from "next/link";
+import { useState } from "react";
+
+import { useLanguage } from "@/context/LanguageContext";
+
+export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
+    const { t } = useLanguage();
+    const router = useRouter();
+    const [list, setList] = useState(campaigns);
+
+    const handleDelete = async (slug: string) => {
+        if (!confirm(t.dashboard.confirmDelete)) return;
+
+        const res = await deleteCampaign(slug);
+        if (res.success) {
+            setList(prev => prev.filter(c => c.slug !== slug));
+            router.refresh();
+        } else {
+            alert(t.dashboard.errorDelete);
+        }
+    };
+
+    return (
+        <div className={styles.dashboardContainer}>
+            <header className={styles.header}>
+                <h1>{t.dashboard.title}</h1>
+                <Link href="/" className={styles.createBtn}>{t.dashboard.create}</Link>
+            </header>
+
+            {list.length === 0 ? (
+                <div className={styles.emptyState}>
+                    <p>{t.dashboard.empty}</p>
+                    <Link href="/" style={{ marginTop: '1rem', color: '#db2777' }}>{t.dashboard.start}</Link>
+                </div>
+            ) : (
+                <div className={styles.grid}>
+                    {list.map((camp) => (
+                        <div key={camp.id} className={styles.card}>
+                            <div className={styles.cardImage}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={camp.imageUrl || "https://placehold.co/300x200"} alt={camp.productName} />
+                                <span className={`${styles.badge} ${camp.type === 'blog' ? styles.blogBadge : styles.landingBadge}`}>
+                                    {camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
+                                </span>
+                                <a href={camp.type === 'landing' ? `/p/${camp.slug}` : `/blog/${camp.slug}`} target="_blank" className={styles.viewLink}>
+                                    {t.dashboard.view} ↗
+                                </a>
+                            </div>
+                            <div className={styles.cardContent}>
+                                <h3>{camp.productName}</h3>
+                                <p className={styles.date}>{new Date(camp.createdAt).toLocaleDateString()}</p>
+                                <div className={styles.actions}>
+                                    <button onClick={() => handleDelete(camp.slug)} className={styles.deleteBtn}>{t.dashboard.delete}</button>
+                                    {/* Edit would go here */}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}

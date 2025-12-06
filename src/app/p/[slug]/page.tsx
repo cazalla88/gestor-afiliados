@@ -1,0 +1,105 @@
+"use server";
+
+import { getCampaign } from "@/app/actions";
+import styles from "./page.module.css";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+export default async function ProductLandingPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const product = await getCampaign(slug);
+
+    if (!product) {
+        notFound();
+    }
+
+    const jsonLd = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product.productName,
+        "image": product.imageUrl,
+        "description": product.description,
+        "review": {
+            "@type": "Review",
+            "reviewRating": {
+                "@type": "Rating",
+                "ratingValue": "5",
+                "bestRating": "5"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "AffiliateNexus Editor"
+            }
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "124"
+        }
+    };
+
+    return (
+        <div className={styles.lpContainer}>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <nav className={styles.lpNav}>
+                <div className="container">
+                    <span className={styles.brand}>{product.productName}</span>
+                    <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.buyBtnNav}>
+                        Buy Now
+                    </a>
+                </div>
+            </nav>
+
+            <header className={styles.lpHero}>
+                <div className="container">
+                    <div className={styles.heroGrid}>
+                        <div className={styles.imageWrapper}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={product.imageUrl || "https://placehold.co/600x400/121212/FFF?text=Product+Image"}
+                                alt={product.productName}
+                                className={styles.productImage}
+                            />
+                        </div>
+                        <div className={styles.contentWrapper}>
+                            <h1 className={styles.productTitle}>{product.title}</h1>
+                            <div className={styles.rating}>
+                                ★★★★★ <span className={styles.reviewCount}>(4,892 Reviews)</span>
+                            </div>
+                            <p className={styles.mainDescription}>{product.description}</p>
+
+                            <div className={styles.ctaContainer}>
+                                <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.bigBuyBtn}>
+                                    Check Price on Amazon
+                                </a>
+                                <p className={styles.guarantee}>🔒 30-Day Money-Back Guarantee</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section className={styles.featuresSection}>
+                <div className="container">
+                    <h2 className={styles.sectionTitle}>Why Choose {product.productName}?</h2>
+                    <div className={styles.featuresGrid}>
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className={styles.featureCard}>
+                                <h3>Premium Feature {i}</h3>
+                                <p>This product comes with outstanding capabilities that outperform the competition in every way.</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <footer className={styles.lpFooter}>
+                <p>&copy; {new Date().getFullYear()} {product.productName} Promotions. All rights reserved.</p>
+                <p className={styles.disclaimer}>As an Amazon Associate we earn from qualifying purchases.</p>
+            </footer>
+        </div>
+    );
+}

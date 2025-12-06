@@ -1,0 +1,83 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+.editorWrapper {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.editorWrapper:focus-within {
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.menuBar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.menuBar button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.menuBar button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+.isActive {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: var(--color-primary) !important;
+}
+
+.editorContent {
+    padding: 1rem;
+    min-height: 150px;
+    outline: none;
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.editorContent p {
+    margin-bottom: 0.75rem;
+}
+
+.editorContent h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.editorContent ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.editorContent li {
+    margin-bottom: 0.25rem;
+}
