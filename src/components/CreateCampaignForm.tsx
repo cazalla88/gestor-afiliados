@@ -71,6 +71,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             imageUrl: formData.imageUrl,
             title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
             description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
+            category: formData.category,
             ...generatedBlogData
         };
 
@@ -185,7 +186,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    className="input-field"
+                    className={styles.selectInput}
                 >
                     {Object.entries(CATEGORIES).map(([key, cat]) => (
                         <option key={key} value={key}>
