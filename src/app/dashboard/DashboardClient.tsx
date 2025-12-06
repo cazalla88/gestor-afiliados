@@ -89,26 +89,29 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
                                 <span className={`${styles.badge} ${camp.type === 'blog' ? styles.blogBadge : styles.landingBadge}`}>
-                                    {camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
+                                    {camp.type === 'landing' ? "LANDING" : "BLOG"}
                                 </span>
-                                <a href={camp.type === 'landing' ? `/p/${camp.slug}` : `/blog/${camp.slug}`} target="_blank" className={styles.viewLink}>
-                                    {t.dashboard.view} ↗
+                                <a href={`/${camp.category}/${camp.slug}`} target="_blank" className={styles.viewLink} style={{ opacity: 0 }}>
+                                    {/* Invisble link for SEO/Structure, real click handled by actions */}
                                 </a>
                             </div>
                             <div className={styles.cardContent}>
                                 <h3>{camp.productName}</h3>
-                                <p className={styles.date}>{new Date(camp.createdAt).toLocaleDateString()}</p>
-                                <div className={styles.stats}>
-                                    <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} views</span>
+                                <div className={styles.date}>
+                                    <span>{new Date(camp.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                    <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()}</span>
                                 </div>
+
                                 <div className={styles.actions}>
-                                    <Link href={`/?edit=${camp.slug}`} className={styles.editBtn} title="Edit campaign">
+                                    <a href={`/${camp.category || 'general'}/${camp.slug}`} target="_blank" className={`${styles.actionBtn} ${styles.viewLink}`} title={t.dashboard.view}>
+                                        👁️
+                                    </a>
+                                    <Link href={`/?edit=${camp.slug}`} className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
                                         ✏️
                                     </Link>
-                                    <button onClick={() => handleDuplicate(camp.slug)} className={styles.duplicateBtn} title="Duplicate campaign">
-                                        📋
+                                    <button onClick={() => handleDelete(camp.slug)} className={`${styles.actionBtn} ${styles.deleteBtn}`} title={t.dashboard.delete}>
+                                        🗑️
                                     </button>
-                                    <button onClick={() => handleDelete(camp.slug)} className={styles.deleteBtn}>{t.dashboard.delete}</button>
                                 </div>
                             </div>
                         </div>

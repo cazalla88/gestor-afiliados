@@ -33,6 +33,13 @@
   padding: 4rem 0;
 }
 
+@media (max-width: 900px) {
+  .main {
+    padding: 1rem 0 2rem;
+    align-items: flex-start;
+  }
+}
+
 .gridHelp {
   display: grid;
   grid-template-columns: 1fr 1fr;
