@@ -5,6 +5,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import styles from "./page.module.css";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 function Content() {
   const { t } = useLanguage();
@@ -71,5 +72,9 @@ function Content() {
 }
 
 export default function Home() {
-  return <Content />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content />
+    </Suspense>
+  );
 }
