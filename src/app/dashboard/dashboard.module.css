@@ -165,3 +165,45 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
 }
+
+.statsCount {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.25rem;
+}
+
+.searchContainer {
+    margin-bottom: 2rem;
+}
+
+.searchInput {
+    width: 100%;
+    max-width: 500px;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.searchInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.stats {
+    margin-bottom: 0.75rem;
+}
+
+.viewCount {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    display: inline-block;
+}

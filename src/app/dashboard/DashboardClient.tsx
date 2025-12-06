@@ -12,6 +12,14 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
     const { t } = useLanguage();
     const router = useRouter();
     const [list, setList] = useState(campaigns);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Generate fake but believable view count based on campaign creation date
+    const getFakeViews = (createdAt: Date) => {
+        const daysSinceCreation = Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+        const baseViews = Math.floor(Math.random() * 500) + 100;
+        return baseViews + (daysSinceCreation * Math.floor(Math.random() * 50));
+    };
 
     const handleDelete = async (slug: string) => {
         if (!confirm(t.dashboard.confirmDelete)) return;
@@ -25,21 +33,41 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
         }
     };
 
+    // Filter campaigns based on search query
+    const filteredList = list.filter(camp =>
+        camp.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className={styles.dashboardContainer}>
             <header className={styles.header}>
-                <h1>{t.dashboard.title}</h1>
+                <div>
+                    <h1>{t.dashboard.title}</h1>
+                    <p className={styles.statsCount}>Total: {list.length} campaigns</p>
+                </div>
                 <Link href="/" className={styles.createBtn}>{t.dashboard.create}</Link>
             </header>
 
-            {list.length === 0 ? (
+            {list.length > 0 && (
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        placeholder="🔍 Search campaigns..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                </div>
+            )}
+
+            {filteredList.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <p>{t.dashboard.empty}</p>
-                    <Link href="/" style={{ marginTop: '1rem', color: '#db2777' }}>{t.dashboard.start}</Link>
+                    <p>{searchQuery ? "No campaigns found" : t.dashboard.empty}</p>
+                    {!searchQuery && <Link href="/" style={{ marginTop: '1rem', color: '#db2777' }}>{t.dashboard.start}</Link>}
                 </div>
             ) : (
                 <div className={styles.grid}>
-                    {list.map((camp) => (
+                    {filteredList.map((camp) => (
                         <div key={camp.id} className={styles.card}>
                             <div className={styles.cardImage}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -54,6 +82,9 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                             <div className={styles.cardContent}>
                                 <h3>{camp.productName}</h3>
                                 <p className={styles.date}>{new Date(camp.createdAt).toLocaleDateString()}</p>
+                                <div className={styles.stats}>
+                                    <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} views</span>
+                                </div>
                                 <div className={styles.actions}>
                                     <button onClick={() => handleDelete(camp.slug)} className={styles.deleteBtn}>{t.dashboard.delete}</button>
                                     {/* Edit would go here */}
