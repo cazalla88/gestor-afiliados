@@ -15,12 +15,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // 2. Dynamic Routes (Campaigns)
-    // Explicit type to satisfy build process
-    let campaigns: { slug: string; type: string; updatedAt: Date }[] = [];
+    // 2. Dynamic Routes (Campaigns)
+    type SitemapCampaign = { slug: string; type: string; updatedAt: Date };
+    let campaigns: SitemapCampaign[] = [];
+
     try {
-        campaigns = await prisma.campaign.findMany({
+        const dbCampaigns = await prisma.campaign.findMany({
             select: { slug: true, type: true, updatedAt: true }
         });
+        campaigns = dbCampaigns as SitemapCampaign[];
     } catch (e) {
         console.error("Sitemap DB Error", e);
     }
