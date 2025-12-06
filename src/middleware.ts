@@ -15,7 +15,7 @@ export function middleware(req: NextRequest) {
     // Set your desired username/password in environment variables
     // Default fallback for safety if not set
     const user = process.env.ADMIN_USER || 'admin';
-    const pwd = process.env.ADMIN_PASSWORD;
+    const pwd = process.env.ADMIN_PASSWORD || 'Gabri2026';
 
     if (!pwd) {
         // If no password set in env, allow access but warn on console (server side)
