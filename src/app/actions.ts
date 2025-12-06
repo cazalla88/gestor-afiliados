@@ -185,6 +185,35 @@ export async function createCampaign(data: any) {
   }
 }
 
+export async function updateCampaign(slug: string, data: any) {
+  try {
+    const campaign = await prisma.campaign.update({
+      where: { slug },
+      data: {
+        productName: data.productName,
+        title: data.title || data.productName,
+        description: data.description || data.introduction || "",
+        affiliateLink: data.affiliateLink,
+        imageUrl: data.imageUrl,
+        content: JSON.stringify({
+          introduction: data.introduction,
+          targetAudience: data.targetAudience,
+          quantitativeAnalysis: data.quantitativeAnalysis,
+          features: data.features,
+          pros: data.pros,
+          cons: data.cons,
+          comparisonTable: data.comparisonTable,
+          verdict: data.verdict
+        }),
+      }
+    });
+    return { success: true, slug: campaign.slug, type: campaign.type };
+  } catch (error: any) {
+    console.error("DB Update Error:", error);
+    return { error: "Failed to update campaign." };
+  }
+}
+
 export async function getCampaign(slug: string) {
   return await prisma.campaign.findUnique({
     where: { slug }

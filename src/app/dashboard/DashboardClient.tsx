@@ -102,6 +102,9 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} views</span>
                                 </div>
                                 <div className={styles.actions}>
+                                    <Link href={`/?edit=${camp.slug}`} className={styles.editBtn} title="Edit campaign">
+                                        ✏️
+                                    </Link>
                                     <button onClick={() => handleDuplicate(camp.slug)} className={styles.duplicateBtn} title="Duplicate campaign">
                                         📋
                                     </button>

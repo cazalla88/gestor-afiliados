@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./CreateCampaignForm.module.css";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
-import { generateSeoContent, debugAiConnection, createCampaign } from "@/app/actions";
+import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign } from "@/app/actions";
 
-export default function CreateCampaignForm() {
+interface CreateCampaignFormProps {
+    editSlug?: string;
+}
+
+export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps) {
     const { t, language } = useLanguage();
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -24,29 +28,53 @@ export default function CreateCampaignForm() {
     const [isOptimizing, setIsOptimizing] = useState(false);
     const [showApiKey, setShowApiKey] = useState(false);
     const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Load existing campaign data if in edit mode
+    useEffect(() => {
+        if (editSlug) {
+            setIsLoading(true);
+            getCampaign(editSlug).then(campaign => {
+                if (campaign) {
+                    setFormData({
+                        productName: campaign.productName,
+                        description: campaign.description,
+                        affiliateLink: campaign.affiliateLink,
+                        imageUrl: campaign.imageUrl || "",
+                        apiKey: "",
+                        type: campaign.type as "landing" | "blog",
+                        tone: "Professional"
+                    });
+                }
+                setIsLoading(false);
+            });
+        }
+    }, [editSlug]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const slug = formData.productName
+        const slug = editSlug || formData.productName
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)+/g, "");
 
-        // Save to Database via Server Action
-        const result = await createCampaign({
+        const campaignData = {
             id: slug,
             type: formData.type,
             productName: formData.productName,
             affiliateLink: formData.affiliateLink,
             imageUrl: formData.imageUrl,
-            // For landing pages
             title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
             description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
-            // For blogs (passed as generic data object to be stringified)
             ...generatedBlogData
-        });
+        };
+
+        // Update or Create
+        const result = editSlug
+            ? await updateCampaign(editSlug, campaignData)
+            : await createCampaign(campaignData);
 
         if (result.error) {
             alert("Error saving: " + result.error);
@@ -55,9 +83,9 @@ export default function CreateCampaignForm() {
         }
 
         if (formData.type === 'landing') {
-            router.push(`/p/${slug}`);
+            router.push(`/p/${result.slug || slug}`);
         } else {
-            router.push(`/blog/${slug}`);
+            router.push(`/blog/${result.slug || slug}`);
         }
     };
 

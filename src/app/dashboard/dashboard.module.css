@@ -175,6 +175,26 @@
     transform: scale(1.05);
 }
 
+.editBtn {
+    background: rgba(139, 92, 246, 0.2);
+    color: white;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.editBtn:hover {
+    background: rgba(139, 92, 246, 0.3);
+    transform: scale(1.05);
+}
+
 .emptyState {
     text-align: center;
     padding: 4rem;

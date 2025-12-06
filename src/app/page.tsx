@@ -4,9 +4,12 @@ import CreateCampaignForm from "@/components/CreateCampaignForm";
 import LanguageSelector from "@/components/LanguageSelector";
 import styles from "./page.module.css";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import { useSearchParams } from "next/navigation";
 
 function Content() {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const editSlug = searchParams.get('edit');
 
   return (
     <div className={styles.mainContainer}>
@@ -59,7 +62,7 @@ function Content() {
           </div>
 
           <div className={styles.formSection}>
-            <CreateCampaignForm />
+            <CreateCampaignForm editSlug={editSlug || undefined} />
           </div>
         </div>
       </main>
