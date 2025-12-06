@@ -56,7 +56,7 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
             <header className={styles.lpHero}>
                 <div className="container">
                     <div className={styles.heroGrid}>
-                        <div className={styles.imageWrapper}>
+                        <div className={`${styles.imageWrapper} animate-fade-in`}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={product.imageUrl || "https://placehold.co/600x400/121212/FFF?text=Product+Image"}
@@ -65,13 +65,13 @@ export default async function ProductLandingPage({ params }: { params: Promise<{
                             />
                         </div>
                         <div className={styles.contentWrapper}>
-                            <h1 className={styles.productTitle}>{product.title}</h1>
-                            <div className={styles.rating}>
+                            <h1 className={`${styles.productTitle} animate-slide-up delay-100`}>{product.title}</h1>
+                            <div className={`${styles.rating} animate-slide-up delay-200`}>
                                 ★★★★★ <span className={styles.reviewCount}>(4,892 Reviews)</span>
                             </div>
-                            <p className={styles.mainDescription}>{product.description}</p>
+                            <div className={`${styles.mainDescription} animate-slide-up delay-200`} dangerouslySetInnerHTML={{ __html: product.description }} />
 
-                            <div className={styles.ctaContainer}>
+                            <div className={`${styles.ctaContainer} animate-slide-up delay-300`}>
                                 <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.bigBuyBtn}>
                                     Check Price on Amazon
                                 </a>
