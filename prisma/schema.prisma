@@ -15,6 +15,7 @@ model Campaign {
   id            String   @id @default(uuid())
   slug          String   @unique
   type          String   // 'landing' or 'blog'
+  category      String   @default("general") // SEO Silo category
   productName   String
   title         String
   description   String   // Intro for blog, main desc for landing

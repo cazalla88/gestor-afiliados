@@ -6,6 +6,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
 import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign } from "@/app/actions";
+import { CATEGORIES, type CategorySlug } from "@/lib/categories";
 
 interface CreateCampaignFormProps {
     editSlug?: string;
@@ -21,6 +22,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         imageUrl: "",
         apiKey: "",
         type: "landing" as "landing" | "blog",
+        category: "general" as CategorySlug,
         tone: "Professional"
     });
 
@@ -43,6 +45,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         imageUrl: campaign.imageUrl || "",
                         apiKey: "",
                         type: campaign.type as "landing" | "blog",
+                        category: (campaign.category as CategorySlug) || "general",
                         tone: "Professional"
                     });
                 }
@@ -178,6 +181,23 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 >
                     Blog Review
                 </button>
+            </div>
+
+            <div className={styles.inputGroup} style={{ marginBottom: '1.5rem' }}>
+                <label htmlFor="category">📂 Category (SEO Silo)</label>
+                <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="input-field"
+                >
+                    {Object.entries(CATEGORIES).map(([key, cat]) => (
+                        <option key={key} value={key}>
+                            {cat.icon} {cat.name[language as 'en' | 'es']}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className={styles.aiToggle}>
