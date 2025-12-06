@@ -1,0 +1,139 @@
+.container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    padding: 2rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #999;
+    font-weight: 300;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.card {
+    position: relative;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: #667eea;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+}
+
+.card:hover::before {
+    opacity: 1;
+}
+
+.card:hover .cardArrow {
+    transform: translateX(5px);
+    opacity: 1;
+}
+
+.cardIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cardCount {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.cardArrow {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 2rem;
+    font-size: 1.5rem;
+    color: #667eea;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .card {
+        padding: 2rem 1.5rem;
+    }
+
+    .cardIcon {
+        font-size: 3rem;
+    }
+
+    .cardTitle {
+        font-size: 1.3rem;
+    }
+}

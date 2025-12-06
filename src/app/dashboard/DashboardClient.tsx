@@ -148,6 +148,9 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                     >
                         ⚔️ Battle Mode
                     </button>
+                    <Link href="/categories" className={styles.createBtn} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', textDecoration: 'none' }}>
+                        📂 Categorías
+                    </Link>
                     <Link href="/" className={styles.createBtn}>{t.dashboard.create}</Link>
                 </div>
             </header>

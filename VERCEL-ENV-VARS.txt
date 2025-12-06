@@ -1,0 +1,66 @@
+# ==============================================
+# VARIABLES PARA VERCEL - COPIAR Y PEGAR
+# ==============================================
+
+# ✅ PASO 1: Copiar estas variables
+# Ir a Vercel > Environment Variables
+# Añadir UNA POR UNA (copiar nombre y valor)
+
+# ----------------------------------------------
+# Variable 1 de 6
+# ----------------------------------------------
+Nombre: NEXT_PUBLIC_GEMINI_API_KEY
+Valor: AIzaSyA-hlz0HhBd-F5A1E5h3JikNL0TiZYAu9c
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ----------------------------------------------
+# Variable 2 de 6
+# ----------------------------------------------
+Nombre: ADMIN_USER
+Valor: admin
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ----------------------------------------------
+# Variable 3 de 6
+# ----------------------------------------------
+Nombre: ADMIN_PASSWORD
+Valor: KejQf$^Pt*s31RJr2jbT
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ----------------------------------------------
+# Variable 4 de 6
+# ----------------------------------------------
+Nombre: NEXTAUTH_SECRET
+Valor: 8UkjgZm1puNHLkc+V5m2Daji3eGnaRty8sxFWXe5gno=
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ----------------------------------------------
+# Variable 5 de 6
+# ----------------------------------------------
+Nombre: CRON_SECRET
+Valor: BsBAcBhESxRkfBverSensh2h6A54BQdQ
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ----------------------------------------------
+# Variable 6 de 6 (ACTUALIZAR DESPUÉS)
+# ----------------------------------------------
+Nombre: NEXT_PUBLIC_BASE_URL
+Valor: https://gestor-afiliados.vercel.app
+Environments: ✅ Production ✅ Preview ✅ Development
+
+# ⚠️ NOTA: Después del primer deploy, actualiza esta variable
+# con tu URL real de Vercel y redeploy
+
+# ==============================================
+# FORMATO JSON (Alternativa)
+# ==============================================
+# Si Vercel permite importar JSON, puedes usar esto:
+
+{
+  "NEXT_PUBLIC_GEMINI_API_KEY": "AIzaSyA-hlz0HhBd-F5A1E5h3JikNL0TiZYAu9c",
+  "ADMIN_USER": "admin",
+  "ADMIN_PASSWORD": "KejQf$^Pt*s31RJr2jbT",
+  "NEXTAUTH_SECRET": "8UkjgZm1puNHLkc+V5m2Daji3eGnaRty8sxFWXe5gno=",
+  "CRON_SECRET": "BsBAcBhESxRkfBverSensh2h6A54BQdQ",
+  "NEXT_PUBLIC_BASE_URL": "https://gestor-afiliados.vercel.app"
+}
