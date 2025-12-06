@@ -15,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // 2. Dynamic Routes (Campaigns)
+    // Explicit type to satisfy build process
     let campaigns: { slug: string; type: string; updatedAt: Date }[] = [];
     try {
         campaigns = await prisma.campaign.findMany({
