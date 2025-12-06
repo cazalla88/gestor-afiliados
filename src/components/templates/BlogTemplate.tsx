@@ -185,6 +185,22 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                         </section>
                     )}
 
+                    {content.internalLinks && content.internalLinks.length > 0 && (
+                        <section className={styles.features} style={{ backgroundColor: '#f0fdf4', border: '1px solid #86efac', padding: '1.5rem', borderRadius: '8px', marginTop: '2rem' }}>
+                            <h3 style={{ color: '#166534', marginTop: 0 }}>{t.review === 'Análisis' ? '📚 Te puede interesar:' : '📚 Read Next:'}</h3>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {content.internalLinks.map((link: any, i: number) => (
+                                    <li key={i} style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>
+                                        <span style={{ marginRight: '0.5rem' }}>👉</span>
+                                        <Link href={`/${link.category || 'general'}/${link.slug}`} style={{ color: '#15803d', textDecoration: 'underline', fontWeight: 600 }}>
+                                            {link.anchorText}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    )}
+
                     <section className={styles.verdict}>
                         <h2>{t.verdict}</h2>
                         <p>{content.verdict || "Highly Recommended."}</p>

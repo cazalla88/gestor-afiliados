@@ -48,7 +48,12 @@ export const translations = {
             duplicateError: "Failed to duplicate campaign",
             edit: "Edit",
             duplicate: "Duplicate",
-            views: "views"
+            views: "views",
+            trendHunterBtn: "🔮 Trend Hunter",
+            trendModalTitle: "2025/2026 Opportunity Detector",
+            trendInputLabel: "Category to Analyze",
+            trendAnalyzeBtn: "Analyze Future",
+            trendLoading: "Scanning Future Markets..."
         },
         footer: {
             disclaimer: "As an Amazon Associate I earn from qualifying purchases. This site is a participant in the Amazon Services LLC Associates Program.",
@@ -102,7 +107,12 @@ export const translations = {
             duplicateError: "Error al duplicar campaña",
             edit: "Editar",
             duplicate: "Duplicar",
-            views: "vistas"
+            views: "vistas",
+            trendHunterBtn: "🔮 Cazador de Tendencias",
+            trendModalTitle: "Detector de Oportunidades 2025/2026",
+            trendInputLabel: "Categoría a Analizar",
+            trendAnalyzeBtn: "Analizar Futuro",
+            trendLoading: "Escaneando Mercados Futuros..."
         },
         footer: {
             disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",

@@ -3,6 +3,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
+import fs from 'fs';
+import path from 'path';
+// @ts-ignore
+import googleTrends from 'google-trends-api';
 
 export async function debugAiConnection(apiKey: string) {
   if (!apiKey) return { error: "No API Key" };
@@ -29,7 +33,48 @@ export async function debugAiConnection(apiKey: string) {
   }
 }
 
-export async function generateSeoContent(productName: string, basicDescription: string, apiKey: string, type: 'landing' | 'blog' = 'landing', language: 'en' | 'es' = 'en', tone: string = 'Professional') {
+export async function analyzeImage(imageUrl: string, apiKey: string) {
+  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!finalApiKey) return { error: "API Key Missing" };
+
+  try {
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) throw new Error("Failed to fetch image");
+    const arrayBuffer = await imgRes.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
+    const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
+
+    const genAI = new GoogleGenerativeAI(finalApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: base64Image,
+          mimeType: mimeType
+        }
+      }
+    ]);
+    const response = await result.response;
+    return { description: response.text() };
+  } catch (e: any) {
+    console.error("Vision AI Error:", e);
+    return { error: "Could not analyze image. Make sure the URL is publicly accessible." };
+  }
+}
+
+export async function generateSeoContent(
+  productName: string,
+  basicDescription: string,
+  apiKey: string,
+  type: 'landing' | 'blog' = 'landing',
+  language: 'en' | 'es' = 'en',
+  tone: string = 'Professional',
+  existingCampaigns: any[] = []
+) {
   const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
   if (!finalApiKey) {
@@ -48,6 +93,20 @@ export async function generateSeoContent(productName: string, basicDescription: 
 
   let lastError = null;
 
+  const campaignsContext = existingCampaigns.length > 0
+    ? `
+      CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
+      Here is a list of other articles purely for reference context.
+      ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
+      
+      MANDATORY SEO INSTRUCTION:
+      If any of the above existing articles are HIGHLY relevant to this new product (same category or complementary), 
+      you MUST strictly include them in an "internalLinks" array in the JSON response.
+      Each link object must have: { "slug": "slug-here", "category": "category-here", "anchorText": "text-here" }.
+      Auto-connect the dots for the user.
+      `
+    : "";
+
   for (const modelName of modelsToTry) {
     try {
       console.log(`Attempting to generate with model: ${modelName}`);
@@ -58,102 +117,125 @@ export async function generateSeoContent(productName: string, basicDescription: 
 
       const SALES_STORYTELLING_FRAMEWORK = `
         ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
-
-        1. THE HERO'S JOURNEY (Customer Centricity):
-           - The Customer is the Hero, NOT the product. The product is the "Guide" or "Excalibur".
-           - Start with the "External Problem" (e.g., messy house) but quickly pivot to the "Internal Problem" (e.g., feeling overwhelmed/failure).
-           - The resolution must be "Success" (Transformation) vs "Failure" (Tragedy if they don't buy).
-
-        2. CHALLENGER INSIGHT (Teach & Tailor):
-           - Don't just list specs. "Teach" them something they didn't know about their problem.
-           - Challenge their current way of doing things. "Why your current X is costing you money."
-
-        3. EMOTIONAL ARC:
-           - Use sensory words. Make them 'feel' the frustration of the problem and the relief of the solution.
-           - Build tension before the reveal.
-
-        4. SCARCITY & URGENCY (Cialdini’s Principles):
-           - Subtly imply that high-quality solutions like this are rare or limited.
-
-        5. SOCIAL PROOF INTEGRATION:
-           - Weave in "micro-stories" of others who have succeeded (e.g., "Like Sarah, who finally...").
+        1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
+        2. CHALLENGER INSIGHT: Teach them something new about their problem.
+        3. EMOTIONAL ARC: Use sensory words.
+        4. SCARCITY: Imply rarity.
+        5. SOCIAL PROOF: Weave in stories.
       `;
 
       if (type === 'blog') {
         prompt = `
-                    Act as a Master Copywriter and Storyteller (following StoryBrand & Challenger Sale frameworks).
-                    Your goal is to weave a narrative that compels the reader to buy by connecting emotionally.
+            Act as a Master Copywriter.
+            Product: "${productName}"
+            Details: "${basicDescription}"
+            Tone: ${tone}
+            Language: ${langName}
 
-                    Product: "${productName}"
-                    Details: "${basicDescription}"
-                    Tone: ${tone}
-                    Language: ${langName}
+            ${campaignsContext}
+            ${SALES_STORYTELLING_FRAMEWORK}
 
-                    ${SALES_STORYTELLING_FRAMEWORK}
-                    (Also keep E-E-A-T principles in mind for authority, but prioritize engagement/story)
-
-                    Generate a strict JSON response:
-                    {
-                        "title": "A Story-Driven Hook Title (e.g., 'I Tried X So You Don't Have To' or 'The End of [Problem]?') in ${langName}",
-                        "introduction": "A 3-paragraph narrative hook. Start with a specific, relatable struggle scene (The Villain). Introduce the product as the Guide. Hint at the result.",
-                        "targetAudience": "Define the 'Hero' of this story. (e.g., 'For the parent who is tired of...')",
-                        "quantitativeAnalysis": "Performance Score based on the 'Promise' vs 'Reality' (Story gap).",
-                        "pros": ["Transformational Benefit 1", "Transformational Benefit 2", "Feature that solves specific pain"],
-                        "cons": ["Minor flaw that adds authenticity (Perfect is fake)", "Limitation for specific non-target users"],
-                        "features": "Describe features as 'Superpowers' the hero gains. (Not '100W motor', but 'The power to clean in half the time').",
-                        "comparisonTable": [
-                            { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "The Ultimate Solution" },
-                            { "name": "Old Way / Competitor", "price": "$$", "rating": 6.5, "mainFeature": "The Struggle" },
-                            { "name": "Premium High-End", "price": "$$$$", "rating": 8.5, "mainFeature": "Overpriced" }
-                        ],
-                        "verdict": "The Climax. Reiterate the transformation. 'If you want to go from [Sad State] to [Happy State], this is your tool.'"
-                    }
-                    Return ONLY valid JSON.
-                `;
+            Generate strict JSON:
+            {
+                "title": "Story-Driven Hook Title",
+                "introduction": "3-paragraph narrative hook.",
+                "targetAudience": "Who is the Hero?",
+                "quantitativeAnalysis": "Performance Score/Gap.",
+                "pros": ["Benefit 1", "Benefit 2"],
+                "cons": ["Authentic Flaw 1"],
+                "features": "Superpower features.",
+                "comparisonTable": [
+                    { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
+                    { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
+                ],
+                "internalLinks": [
+                   { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
+                ],
+                "verdict": "Final transformation promise."
+            }
+            Return ONLY valid JSON.
+        `;
       } else {
         prompt = `
-                    Act as a Direct Response Copywriter using StoryBrand principles.
-                    Product: "${productName}"
-                    Details: "${basicDescription}"
-                    Tone: ${tone}
-                    Language: ${langName}
+            Act as a Direct Response Copywriter.
+            Product: "${productName}"
+            Details: "${basicDescription}"
+            Tone: ${tone}
+            Language: ${langName}
+            ${campaignsContext}
+            ${SALES_STORYTELLING_FRAMEWORK}
 
-                    ${SALES_STORYTELLING_FRAMEWORK}
-
-                    Generate JSON:
-                    {
-                        "optimizedTitle": "Story-Driven Meta Title (Promise of Transformation) in ${langName} (max 60 chars)",
-                        "optimizedDescription": "Meta Description that opens a 'Story Loop' in the reader's mind. (max 155 chars) in ${langName}"
-                    }
-                    Return ONLY valid JSON.
-                `;
+            Generate JSON:
+            {
+                "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
+                "optimizedDescription": "Meta Description (max 155 chars)"
+            }
+            Return ONLY valid JSON.
+        `;
       }
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = response.text();
-
-      console.log(`Success with ${modelName}. Response:`, text.substring(0, 100) + "...");
-
-      let cleanedText = text.trim();
-      if (cleanedText.startsWith("```json")) {
-        cleanedText = cleanedText.replace(/^```json/, "").replace(/```$/, "");
-      } else if (cleanedText.startsWith("```")) {
-        cleanedText = cleanedText.replace(/^```/, "").replace(/```$/, "");
-      }
-
-      return JSON.parse(cleanedText);
+      let text = response.text();
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(text);
 
     } catch (error: any) {
       console.error(`Failed with model ${modelName}:`, error.message);
       lastError = error;
     }
   }
-
   return { error: `All models failed. Last specific error: ${lastError?.message || "Unknown error"}` };
 }
 
-// === NEW: DB Actions ===
+export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
+  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!finalApiKey) return { error: "API Key Missing" };
+
+  const genAI = new GoogleGenerativeAI(finalApiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+  const langName = language === 'es' ? 'Spanish' : 'English';
+
+  const prompt = `
+    Act as a Tech Reviewer Judge. We are doing a "Versus" Battle.
+    Product A: ${productA.productName} (${productA.description})
+    Product B: ${productB.productName} (${productB.description})
+    Language: ${langName}
+    
+    Task: Write a comprehensive comparison article.
+    Return JSON:
+    {
+        "title": "Clickbait Title (e.g. 'A vs B: The Honest Truth')",
+        "introduction": "Hook the reader. Establish rivalry.",
+        "targetAudience": "Who buys A vs B?",
+        "quantitativeAnalysis": "Score A vs B.",
+        "pros": ["A Pros..."],
+        "cons": ["B Cons..."],
+        "features": "Key differences.",
+        "comparisonTable": [
+             { "name": "${productA.productName}", "price": "Check Price", "rating": 9, "mainFeature": "X" },
+             { "name": "${productB.productName}", "price": "Check Price", "rating": 8, "mainFeature": "Y" }
+        ],
+        "verdict": "Clear winner.",
+        "internalLinks": []
+    }
+    Return ONLY valid JSON.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  } catch (e: any) {
+    console.error("Battle AI Error:", e);
+    return { error: e.message };
+  }
+}
+
+// === DB Actions ===
 
 export async function createCampaign(data: any) {
   try {
@@ -170,13 +252,14 @@ export async function createCampaign(data: any) {
         imageUrl: data.imageUrl,
         content: JSON.stringify({
           introduction: data.introduction,
-          targetAudience: data.targetAudience, // New SEO field
-          quantitativeAnalysis: data.quantitativeAnalysis, // New SEO field
+          targetAudience: data.targetAudience,
+          quantitativeAnalysis: data.quantitativeAnalysis,
           features: data.features,
           pros: data.pros,
           cons: data.cons,
           comparisonTable: data.comparisonTable,
-          verdict: data.verdict
+          verdict: data.verdict,
+          internalLinks: data.internalLinks
         }),
       }
     });
@@ -207,7 +290,8 @@ export async function updateCampaign(slug: string, data: any) {
           pros: data.pros,
           cons: data.cons,
           comparisonTable: data.comparisonTable,
-          verdict: data.verdict
+          verdict: data.verdict,
+          internalLinks: data.internalLinks
         }),
       }
     });
@@ -238,7 +322,6 @@ export async function getCampaignsByCategory(category: string, limit: number = 1
       take: limit
     });
   } catch (error) {
-    console.error("Error fetching campaigns by category:", error);
     return [];
   }
 }
@@ -253,7 +336,9 @@ export async function getAllCampaigns() {
         productName: true,
         type: true,
         imageUrl: true,
-        createdAt: true
+        createdAt: true,
+        category: true,
+        affiliateLink: true
       }
     });
   } catch (error) {
@@ -277,7 +362,6 @@ export async function duplicateCampaign(slug: string) {
     const original = await prisma.campaign.findUnique({ where: { slug } });
     if (!original) return { error: "Campaign not found" };
 
-    // Generate unique slug
     let newSlug = `${slug}-copy`;
     let counter = 1;
     while (await prisma.campaign.findUnique({ where: { slug: newSlug } })) {
@@ -289,6 +373,8 @@ export async function duplicateCampaign(slug: string) {
       data: {
         slug: newSlug,
         type: original.type,
+        category: original.category,
+        language: original.language,
         productName: `${original.productName} (Copy)`,
         title: original.title,
         description: original.description,
@@ -300,7 +386,6 @@ export async function duplicateCampaign(slug: string) {
 
     return { success: true, slug: duplicate.slug };
   } catch (error) {
-    console.error("Duplicate Error:", error);
     return { error: "Failed to duplicate campaign" };
   }
 }
@@ -319,16 +404,33 @@ export async function scrapeAmazonProduct(url: string) {
     });
 
     const html = await response.text();
-    // Simple parser (regex for speed/robustness against bad HTML)
     const titleMatch = html.match(/<title>(.*?)<\/title>/);
     let title = titleMatch ? titleMatch[1].replace(' : Amazon.es: Hogar y cocina', '').replace(' : Amazon.com', '').split(':')[0].trim() : "";
-
-    // Try to find image
     const imgMatch = html.match(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/);
     let image = imgMatch ? imgMatch[1] : "";
 
+    if (image) {
+      try {
+        const imgRes = await fetch(image);
+        if (imgRes.ok) {
+          const buffer = Buffer.from(await imgRes.arrayBuffer());
+          const filename = `product-${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`;
+          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+
+          const filepath = path.join(uploadDir, filename);
+          fs.writeFileSync(filepath, buffer);
+          image = `/uploads/${filename}`;
+        }
+      } catch (err) {
+        console.error("Local Image Save Failed, using remote:", err);
+      }
+    }
+
     if (!title) {
-      // Fallback: extract from URL slug
       const parts = url.split('/');
       const dpIndex = parts.indexOf('dp');
       if (dpIndex > 0) {
@@ -338,7 +440,95 @@ export async function scrapeAmazonProduct(url: string) {
 
     return { title, image };
   } catch (error) {
-    console.error("Scrape Error:", error);
     return { error: "Could not auto-fetch. Please fill manually." };
   }
+}
+
+export async function analyzeTrends(category: string, language: 'en' | 'es', apiKey: string) {
+  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!finalApiKey) return { error: "API Key Missing" };
+
+  const genAI = new GoogleGenerativeAI(finalApiKey);
+
+  const modelsToTry = [
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-exp",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+    "gemini-1.5-flash"
+  ];
+
+  const langPrompt = language === 'es' ? 'Spanish' : 'English';
+
+  const prompt = `
+      Act as a Market Analysis AI expert specializing in 2025/2026 consumer trends.
+      For the category "${category}", identify 3 high-probability trending product niches that will sell well in late 2025/2026.
+      Focus on looking forward - futuristic but available (or soon available) tech.
+      Language: ${langPrompt}
+
+      Return strict JSON:
+      {
+        "trends": [
+          {
+            "nicheTitle": "Niche Name",
+            "reason": "Why hot now?",
+            "suggestedProduct": "Product Keyword"
+          }
+        ]
+      }
+    `;
+
+  let lastError = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let text = response.text();
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      const data = JSON.parse(text);
+
+      // Google Trends Validation
+      if (data.trends && Array.isArray(data.trends)) {
+        await Promise.all(data.trends.map(async (trend: any) => {
+          try {
+            const trendsRes = await googleTrends.interestOverTime({
+              keyword: trend.suggestedProduct,
+              startTime: new Date(Date.now() - (365 * 24 * 60 * 60 * 1000)),
+            });
+            const trendData = JSON.parse(trendsRes);
+
+            if (trendData.default && trendData.default.timelineData && trendData.default.timelineData.length > 0) {
+              const points = trendData.default.timelineData.map((d: any) => d.value[0]);
+              const start = points.slice(0, 4).reduce((a: number, b: number) => a + b, 0) / 4;
+              const end = points.slice(-4).reduce((a: number, b: number) => a + b, 0) / 4;
+
+              let growth = 0;
+              if (start === 0 && end > 0) growth = 100;
+              else if (start > 0) growth = ((end - start) / start) * 100;
+
+              trend.realData = {
+                hasData: true,
+                growthPercent: Math.round(growth),
+                direction: growth > 5 ? 'up' : growth < -5 ? 'down' : 'flat'
+              };
+            } else {
+              trend.realData = { hasData: false };
+            }
+          } catch (err) {
+            trend.realData = { hasData: false, error: true };
+          }
+        }));
+      }
+
+      return data;
+    } catch (e: any) {
+      console.error(`Trend analysis failed with ${modelName}:`, e.message);
+      lastError = e;
+    }
+  }
+
+  return { error: `All models failed. Last error: ${lastError?.message || "Unknown error"}` };
 }

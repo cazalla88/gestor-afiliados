@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://your-domain.com'; // Replace with real domain later
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados.vercel.app';
 
     // 1. Static Routes
     const staticRoutes = [
@@ -14,8 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     ];
 
-    // 2. Dynamic Routes (Campaigns)
-    // 2. Dynamic Routes (Campaigns)
     // 2. Dynamic Routes (Campaigns)
     type SitemapCampaign = { slug: string; category: string; updatedAt: Date };
     let campaigns: SitemapCampaign[] = [];

@@ -17,17 +17,22 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     }
 
     const isBlog = product.type === 'blog';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados.vercel.app';
+    const url = `${baseUrl}/${category}/${slug}`;
 
     return {
         title: isBlog
             ? `${product.title} - Honest Review & Analysis`
             : `${product.title} - Best Price & Review`,
         description: product.description.substring(0, 160),
+        alternates: {
+            canonical: url,
+        },
         openGraph: {
             title: product.title,
             description: product.description.substring(0, 160),
             images: [product.imageUrl || ''],
-            url: `https://gestor-afiliados-web.vercel.app/${category}/${slug}`,
+            url: url,
             type: isBlog ? 'article' : 'website',
         },
         twitter: {

@@ -5,7 +5,7 @@ import styles from "./CreateCampaignForm.module.css";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
-import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign } from "@/app/actions";
+import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign, analyzeImage, getAllCampaigns } from "@/app/actions";
 import { CATEGORIES, type CategorySlug } from "@/lib/categories";
 import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
@@ -30,10 +30,12 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); // Vision AI State
     const [showApiKey, setShowApiKey] = useState(false);
     const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [existingCampaigns, setExistingCampaigns] = useState<any[]>([]); // SEO Context
 
     // Load API Key from local storage
     useEffect(() => {
@@ -41,6 +43,13 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         if (storedKey) {
             setFormData(prev => ({ ...prev, apiKey: storedKey }));
         }
+
+        // Load campaigns for SEO Auto-Linking context
+        getAllCampaigns().then(campaigns => {
+            if (Array.isArray(campaigns)) {
+                setExistingCampaigns(campaigns);
+            }
+        });
     }, []);
 
     // Load existing campaign data if in edit mode
@@ -113,13 +122,15 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         }
 
         setIsOptimizing(true);
+        // Pass existingCampaigns for SEO Auto-Linking
         const result = await generateSeoContent(
             formData.productName,
             formData.description,
             formData.apiKey,
             formData.type,
             language,
-            formData.tone
+            formData.tone,
+            existingCampaigns
         );
 
         if (result.error) {
@@ -144,6 +155,26 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         }
         setIsOptimizing(false);
     };
+
+    const handleImageAnalysis = async () => {
+        if (!formData.imageUrl) return alert("Please enter image URL first");
+        setIsAnalyzingImage(true);
+
+        const key = formData.apiKey || localStorage.getItem("gemini_api_key") || "";
+        const res = await analyzeImage(formData.imageUrl, key);
+
+        if (res.error) {
+            alert("Vision AI Error: " + res.error);
+        } else if (res.description) {
+            // Smartly append
+            const newDesc = formData.description
+                ? `${formData.description}\n\n<p><strong>✨ Visual Analysis:</strong> ${res.description}</p>`
+                : res.description;
+
+            setFormData(prev => ({ ...prev, description: newDesc }));
+        }
+        setIsAnalyzingImage(false);
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -318,7 +349,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                             type="button"
                             onClick={async () => {
                                 if (!formData.affiliateLink) return alert("Paste link first!");
-                                setIsSubmitting(true); // Reuse spinner or create new state
+                                setIsSubmitting(true);
                                 const data = await import("@/app/actions").then(mod => mod.scrapeAmazonProduct(formData.affiliateLink));
                                 setIsSubmitting(false);
 
@@ -343,15 +374,31 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
                 <div className={styles.inputGroup}>
                     <label htmlFor="imageUrl">{t.form.image}</label>
-                    <input
-                        type="url"
-                        id="imageUrl"
-                        name="imageUrl"
-                        className="input-field"
-                        placeholder={t.form.imagePlaceholder}
-                        value={formData.imageUrl}
-                        onChange={handleChange}
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="url"
+                            id="imageUrl"
+                            name="imageUrl"
+                            className="input-field"
+                            placeholder={t.form.imagePlaceholder}
+                            value={formData.imageUrl}
+                            onChange={handleChange}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleImageAnalysis}
+                            disabled={isAnalyzingImage}
+                            className={styles.typeBtn}
+                            style={{
+                                padding: '0 1rem',
+                                whiteSpace: 'nowrap',
+                                background: 'linear-gradient(135deg, #10b981, #059669)' // Green for Vision
+                            }}
+                            title="Use AI Vision to describe image"
+                        >
+                            {isAnalyzingImage ? "👁️ Analyzing..." : "👁️ Analyze Image"}
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting}>
