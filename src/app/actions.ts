@@ -30,11 +30,13 @@ export async function debugAiConnection(apiKey: string) {
 }
 
 export async function generateSeoContent(productName: string, basicDescription: string, apiKey: string, type: 'landing' | 'blog' = 'landing', language: 'en' | 'es' = 'en', tone: string = 'Professional') {
-  if (!apiKey) {
-    return { error: "API Key Missing" };
+  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+  if (!finalApiKey) {
+    return { error: "API Key Missing. Please set NEXT_PUBLIC_GEMINI_API_KEY environment variable or provide it in the form." };
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const genAI = new GoogleGenerativeAI(finalApiKey);
 
   const modelsToTry = [
     "gemini-2.0-flash",
