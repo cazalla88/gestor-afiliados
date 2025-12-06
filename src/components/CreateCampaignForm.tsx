@@ -138,6 +138,24 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handlePreview = () => {
+        if (!formData.productName) {
+            alert("Please enter a product name first");
+            return;
+        }
+
+        const slug = editSlug || formData.productName
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+
+        const previewUrl = formData.type === 'landing'
+            ? `/p/${slug}`
+            : `/blog/${slug}`;
+
+        window.open(previewUrl, '_blank');
+    };
+
     return (
         <div className={styles.formContainer}>
             <div className={styles.header}>
@@ -163,6 +181,13 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             </div>
 
             <div className={styles.aiToggle}>
+                <button
+                    type="button"
+                    className={styles.previewBtn}
+                    onClick={handlePreview}
+                >
+                    👁️ Preview Page
+                </button>
                 <button
                     type="button"
                     className={styles.aiButton}
