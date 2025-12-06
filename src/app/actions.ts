@@ -222,6 +222,25 @@ export async function getCampaign(slug: string) {
   });
 }
 
+export async function getCampaignsByCategory(category: string, limit: number = 10) {
+  try {
+    return await prisma.campaign.findMany({
+      where: { category },
+      select: {
+        slug: true,
+        productName: true,
+        imageUrl: true,
+        category: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    });
+  } catch (error) {
+    console.error("Error fetching campaigns by category:", error);
+    return [];
+  }
+}
+
 export async function getAllCampaigns() {
   try {
     return await prisma.campaign.findMany({
