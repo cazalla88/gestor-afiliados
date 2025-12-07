@@ -80,17 +80,25 @@ export async function generateSeoContent(
 
   const genAI = new GoogleGenerativeAI(finalApiKey);
 
-  const modelsToTry = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-pro",
-    "gemini-pro"
-  ];
+  try {
+    // Use the single, most stable model
+    console.log(`Attempting to generate with model: gemini-1.5-flash`);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  let lastError = null;
+    let prompt = "";
+    const langName = language === 'es' ? 'Spanish' : 'English';
 
-  const campaignsContext = existingCampaigns.length > 0
-    ? `
+    const SALES_STORYTELLING_FRAMEWORK = `
+      ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
+      1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
+      2. CHALLENGER INSIGHT: Teach them something new about their problem.
+      3. EMOTIONAL ARC: Use sensory words.
+      4. SCARCITY: Imply rarity.
+      5. SOCIAL PROOF: Weave in stories.
+    `;
+
+    const campaignsContext = existingCampaigns.length > 0
+      ? `
       CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
       Here is a list of other articles purely for reference context.
       ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
@@ -101,87 +109,68 @@ export async function generateSeoContent(
       Each link object must have: { "slug": "slug-here", "category": "category-here", "anchorText": "text-here" }.
       Auto-connect the dots for the user.
       `
-    : "";
+      : "";
 
-  for (const modelName of modelsToTry) {
-    try {
-      console.log(`Attempting to generate with model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
+    if (type === 'blog') {
+      prompt = `
+          Act as a Master Copywriter.
+          Product: "${productName}"
+          Details: "${basicDescription}"
+          Tone: ${tone}
+          Language: ${langName}
 
-      let prompt = "";
-      const langName = language === 'es' ? 'Spanish' : 'English';
+          ${campaignsContext}
+          ${SALES_STORYTELLING_FRAMEWORK}
 
-      const SALES_STORYTELLING_FRAMEWORK = `
-        ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
-        1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
-        2. CHALLENGER INSIGHT: Teach them something new about their problem.
-        3. EMOTIONAL ARC: Use sensory words.
-        4. SCARCITY: Imply rarity.
-        5. SOCIAL PROOF: Weave in stories.
+          Generate strict JSON:
+          {
+              "title": "Story-Driven Hook Title",
+              "introduction": "3-paragraph narrative hook.",
+              "targetAudience": "Who is the Hero?",
+              "quantitativeAnalysis": "Performance Score/Gap.",
+              "pros": ["Benefit 1", "Benefit 2"],
+              "cons": ["Authentic Flaw 1"],
+              "features": "Superpower features.",
+              "comparisonTable": [
+                  { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
+                  { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
+              ],
+              "internalLinks": [
+                 { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
+              ],
+              "verdict": "Final transformation promise."
+          }
+          Return ONLY valid JSON.
       `;
+    } else {
+      prompt = `
+          Act as a Direct Response Copywriter.
+          Product: "${productName}"
+          Details: "${basicDescription}"
+          Tone: ${tone}
+          Language: ${langName}
+          ${campaignsContext}
+          ${SALES_STORYTELLING_FRAMEWORK}
 
-      if (type === 'blog') {
-        prompt = `
-            Act as a Master Copywriter.
-            Product: "${productName}"
-            Details: "${basicDescription}"
-            Tone: ${tone}
-            Language: ${langName}
-
-            ${campaignsContext}
-            ${SALES_STORYTELLING_FRAMEWORK}
-
-            Generate strict JSON:
-            {
-                "title": "Story-Driven Hook Title",
-                "introduction": "3-paragraph narrative hook.",
-                "targetAudience": "Who is the Hero?",
-                "quantitativeAnalysis": "Performance Score/Gap.",
-                "pros": ["Benefit 1", "Benefit 2"],
-                "cons": ["Authentic Flaw 1"],
-                "features": "Superpower features.",
-                "comparisonTable": [
-                    { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
-                    { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
-                ],
-                "internalLinks": [
-                   { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
-                ],
-                "verdict": "Final transformation promise."
-            }
-            Return ONLY valid JSON.
-        `;
-      } else {
-        prompt = `
-            Act as a Direct Response Copywriter.
-            Product: "${productName}"
-            Details: "${basicDescription}"
-            Tone: ${tone}
-            Language: ${langName}
-            ${campaignsContext}
-            ${SALES_STORYTELLING_FRAMEWORK}
-
-            Generate JSON:
-            {
-                "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
-                "optimizedDescription": "Meta Description (max 155 chars)"
-            }
-            Return ONLY valid JSON.
-        `;
-      }
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      let text = response.text();
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(text);
-
-    } catch (error: any) {
-      console.error(`Failed with model ${modelName}:`, error.message);
-      lastError = error;
+          Generate JSON:
+          {
+              "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
+              "optimizedDescription": "Meta Description (max 155 chars)"
+          }
+          Return ONLY valid JSON.
+      `;
     }
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+
+  } catch (error: any) {
+    console.error(`Failed generation:`, error.message);
+    return { error: `AI Generation Failed: ${error.message || "Unknown error"}` };
   }
-  return { error: `All models failed. Last specific error: ${lastError?.message || "Unknown error"}` };
 }
 
 export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
@@ -425,20 +414,16 @@ export async function scrapeAmazonProduct(url: string) {
 
 export async function analyzeTrends(category: string, language: 'en' | 'es', apiKey: string) {
   const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!finalApiKey) return { error: "API Key Missing" };
+  if (!finalApiKey) return { error: "API Key Missing. Please add it in the campaign form first." };
 
   const genAI = new GoogleGenerativeAI(finalApiKey);
-
-  const modelsToTry = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-pro",
-    "gemini-pro"
-  ];
-
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
 
-  const prompt = `
+  try {
+    // Use the single, most stable model currently available
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `
       Act as a Market Analysis AI expert specializing in 2025/2026 consumer trends.
       For the category "${category}", identify 3 high-probability trending product niches that will sell well in late 2025/2026.
       Focus on looking forward - futuristic but available (or soon available) tech.
@@ -456,57 +441,50 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
       }
     `;
 
-  let lastError = null;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      let text = response.text();
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const data = JSON.parse(text);
 
-      const data = JSON.parse(text);
+    // Google Trends Validation (Safe execution)
+    if (data.trends && Array.isArray(data.trends)) {
+      await Promise.all(data.trends.map(async (trend: any) => {
+        try {
+          const trendsRes = await googleTrends.interestOverTime({
+            keyword: trend.suggestedProduct,
+            startTime: new Date(Date.now() - (365 * 24 * 60 * 60 * 1000)),
+          });
+          const trendData = JSON.parse(trendsRes);
 
-      // Google Trends Validation
-      if (data.trends && Array.isArray(data.trends)) {
-        await Promise.all(data.trends.map(async (trend: any) => {
-          try {
-            const trendsRes = await googleTrends.interestOverTime({
-              keyword: trend.suggestedProduct,
-              startTime: new Date(Date.now() - (365 * 24 * 60 * 60 * 1000)),
-            });
-            const trendData = JSON.parse(trendsRes);
+          if (trendData.default && trendData.default.timelineData && trendData.default.timelineData.length > 0) {
+            const points = trendData.default.timelineData.map((d: any) => d.value[0]);
+            const start = points.slice(0, 4).reduce((a: number, b: number) => a + b, 0) / 4;
+            const end = points.slice(-4).reduce((a: number, b: number) => a + b, 0) / 4;
 
-            if (trendData.default && trendData.default.timelineData && trendData.default.timelineData.length > 0) {
-              const points = trendData.default.timelineData.map((d: any) => d.value[0]);
-              const start = points.slice(0, 4).reduce((a: number, b: number) => a + b, 0) / 4;
-              const end = points.slice(-4).reduce((a: number, b: number) => a + b, 0) / 4;
+            let growth = 0;
+            if (start === 0 && end > 0) growth = 100;
+            else if (start > 0) growth = ((end - start) / start) * 100;
 
-              let growth = 0;
-              if (start === 0 && end > 0) growth = 100;
-              else if (start > 0) growth = ((end - start) / start) * 100;
-
-              trend.realData = {
-                hasData: true,
-                growthPercent: Math.round(growth),
-                direction: growth > 5 ? 'up' : growth < -5 ? 'down' : 'flat'
-              };
-            } else {
-              trend.realData = { hasData: false };
-            }
-          } catch (err) {
-            trend.realData = { hasData: false, error: true };
+            trend.realData = {
+              hasData: true,
+              growthPercent: Math.round(growth),
+              direction: growth > 5 ? 'up' : growth < -5 ? 'down' : 'flat'
+            };
+          } else {
+            trend.realData = { hasData: false };
           }
-        }));
-      }
-
-      return data;
-    } catch (e: any) {
-      console.error(`Trend analysis failed with ${modelName}:`, e.message);
-      lastError = e;
+        } catch (err) {
+          trend.realData = { hasData: false, error: true };
+        }
+      }));
     }
-  }
 
-  return { error: `All models failed. Last error: ${lastError?.message || "Unknown error"}` };
+    return data;
+
+  } catch (e: any) {
+    console.error(`Trend analysis failed:`, e);
+    return { error: `AI Error: ${e.message || "Unknown error"}` };
+  }
 }
