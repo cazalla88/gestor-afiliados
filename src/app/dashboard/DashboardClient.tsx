@@ -133,7 +133,58 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                     <h1>{t.dashboard.title}</h1>
                     <p className={styles.statsCount}>{t.dashboard.total} {list.length} {t.dashboard.campaigns}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, justifyContent: 'flex-end' }}>
+                    {/* Premium Search Input */}
+                    {list.length > 0 && (
+                        <div style={{
+                            position: 'relative',
+                            flex: '0 1 300px',
+                            background: 'rgba(30, 30, 46, 0.6)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            transition: 'all 0.3s ease'
+                        }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.border = '1px solid rgba(102, 126, 234, 0.3)';
+                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        >
+                            <span style={{
+                                position: 'absolute',
+                                left: '1rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                fontSize: '1.2rem',
+                                opacity: 0.5,
+                                pointerEvents: 'none'
+                            }}>
+                                🔍
+                            </span>
+                            <input
+                                type="text"
+                                placeholder={t.dashboard.search}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem 1rem 0.75rem 3rem',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#fff',
+                                    fontSize: '0.95rem',
+                                    outline: 'none'
+                                }}
+                            />
+                        </div>
+                    )}
+
                     <button
                         onClick={() => setShowTrendModal(true)}
                         className={styles.createBtn}
@@ -464,17 +515,6 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                 </div>
             </div>
 
-            {list.length > 0 && (
-                <div className={styles.searchContainer}>
-                    <input
-                        type="text"
-                        placeholder={t.dashboard.search}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className={styles.searchInput}
-                    />
-                </div>
-            )}
 
             {filteredList.length === 0 ? (
                 <div className={styles.emptyState}>
