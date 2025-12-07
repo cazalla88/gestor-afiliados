@@ -168,8 +168,8 @@ export async function generateSeoContent(
             "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
             "features": "Superpower features based on real specs.",
             "comparisonTable": [
-                { "name": "${productName}", "price": "$$$", "rating": 9.5, "mainFeature": "Solution" },
-                { "name": "Competitor", "price": "$$", "rating": 6.8, "mainFeature": "Problem" }
+                { "name": "${productName}", "price": "€€€", "rating": 9.5, "mainFeature": "Solution" },
+                { "name": "Competitor", "price": "€€", "rating": 6.8, "mainFeature": "Problem" }
             ],
             "internalLinks": [
                { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }

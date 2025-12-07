@@ -197,7 +197,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                                         {content.comparisonTable.map((item: any, i: number) => (
                                             <tr key={i} className={item.name.includes(campaign.productName) ? styles.highlightRow : ''}>
                                                 <td>{item.name}</td>
-                                                <td>{item.price}</td>
+                                                <td>{item.price.replace(/\$/g, '€')}</td>
                                                 <td><strong>{item.rating}</strong> <span style={{ color: '#888', fontSize: '0.8em' }}>/ 10</span></td>
                                                 <td>{item.mainFeature}</td>
                                             </tr>
