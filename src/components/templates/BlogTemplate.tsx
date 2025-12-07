@@ -1,5 +1,6 @@
 import styles from "@/app/blog/[slug]/page.module.css";
 import Link from "next/link";
+import Image from "next/image";
 import RelatedProducts from "@/components/RelatedProducts";
 
 interface BlogTemplateProps {
@@ -92,30 +93,49 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFull) }}
             />
-            <header className={styles.header}>
+            {/* NEW SPLIT HERO SECTION */}
+            <section className={styles.heroSection}>
                 <div className="container">
-                    <div className={styles.meta}>
-                        <span className={styles.category}>{t.review}</span>
-                        <span className={styles.date}>{date}</span>
-                    </div>
-                    <h1 className={styles.title}>{campaign.title}</h1>
-                    <div className={styles.author}>
-                        <div className={styles.avatar}>A</div>
-                        <span>{t.by} <strong>AffiliateNexus Editor</strong></span>
-                    </div>
-                </div>
-            </header>
+                    <div className={styles.heroGrid}>
+                        {/* LEFT: IMAGE */}
+                        <div className={styles.heroImageWrapper} style={{ position: 'relative', minHeight: '400px', width: '100%' }}>
+                            <Image
+                                src={campaign.imageUrl || "https://placehold.co/600x600/222/FFF?text=Product+Image"}
+                                alt={campaign.productName}
+                                fill
+                                style={{ objectFit: 'contain' }}
+                                className={styles.heroImage}
+                                priority
+                                sizes="(max-width: 768px) 100vw, 500px"
+                            />
+                        </div>
 
-            <div className={styles.featuredImageWrapper}>
-                <div className="container">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={campaign.imageUrl || "https://placehold.co/1200x600/222/FFF?text=Review+Image"}
-                        alt={campaign.productName}
-                        className={styles.featuredImage}
-                    />
+                        {/* RIGHT: CONTENT */}
+                        <div className={styles.heroContent}>
+                            <div className={styles.meta} style={{ justifyContent: 'flex-start', marginBottom: 0 }}>
+                                <span className={styles.heroCategory}>{t.review}</span>
+                                <span style={{ margin: '0 0.5rem', color: '#ccc' }}>|</span>
+                                <span className={styles.date}>{date}</span>
+                            </div>
+
+                            <h1 className={styles.heroTitle}>{campaign.title}</h1>
+
+                            <div className={styles.author} style={{ justifyContent: 'flex-start' }}>
+                                <div className={styles.avatar}>A</div>
+                                <span>{t.by} <strong>AffiliateNexus Editor</strong></span>
+                            </div>
+
+                            <p className={styles.heroDescription}>
+                                {campaign.description}
+                            </p>
+
+                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
+                                {t.checkPrice} Amazon
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             <div className={`container ${styles.contentGrid}`}>
                 <div className={styles.mainContent}>

@@ -303,3 +303,113 @@
     justify-content: center;
     align-items: center;
 }
+
+/* --- NEW HERO LAYOUT (Matches Landing) --- */
+.heroSection {
+    padding: 4rem 0;
+    background: #ffffff;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.heroGrid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    /* Image slightly larger or smaller? Let's do equal or image on left */
+    /* Landing has 1fr 1fr. Let's do that. */
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+@media (max-width: 900px) {
+    .heroGrid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .heroGrid .meta {
+        justify-content: center;
+    }
+}
+
+.heroContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: left;
+}
+
+@media (max-width: 900px) {
+    .heroContent {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+.heroImageWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.heroImage {
+    width: 100%;
+    max-width: 500px;
+    max-height: 500px;
+    object-fit: contain;
+    /* Crucial for product visualization */
+    border-radius: 12px;
+    /* Removed heavy shadow for cleaner look, or keep small */
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+}
+
+.heroCategory {
+    color: #db2777;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    font-family: var(--font-sans);
+}
+
+.heroTitle {
+    font-size: 3rem;
+    /* Big like landing */
+    font-weight: 800;
+    line-height: 1.1;
+    color: #111;
+    font-family: var(--font-sans);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .heroTitle {
+        font-size: 2.25rem;
+    }
+}
+
+.heroDescription {
+    font-size: 1.15rem;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.heroCta {
+    display: inline-block;
+    background: #eab308;
+    /* Yellow/Gold like landing button */
+    color: #1a1a1a;
+    font-weight: 800;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    transition: transform 0.2s;
+}
+
+.heroCta:hover {
+    transform: translateY(-2px);
+}
