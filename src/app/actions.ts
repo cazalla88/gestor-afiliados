@@ -81,11 +81,10 @@ export async function generateSeoContent(
   const genAI = new GoogleGenerativeAI(finalApiKey);
 
   const modelsToTry = [
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-exp",
-    "gemini-2.5-flash",
-    "gemini-flash-latest",
-    "gemini-1.5-flash"
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-pro",
+    "gemini-pro"
   ];
 
   let lastError = null;
@@ -190,7 +189,7 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
   if (!finalApiKey) return { error: "API Key Missing" };
 
   const genAI = new GoogleGenerativeAI(finalApiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const langName = language === 'es' ? 'Spanish' : 'English';
 
@@ -431,11 +430,10 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
   const genAI = new GoogleGenerativeAI(finalApiKey);
 
   const modelsToTry = [
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-exp",
-    "gemini-2.5-flash",
-    "gemini-flash-latest",
-    "gemini-1.5-flash"
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-pro",
+    "gemini-pro"
   ];
 
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
