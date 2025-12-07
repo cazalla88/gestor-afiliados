@@ -6,6 +6,9 @@ import type { Metadata } from 'next';
 import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function generateMetadata({ params }: { params: Promise<{ category: string, slug: string }> }): Promise<Metadata> {
     const { category, slug } = await params;
     const product = await getCampaign(slug);
