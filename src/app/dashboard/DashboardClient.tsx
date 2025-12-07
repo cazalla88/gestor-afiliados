@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteCampaign, duplicateCampaign, analyzeTrends } from "@/app/actions";
+import { deleteCampaign, duplicateCampaign, analyzeTrends, createCampaign } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 import Link from "next/link";
@@ -46,8 +46,9 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
 
         const storedKey = localStorage.getItem("gemini_api_key") || "";
 
+
         // Dynamic Import to avoid server-side issues if any
-        const { generateBattleContent, createCampaign } = await import("@/app/actions");
+        const { generateBattleContent } = await import("@/app/actions");
 
         const content = await generateBattleContent(campA, campB, storedKey, language);
 

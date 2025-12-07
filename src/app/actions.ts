@@ -1,10 +1,7 @@
 "use server";
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
-import fs from 'fs';
-import path from 'path';
 // @ts-ignore
 import googleTrends from 'google-trends-api';
 
@@ -407,28 +404,10 @@ export async function scrapeAmazonProduct(url: string) {
     const titleMatch = html.match(/<title>(.*?)<\/title>/);
     let title = titleMatch ? titleMatch[1].replace(' : Amazon.es: Hogar y cocina', '').replace(' : Amazon.com', '').split(':')[0].trim() : "";
     const imgMatch = html.match(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/);
-    let image = imgMatch ? imgMatch[1] : "";
+    const image = imgMatch ? imgMatch[1] : "";
 
-    if (image) {
-      try {
-        const imgRes = await fetch(image);
-        if (imgRes.ok) {
-          const buffer = Buffer.from(await imgRes.arrayBuffer());
-          const filename = `product-${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`;
-          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
-
-          const filepath = path.join(uploadDir, filename);
-          fs.writeFileSync(filepath, buffer);
-          image = `/uploads/${filename}`;
-        }
-      } catch (err) {
-        console.error("Local Image Save Failed, using remote:", err);
-      }
-    }
+    // VERCEL FIX: Do NOT save to local disk. Use remote URL.
+    // In a future update, integrate Vercel Blob or AWS S3 here.
 
     if (!title) {
       const parts = url.split('/');
@@ -440,6 +419,7 @@ export async function scrapeAmazonProduct(url: string) {
 
     return { title, image };
   } catch (error) {
+    console.error("Scrape Error:", error);
     return { error: "Could not auto-fetch. Please fill manually." };
   }
 }

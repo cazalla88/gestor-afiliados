@@ -11,6 +11,18 @@ export async function generateStaticParams() {
     }));
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const cat = CATEGORIES[slug as keyof typeof CATEGORIES];
+
+    if (!cat) return { title: 'Categoría no encontrada' };
+
+    return {
+        title: `${cat.name.es} | Gestor de Afiliados`,
+        description: `Explora las mejores ofertas y reseñas en la categoría de ${cat.name.es}.`,
+    };
+}
+
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
