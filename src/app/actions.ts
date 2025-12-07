@@ -559,7 +559,7 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
       const groq = new Groq({ apiKey: finalApiKey });
       const completion = await groq.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
-        model: "llama3-70b-8192",
+        model: "llama-3.3-70b-versatile",
         response_format: { type: "json_object" }
       });
       text = completion.choices[0]?.message?.content || "{}";
