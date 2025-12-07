@@ -121,8 +121,8 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                             <h1 className={styles.heroTitle}>{campaign.title}</h1>
 
                             <div className={styles.author} style={{ justifyContent: 'flex-start' }}>
-                                <div className={styles.avatar}>A</div>
-                                <span>{t.by} <strong>AffiliateNexus Editor</strong></span>
+                                <div className={styles.avatar} style={{ background: '#111', color: '#fff' }}>N</div>
+                                <span>{t.by} <strong>{["Sarah Jenkins", "Michael Ross", "Jessica Chen", "David Baker", "Emma Wilson"][campaign.productName.length % 5]}</strong> <span style={{ opacity: 0.6, fontSize: '0.9em' }}> | Nexus Team</span></span>
                             </div>
 
                             <p className={styles.heroDescription}>
