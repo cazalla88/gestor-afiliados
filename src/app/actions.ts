@@ -132,8 +132,8 @@ export async function generateSeoContent(
             "introduction": "3-paragraph narrative hook for the main content body.",
             "targetAudience": "Who is the Hero?",
             "quantitativeAnalysis": "Performance Score/Gap.",
-            "pros": ["Benefit 1", "Benefit 2"],
-            "cons": ["Authentic Flaw 1"],
+            "pros": ["Benefit 1", "Benefit 2", "Benefit 3", "Benefit 4"],
+            "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
             "features": "Superpower features based on real specs.",
             "comparisonTable": [
                 { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
