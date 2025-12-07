@@ -309,6 +309,76 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                 </div>
             )}
 
+            {/* Categories Grid */}
+            <div style={{ marginBottom: '3rem' }}>
+                <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: '700' }}>
+                    📂 Categorías
+                </h2>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '1.5rem'
+                }}>
+                    {Object.entries({
+                        fashion: { name: 'Moda', icon: '👗' },
+                        tech: { name: 'Tecnología', icon: '💻' },
+                        home: { name: 'Hogar', icon: '🏠' },
+                        sports: { name: 'Deportes', icon: '⚽' },
+                        beauty: { name: 'Belleza', icon: '💄' },
+                        books: { name: 'Libros', icon: '📚' },
+                        toys: { name: 'Juegos', icon: '🎮' },
+                        general: { name: 'General', icon: '🏷️' },
+                    }).map(([slug, category]) => {
+                        const count = list.filter(c => c.category === slug).length;
+                        return (
+                            <Link
+                                key={slug}
+                                href={`/categories/${slug}`}
+                                style={{
+                                    background: 'linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%)',
+                                    border: '1px solid #333',
+                                    borderRadius: '16px',
+                                    padding: '2rem  1.5rem',
+                                    textDecoration: 'none',
+                                    color: 'white',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer',
+                                    textAlign: 'center'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(-5px)';
+                                    e.currentTarget.style.borderColor = '#667eea';
+                                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.borderColor = '#333';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <div style={{ fontSize: '3rem' }}>{category.icon}</div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>
+                                    {category.name}
+                                </h3>
+                                <span style={{
+                                    fontSize: '0.85rem',
+                                    color: '#888',
+                                    background: 'rgba(102, 126, 234, 0.1)',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '12px'
+                                }}>
+                                    {count} {count === 1 ? 'artículo' : 'artículos'}
+                                </span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+
             {list.length > 0 && (
                 <div className={styles.searchContainer}>
                     <input
