@@ -82,8 +82,8 @@ export async function generateSeoContent(
 
   try {
     // Use the single, most stable model
-    console.log(`Attempting to generate with model: gemini-1.5-flash`);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    console.log(`Attempting to generate with model: gemini-1.5-flash-latest`);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     let prompt = "";
     const langName = language === 'es' ? 'Spanish' : 'English';
@@ -420,8 +420,8 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
 
   try {
-    // Use the single, most stable model currently available
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use gemini-1.5-flash-latest as it might have better alias resolution
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     const prompt = `
       Act as a Market Analysis AI expert specializing in 2025/2026 consumer trends.
