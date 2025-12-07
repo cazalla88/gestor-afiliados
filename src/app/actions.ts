@@ -128,12 +128,13 @@ export async function generateSeoContent(
         Generate strict JSON:
         {
             "title": "Story-Driven Hook Title",
-            "introduction": "3-paragraph narrative hook.",
+            "heroDescription": "Short, punchy summary for the top hero section (max 2 sentences). MUST BE DIFFERENT from introduction.",
+            "introduction": "3-paragraph narrative hook for the main content body.",
             "targetAudience": "Who is the Hero?",
             "quantitativeAnalysis": "Performance Score/Gap.",
             "pros": ["Benefit 1", "Benefit 2"],
             "cons": ["Authentic Flaw 1"],
-            "features": "Superpower features.",
+            "features": "Superpower features based on real specs.",
             "comparisonTable": [
                 { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
                 { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
@@ -289,7 +290,7 @@ export async function createCampaign(data: any) {
         language: data.language || 'en',
         productName: data.productName,
         title: data.title || data.productName,
-        description: data.description || data.introduction || "",
+        description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
         affiliateLink: data.affiliateLink,
         imageUrl: data.imageUrl,
         content: JSON.stringify({
@@ -321,7 +322,7 @@ export async function updateCampaign(slug: string, data: any) {
         language: data.language || 'en',
         productName: data.productName,
         title: data.title || data.productName,
-        description: data.description || data.introduction || "",
+        description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
         affiliateLink: data.affiliateLink,
         imageUrl: data.imageUrl,
         content: JSON.stringify({
@@ -432,6 +433,8 @@ export async function duplicateCampaign(slug: string) {
   }
 }
 
+import * as cheerio from 'cheerio';
+
 export async function scrapeAmazonProduct(url: string) {
   if (!url.includes('amazon') && !url.includes('amzn')) {
     return { error: 'Not a valid Amazon URL' };
@@ -442,27 +445,58 @@ export async function scrapeAmazonProduct(url: string) {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
       }
     });
 
     const html = await response.text();
-    const titleMatch = html.match(/<title>(.*?)<\/title>/);
-    let title = titleMatch ? titleMatch[1].replace(' : Amazon.es: Hogar y cocina', '').replace(' : Amazon.com', '').split(':')[0].trim() : "";
-    const imgMatch = html.match(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/);
-    const image = imgMatch ? imgMatch[1] : "";
+    const $ = cheerio.load(html);
 
-    // VERCEL FIX: Do NOT save to local disk. Use remote URL.
-    // In a future update, integrate Vercel Blob or AWS S3 here.
-
+    // 1. Title Extraction
+    let title = $('#productTitle').text().trim();
     if (!title) {
-      const parts = url.split('/');
-      const dpIndex = parts.indexOf('dp');
-      if (dpIndex > 0) {
-        title = parts[dpIndex - 1].replace(/-/g, ' ');
-      }
+      title = $('meta[name="title"]').attr('content') || $('title').text().split(':')[0] || "";
     }
 
-    return { title, image };
+    // 2. Image Extraction
+    let image = "";
+    // Try to find the dynamic image data JSON
+    const scriptContent = html.match(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/);
+    if (scriptContent) {
+      image = scriptContent[1];
+    } else {
+      image = $('#landingImage').attr('src') || $('#imgBlkFront').attr('src') || "";
+    }
+
+    // 3. Features (Bullet Points)
+    let features: string[] = [];
+    $('#feature-bullets li span.a-list-item').each((i, el) => {
+      const text = $(el).text().trim();
+      if (text) features.push(text);
+    });
+
+    // 4. Product Description
+    let description = "";
+    const cleanDesc = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+    // Amazon uses different containers
+    const descEl = $('#productDescription p').add('#productDescription span').first();
+    if (descEl.length) {
+      description = cleanDesc(descEl.text());
+    }
+
+    // Backup description from meta
+    if (!description || description.length < 50) {
+      description = $('meta[name="description"]').attr('content') || "";
+    }
+
+    return {
+      title,
+      image,
+      features: features.slice(0, 6).join("\n- "), // Return as bullet list string
+      description: description.slice(0, 1000) // Limit length
+    };
+
   } catch (error) {
     console.error("Scrape Error:", error);
     return { error: "Could not auto-fetch. Please fill manually." };

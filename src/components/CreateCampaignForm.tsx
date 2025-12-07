@@ -356,18 +356,25 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                                 if (data.error) {
                                     alert(data.error);
                                 } else {
+                                    // Construct rich scraped data for AI context
+                                    let scrapedInfo = "";
+                                    if (data.description) scrapedInfo += `<p><strong>Official Description:</strong> ${data.description.substring(0, 500)}...</p>`;
+                                    if (data.features) scrapedInfo += `<p><strong>Key Specifications:</strong><br/>${data.features.replace(/\n/g, '<br/>')}</p>`;
+
                                     setFormData(prev => ({
                                         ...prev,
                                         productName: data.title || prev.productName,
-                                        imageUrl: data.image || prev.imageUrl
+                                        imageUrl: data.image || prev.imageUrl,
+                                        // Append scraped data to description so AI can use it
+                                        description: prev.description ? prev.description + "<br/><hr/>" + scrapedInfo : scrapedInfo
                                     }));
                                 }
                             }}
                             className={styles.typeBtn}
                             style={{ padding: '0 1rem', whiteSpace: 'nowrap' }}
-                            title="Auto-fill Title & Image from Amazon"
+                            title="Auto-fill Title, Image & Features from Amazon"
                         >
-                            🪄 Auto-Fill
+                            🪄 Auto-Fill & Scrape
                         </button>
                     </div>
                 </div>
