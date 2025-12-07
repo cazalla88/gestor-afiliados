@@ -10,7 +10,7 @@
 # Variable 1 de 6
 # ----------------------------------------------
 Nombre: NEXT_PUBLIC_GEMINI_API_KEY
-Valor: AIzaSyA-hlz0HhBd-F5A1E5h3JikNL0TiZYAu9c
+Valor: [TU_CLAVE_API_AQUI]
 Environments: ✅ Production ✅ Preview ✅ Development
 
 # ----------------------------------------------
@@ -57,7 +57,7 @@ Environments: ✅ Production ✅ Preview ✅ Development
 # Si Vercel permite importar JSON, puedes usar esto:
 
 {
-  "NEXT_PUBLIC_GEMINI_API_KEY": "AIzaSyA-hlz0HhBd-F5A1E5h3JikNL0TiZYAu9c",
+  "NEXT_PUBLIC_GEMINI_API_KEY": "[TU_CLAVE_API_AQUI]",
   "ADMIN_USER": "admin",
   "ADMIN_PASSWORD": "KejQf$^Pt*s31RJr2jbT",
   "NEXTAUTH_SECRET": "8UkjgZm1puNHLkc+V5m2Daji3eGnaRty8sxFWXe5gno=",

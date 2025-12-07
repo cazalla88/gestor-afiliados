@@ -74,7 +74,7 @@ Ahora copia y pega **UNA POR UNA** estas variables:
 ┌─────────────────────────────────────┐
 │ Value                               │
 ├─────────────────────────────────────┤
-│ AIzaSyA-hlz0HhBd-F5A1E5h3JikNL0TiZYAu9c │
+│ [TU_CLAVE_API_AQUI]                       │
 └─────────────────────────────────────┘
 
 Selecciona:
