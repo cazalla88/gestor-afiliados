@@ -453,7 +453,6 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     background: category.gradient,
                                     padding: '0.4rem 1rem',
                                     borderRadius: '50px',
-                                    boxShadow: `0 4px 15px ${category.glow}`,
                                     position: 'relative',
                                     zIndex: 1
                                 }}>
