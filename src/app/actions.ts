@@ -81,9 +81,10 @@ export async function generateSeoContent(
   const genAI = new GoogleGenerativeAI(finalApiKey);
 
   try {
-    // Use the single, most stable model
-    console.log(`Attempting to generate with model: gemini-1.5-flash-latest`);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // Dynamic Model Selection
+    const modelName = await getBestActiveModel(finalApiKey);
+    console.log(`SEO Gen using model: ${modelName}`);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     let prompt = "";
     const langName = language === 'es' ? 'Spanish' : 'English';
@@ -178,7 +179,10 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
   if (!finalApiKey) return { error: "API Key Missing" };
 
   const genAI = new GoogleGenerativeAI(finalApiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // Dynamic Model Selection
+  const modelName = await getBestActiveModel(finalApiKey);
+  console.log(`Battle using model: ${modelName}`);
+  const model = genAI.getGenerativeModel({ model: modelName });
 
   const langName = language === 'es' ? 'Spanish' : 'English';
 
@@ -412,6 +416,43 @@ export async function scrapeAmazonProduct(url: string) {
   }
 }
 
+// Helper to find valid models dynamically
+async function getBestActiveModel(apiKey: string) {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const data = await response.json();
+
+    if (!data.models) return "gemini-1.5-flash"; // Fallback default
+
+    const models = data.models.map((m: any) => m.name.replace('models/', ''));
+
+    // Priority list
+    const preferred = [
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-001",
+      "gemini-1.5-flash-002",
+      "gemini-1.5-pro",
+      "gemini-pro"
+    ];
+
+    for (const p of preferred) {
+      if (models.includes(p)) return p;
+    }
+
+    // If no exact match, try fuzzy match for 'flash' then 'pro'
+    const flash = models.find((m: string) => m.includes("flash"));
+    if (flash) return flash;
+
+    const pro = models.find((m: string) => m.includes("pro"));
+    if (pro) return pro;
+
+    return "gemini-1.5-flash"; // Ultimate fallback
+  } catch (e) {
+    console.error("Model discovery failed", e);
+    return "gemini-1.5-flash";
+  }
+}
+
 export async function analyzeTrends(category: string, language: 'en' | 'es', apiKey: string) {
   const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!finalApiKey) return { error: "API Key Missing. Please add it in the campaign form first." };
@@ -420,8 +461,10 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
 
   try {
-    // Use gemini-1.5-flash-latest as it might have better alias resolution
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // Dynamic Model Selection
+    const modelName = await getBestActiveModel(finalApiKey);
+    console.log(`Trends using model: ${modelName}`);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `
       Act as a Market Analysis AI expert specializing in 2025/2026 consumer trends.
@@ -484,7 +527,6 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
     return data;
 
   } catch (e: any) {
-    console.error(`Trend analysis failed:`, e);
-    return { error: `AI Error: ${e.message || "Unknown error"}` };
+    return { error: `AI Error (${e.message}). Try checking your API Key or Quota.` };
   }
 }
