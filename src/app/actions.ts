@@ -73,7 +73,16 @@ export async function generateSeoContent(
   tone: string = 'Professional',
   existingCampaigns: any[] = []
 ) {
-  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  // Check for Groq FIRST
+  let finalApiKey = apiKey;
+  let provider = 'google';
+
+  if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
+    finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
+    provider = 'groq';
+  } else {
+    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  }
 
   if (!finalApiKey) {
     return { error: "API Key Missing. Please set NEXT_PUBLIC_GEMINI_API_KEY environment variable or provide it in the form." };
@@ -188,7 +197,17 @@ export async function generateSeoContent(
 }
 
 export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
-  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  // Check for Groq FIRST
+  let finalApiKey = apiKey;
+  let provider = 'google';
+
+  if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
+    finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
+    provider = 'groq';
+  } else {
+    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  }
+
   if (!finalApiKey) return { error: "API Key Missing" };
 
   const genAI = new GoogleGenerativeAI(finalApiKey);
@@ -491,8 +510,25 @@ async function getBestActiveModel(apiKey: string) {
 }
 
 export async function analyzeTrends(category: string, language: 'en' | 'es', apiKey: string) {
-  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!finalApiKey) return { error: "API Key Missing. Please add it in the campaign form first." };
+  /* 
+     PRIORITY LOGIC:
+     1. Form Input (apiKey)
+     2. Env GROQ_API_KEY
+     3. Env GOOGLE/GEMINI KEYS
+  */
+
+  // Check for Groq FIRST
+  let finalApiKey = apiKey;
+  let provider = 'google';
+
+  if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
+    finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
+    provider = 'groq';
+  } else {
+    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  }
+
+  if (!finalApiKey) return { error: "API Key Missing. Please add it in the campaign form or Vercel env vars." };
 
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
 
