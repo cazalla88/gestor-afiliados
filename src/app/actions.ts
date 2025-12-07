@@ -33,10 +33,42 @@ export async function debugAiConnection(apiKey: string) {
 }
 
 export async function analyzeImage(imageUrl: string, apiKey: string) {
-  const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!finalApiKey) return { error: "API Key Missing" };
+  // Check for Groq FIRST
+  let finalApiKey = apiKey;
+  let provider = 'google';
+
+  if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
+    finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
+    provider = 'groq';
+  } else {
+    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  }
+
+  if (!finalApiKey) return { error: "API Key Missing. Please add it in the form or Vercel env vars." };
 
   try {
+    // GROQ VISION SUPPORT
+    if (provider === 'groq') {
+      const groq = new Groq({ apiKey: finalApiKey });
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.2-90b-vision-preview",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences)." },
+              { type: "image_url", image_url: { url: imageUrl } }
+            ],
+          },
+        ],
+        temperature: 0.5,
+        max_tokens: 300,
+      });
+
+      return { description: completion.choices[0]?.message?.content || "No description generated." };
+    }
+
+    // GOOGLE GEMINI FALLBACK
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) throw new Error("Failed to fetch image");
     const arrayBuffer = await imgRes.arrayBuffer();
@@ -61,7 +93,7 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
     return { description: response.text() };
   } catch (e: any) {
     console.error("Vision AI Error:", e);
-    return { error: "Could not analyze image. Make sure the URL is publicly accessible." };
+    return { error: `Could not analyze image (${provider}). Details: ${e.message}` };
   }
 }
 
