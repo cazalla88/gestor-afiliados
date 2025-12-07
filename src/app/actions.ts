@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 // @ts-ignore
 import googleTrends from 'google-trends-api';
+import Groq from "groq-sdk";
 
 export async function debugAiConnection(apiKey: string) {
   if (!apiKey) return { error: "No API Key" };
@@ -78,93 +79,105 @@ export async function generateSeoContent(
     return { error: "API Key Missing. Please set NEXT_PUBLIC_GEMINI_API_KEY environment variable or provide it in the form." };
   }
 
-  const genAI = new GoogleGenerativeAI(finalApiKey);
+  const langName = language === 'es' ? 'Spanish' : 'English';
+  const campaignsContext = existingCampaigns.length > 0
+    ? `
+    CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
+    Here is a list of other articles purely for reference context.
+    ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
+    
+    MANDATORY SEO INSTRUCTION:
+    If any of the above existing articles are HIGHLY relevant to this new product (same category or complementary), 
+    you MUST strictly include them in an "internalLinks" array in the JSON response.
+    Each link object must have: { "slug": "slug-here", "category": "category-here", "anchorText": "text-here" }.
+    Auto-connect the dots for the user.
+    `
+    : "";
+
+  const SALES_STORYTELLING_FRAMEWORK = `
+    ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
+    1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
+    2. CHALLENGER INSIGHT: Teach them something new about their problem.
+    3. EMOTIONAL ARC: Use sensory words.
+    4. SCARCITY: Imply rarity.
+    5. SOCIAL PROOF: Weave in stories.
+  `;
+
+  let prompt = "";
+  if (type === 'blog') {
+    prompt = `
+        Act as a Master Copywriter.
+        Product: "${productName}"
+        Details: "${basicDescription}"
+        Tone: ${tone}
+        Language: ${langName}
+
+        ${campaignsContext}
+        ${SALES_STORYTELLING_FRAMEWORK}
+
+        Generate strict JSON:
+        {
+            "title": "Story-Driven Hook Title",
+            "introduction": "3-paragraph narrative hook.",
+            "targetAudience": "Who is the Hero?",
+            "quantitativeAnalysis": "Performance Score/Gap.",
+            "pros": ["Benefit 1", "Benefit 2"],
+            "cons": ["Authentic Flaw 1"],
+            "features": "Superpower features.",
+            "comparisonTable": [
+                { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
+                { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
+            ],
+            "internalLinks": [
+               { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
+            ],
+            "verdict": "Final transformation promise."
+        }
+        Return ONLY valid JSON.
+    `;
+  } else {
+    prompt = `
+        Act as a Direct Response Copywriter.
+        Product: "${productName}"
+        Details: "${basicDescription}"
+        Tone: ${tone}
+        Language: ${langName}
+        ${campaignsContext}
+        ${SALES_STORYTELLING_FRAMEWORK}
+
+        Generate JSON:
+        {
+            "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
+            "optimizedDescription": "Meta Description (max 155 chars)"
+        }
+        Return ONLY valid JSON.
+    `;
+  }
 
   try {
-    // Dynamic Model Selection
-    const modelName = await getBestActiveModel(finalApiKey);
-    console.log(`SEO Gen using model: ${modelName}`);
-    const model = genAI.getGenerativeModel({ model: modelName });
+    let text = "";
 
-    let prompt = "";
-    const langName = language === 'es' ? 'Spanish' : 'English';
-
-    const SALES_STORYTELLING_FRAMEWORK = `
-      ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
-      1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
-      2. CHALLENGER INSIGHT: Teach them something new about their problem.
-      3. EMOTIONAL ARC: Use sensory words.
-      4. SCARCITY: Imply rarity.
-      5. SOCIAL PROOF: Weave in stories.
-    `;
-
-    const campaignsContext = existingCampaigns.length > 0
-      ? `
-      CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
-      Here is a list of other articles purely for reference context.
-      ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
-      
-      MANDATORY SEO INSTRUCTION:
-      If any of the above existing articles are HIGHLY relevant to this new product (same category or complementary), 
-      you MUST strictly include them in an "internalLinks" array in the JSON response.
-      Each link object must have: { "slug": "slug-here", "category": "category-here", "anchorText": "text-here" }.
-      Auto-connect the dots for the user.
-      `
-      : "";
-
-    if (type === 'blog') {
-      prompt = `
-          Act as a Master Copywriter.
-          Product: "${productName}"
-          Details: "${basicDescription}"
-          Tone: ${tone}
-          Language: ${langName}
-
-          ${campaignsContext}
-          ${SALES_STORYTELLING_FRAMEWORK}
-
-          Generate strict JSON:
-          {
-              "title": "Story-Driven Hook Title",
-              "introduction": "3-paragraph narrative hook.",
-              "targetAudience": "Who is the Hero?",
-              "quantitativeAnalysis": "Performance Score/Gap.",
-              "pros": ["Benefit 1", "Benefit 2"],
-              "cons": ["Authentic Flaw 1"],
-              "features": "Superpower features.",
-              "comparisonTable": [
-                  { "name": "${productName}", "price": "$$$", "rating": 9.8, "mainFeature": "Solution" },
-                  { "name": "Competitor", "price": "$$", "rating": 6.5, "mainFeature": "Problem" }
-              ],
-              "internalLinks": [
-                 { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
-              ],
-              "verdict": "Final transformation promise."
-          }
-          Return ONLY valid JSON.
-      `;
+    // GROQ SUPPORT
+    if (finalApiKey.startsWith("gsk_")) {
+      const groq = new Groq({ apiKey: finalApiKey });
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama3-70b-8192",
+        response_format: { type: "json_object" }
+      });
+      text = completion.choices[0]?.message?.content || "{}";
     } else {
-      prompt = `
-          Act as a Direct Response Copywriter.
-          Product: "${productName}"
-          Details: "${basicDescription}"
-          Tone: ${tone}
-          Language: ${langName}
-          ${campaignsContext}
-          ${SALES_STORYTELLING_FRAMEWORK}
+      // GEMINI FALLBACK
+      const genAI = new GoogleGenerativeAI(finalApiKey);
+      const modelName = await getBestActiveModel(finalApiKey);
+      console.log(`SEO Gen using model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
 
-          Generate JSON:
-          {
-              "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
-              "optimizedDescription": "Meta Description (max 155 chars)"
-          }
-          Return ONLY valid JSON.
-      `;
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      text = response.text();
     }
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
 
@@ -213,9 +226,29 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
+    let text = "";
+
+    // GROQ SUPPORT
+    if (finalApiKey.startsWith("gsk_")) {
+      const groq = new Groq({ apiKey: finalApiKey });
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama3-70b-8192",
+        response_format: { type: "json_object" }
+      });
+      text = completion.choices[0]?.message?.content || "{}";
+    } else {
+      // GEMINI FALLBACK
+      const genAI = new GoogleGenerativeAI(finalApiKey);
+      const modelName = await getBestActiveModel(finalApiKey);
+      console.log(`Battle using model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      text = response.text();
+    }
+
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
   } catch (e: any) {
@@ -461,15 +494,9 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
   const finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!finalApiKey) return { error: "API Key Missing. Please add it in the campaign form first." };
 
-  const genAI = new GoogleGenerativeAI(finalApiKey);
   const langPrompt = language === 'es' ? 'Spanish' : 'English';
 
   try {
-    // Dynamic Model Selection
-    const modelName = await getBestActiveModel(finalApiKey);
-    console.log(`Trends using model: ${modelName}`);
-    const model = genAI.getGenerativeModel({ model: modelName });
-
     const prompt = `
       Act as a Market Analysis AI expert specializing in 2025/2026 consumer trends.
       For the category "${category}", identify 3 high-probability trending product niches that will sell well in late 2025/2026.
@@ -488,11 +515,30 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    let text = "";
 
+    // GROQ SUPPORT
+    if (finalApiKey.startsWith("gsk_")) {
+      const groq = new Groq({ apiKey: finalApiKey });
+      const completion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama3-70b-8192",
+        response_format: { type: "json_object" }
+      });
+      text = completion.choices[0]?.message?.content || "{}";
+    } else {
+      // GEMINI FALLBACK
+      const genAI = new GoogleGenerativeAI(finalApiKey);
+      const modelName = await getBestActiveModel(finalApiKey);
+      console.log(`Trends using model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      text = response.text();
+    }
+
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const data = JSON.parse(text);
 
     // Google Trends Validation (Safe execution)
