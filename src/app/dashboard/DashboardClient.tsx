@@ -309,25 +309,48 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                 </div>
             )}
 
-            {/* Categories Grid */}
+            {/* Categories Grid - Premium Design */}
             <div style={{ marginBottom: '3rem' }}>
-                <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: '700' }}>
-                    📂 Categorías
-                </h2>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '2rem'
+                }}>
+                    <h2 style={{
+                        color: '#fff',
+                        fontSize: '1.8rem',
+                        fontWeight: '800',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        margin: 0
+                    }}>
+                        📂 Explore por Categorías
+                    </h2>
+                    <span style={{
+                        fontSize: '0.9rem',
+                        color: '#888',
+                        fontWeight: '500'
+                    }}>
+                        {list.length} campañas totales
+                    </span>
+                </div>
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(4, 1fr)',
                     gap: '1.5rem'
                 }}>
                     {Object.entries({
-                        fashion: { name: 'Moda', icon: '👗' },
-                        tech: { name: 'Tecnología', icon: '💻' },
-                        home: { name: 'Hogar', icon: '🏠' },
-                        sports: { name: 'Deportes', icon: '⚽' },
-                        beauty: { name: 'Belleza', icon: '💄' },
-                        books: { name: 'Libros', icon: '📚' },
-                        toys: { name: 'Juegos', icon: '🎮' },
-                        general: { name: 'General', icon: '🏷️' },
+                        fashion: { name: 'Moda', icon: '👗', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', glow: 'rgba(240, 147, 251, 0.4)' },
+                        tech: { name: 'Tecnología', icon: '💻', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', glow: 'rgba(79, 172, 254, 0.4)' },
+                        home: { name: 'Hogar', icon: '🏠', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', glow: 'rgba(67, 233, 123, 0.4)' },
+                        sports: { name: 'Deportes', icon: '⚽', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', glow: 'rgba(250, 112, 154, 0.4)' },
+                        beauty: { name: 'Belleza', icon: '💄', gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', glow: 'rgba(255, 236, 210, 0.4)' },
+                        books: { name: 'Libros', icon: '📚', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', glow: 'rgba(168, 237, 234, 0.4)' },
+                        toys: { name: 'Juegos', icon: '🎮', gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', glow: 'rgba(255, 154, 158, 0.4)' },
+                        general: { name: 'General', icon: '🏷️', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', glow: 'rgba(102, 126, 234, 0.4)' },
                     }).map(([slug, category]) => {
                         const count = list.filter(c => c.category === slug).length;
                         return (
@@ -335,41 +358,104 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                 key={slug}
                                 href={`/categories/${slug}`}
                                 style={{
-                                    background: 'linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%)',
-                                    border: '1px solid #333',
-                                    borderRadius: '16px',
-                                    padding: '2rem  1.5rem',
+                                    position: 'relative',
+                                    background: 'rgba(30, 30, 46, 0.6)',
+                                    backdropFilter: 'blur(10px)',
+                                    WebkitBackdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '20px',
+                                    padding: '2.5rem 1.5rem',
                                     textDecoration: 'none',
                                     color: 'white',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    gap: '0.75rem',
-                                    transition: 'all 0.3s ease',
+                                    gap: '1rem',
+                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                     cursor: 'pointer',
-                                    textAlign: 'center'
+                                    textAlign: 'center',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-5px)';
-                                    e.currentTarget.style.borderColor = '#667eea';
-                                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.3)';
+                                    e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+                                    e.currentTarget.style.border = `1px solid ${category.glow.replace('0.4', '0.6')}`;
+                                    e.currentTarget.style.boxShadow = `0 20px 60px ${category.glow}, 0 0 0 1px ${category.glow}`;
+                                    e.currentTarget.style.background = 'rgba(30, 30, 46, 0.8)';
+                                    const iconEl = e.currentTarget.querySelector('[data-icon]') as HTMLElement;
+                                    if (iconEl) {
+                                        iconEl.style.transform = 'scale(1.2) rotate(5deg)';
+                                        iconEl.style.filter = 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.6))';
+                                    }
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.borderColor = '#333';
-                                    e.currentTarget.style.boxShadow = 'none';
+                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                    e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+                                    e.currentTarget.style.background = 'rgba(30, 30, 46, 0.6)';
+                                    const iconEl = e.currentTarget.querySelector('[data-icon]') as HTMLElement;
+                                    if (iconEl) {
+                                        iconEl.style.transform = 'scale(1) rotate(0deg)';
+                                        iconEl.style.filter = 'none';
+                                    }
                                 }}
                             >
-                                <div style={{ fontSize: '3rem' }}>{category.icon}</div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>
+                                {/* Gradient Orb Background */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '-50%',
+                                    right: '-50%',
+                                    width: '150%',
+                                    height: '150%',
+                                    background: category.gradient,
+                                    opacity: '0.12',
+                                    borderRadius: '50%',
+                                    filter: 'blur(40px)',
+                                    pointerEvents: 'none',
+                                    zIndex: 0
+                                }} />
+
+                                {/* Icon with gradient bg */}
+                                <div
+                                    data-icon
+                                    style={{
+                                        fontSize: '4rem',
+                                        background: category.gradient,
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text',
+                                        transition: 'all 0.4s ease',
+                                        position: 'relative',
+                                        zIndex: 1,
+                                        filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))'
+                                    }}
+                                >
+                                    {category.icon}
+                                </div>
+
+                                {/* Title */}
+                                <h3 style={{
+                                    margin: 0,
+                                    fontSize: '1.2rem',
+                                    fontWeight: '700',
+                                    letterSpacing: '-0.02em',
+                                    position: 'relative',
+                                    zIndex: 1
+                                }}>
                                     {category.name}
                                 </h3>
+
+                                {/* Count Badge */}
                                 <span style={{
-                                    fontSize: '0.85rem',
-                                    color: '#888',
-                                    background: 'rgba(102, 126, 234, 0.1)',
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: '12px'
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    color: '#fff',
+                                    background: category.gradient,
+                                    padding: '0.4rem 1rem',
+                                    borderRadius: '50px',
+                                    boxShadow: `0 4px 15px ${category.glow}`,
+                                    position: 'relative',
+                                    zIndex: 1
                                 }}>
                                     {count} {count === 1 ? 'artículo' : 'artículos'}
                                 </span>
