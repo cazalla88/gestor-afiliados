@@ -420,6 +420,9 @@ export async function scrapeAmazonProduct(url: string) {
 async function getBestActiveModel(apiKey: string) {
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+    if (!response.ok) return "gemini-1.5-flash"; // Auth error fallback
+
     const data = await response.json();
 
     if (!data.models) return "gemini-1.5-flash"; // Fallback default
@@ -429,6 +432,7 @@ async function getBestActiveModel(apiKey: string) {
     // Priority list
     const preferred = [
       "gemini-1.5-flash",
+      "gemini-1.5-flash-latest",
       "gemini-1.5-flash-001",
       "gemini-1.5-flash-002",
       "gemini-1.5-pro",
@@ -446,10 +450,10 @@ async function getBestActiveModel(apiKey: string) {
     const pro = models.find((m: string) => m.includes("pro"));
     if (pro) return pro;
 
-    return "gemini-1.5-flash"; // Ultimate fallback
+    return "gemini-pro"; // Ultimate fallback
   } catch (e) {
     console.error("Model discovery failed", e);
-    return "gemini-1.5-flash";
+    return "gemini-pro";
   }
 }
 
