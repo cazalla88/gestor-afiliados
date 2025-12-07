@@ -139,9 +139,12 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
 
             <div className={`container ${styles.contentGrid}`}>
                 <div className={styles.mainContent}>
-                    <section className={styles.intro}>
-                        <p>{content.introduction || campaign.description}</p>
-                    </section>
+                    {/* Intro Section - Hide if identical to Hero Description to avoid duplication */}
+                    {content.introduction && content.introduction.trim() !== (campaign.description || "").trim() && (
+                        <section className={styles.intro}>
+                            <div dangerouslySetInnerHTML={{ __html: content.introduction }} />
+                        </section>
+                    )}
 
                     {content.targetAudience && (
                         <section className={styles.features} style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
