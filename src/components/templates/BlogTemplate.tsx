@@ -130,7 +130,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                             </p>
 
                             <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
-                                {t.checkPrice} Amazon
+                                {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
                             </a>
                         </div>
                     </div>
