@@ -240,7 +240,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                         <h3>{campaign.productName}</h3>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
-                        <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.sidebarBtn}>
+                        <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
                             {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
                         </a>
                     </div>

@@ -284,7 +284,7 @@
     border-radius: 8px;
 }
 
-.sidebarBtn {
+.nexusSidebarBtn {
     display: block;
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: #ffffff;
@@ -304,7 +304,7 @@
     line-height: 1.4;
 }
 
-.sidebarBtn:hover {
+.nexusSidebarBtn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 12px -3px rgba(245, 158, 11, 0.4);
     filter: brightness(1.1);
