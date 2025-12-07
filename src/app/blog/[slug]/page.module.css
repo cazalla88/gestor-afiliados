@@ -71,16 +71,17 @@
 }
 
 .featuredImageWrapper {
-    background: #f8f9fa;
+    background: transparent;
     padding-bottom: 2rem;
+    text-align: center;
 }
 
 .featuredImage {
     width: 100%;
-    max-width: 900px;
+    max-width: 700px;
     margin: 0 auto;
-    display: block;
-    max-height: 450px;
+    display: inline-block;
+    max-height: 400px;
     object-fit: cover;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
