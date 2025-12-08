@@ -132,15 +132,12 @@ export async function generateSeoContent(
   tone: string = 'Professional',
   existingCampaigns: any[] = []
 ) {
-  // Check for Groq FIRST
-  let finalApiKey = apiKey;
-  let provider = 'google';
+  // FORCE GOOGLE KEY SELECTION
+  let finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || apiKey;
 
-  if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
-    finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
-    provider = 'groq';
-  } else {
-    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  // If the user manually provided a Groq key (starts with gsk_), ignore it and try to find a system Google key
+  if (finalApiKey?.startsWith('gsk_')) {
+    finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
   }
 
   if (!finalApiKey) {
@@ -226,26 +223,19 @@ export async function generateSeoContent(
   try {
     let text = "";
 
-    // GROQ SUPPORT
-    if (finalApiKey.startsWith("gsk_")) {
-      const groq = new Groq({ apiKey: finalApiKey });
-      const completion = await groq.chat.completions.create({
-        messages: [{ role: "user", content: prompt }],
-        model: "llama-3.3-70b-versatile",
-        response_format: { type: "json_object" }
-      });
-      text = completion.choices[0]?.message?.content || "{}";
-    } else {
-      // GEMINI FALLBACK
-      const genAI = new GoogleGenerativeAI(finalApiKey);
-      const modelName = await getBestActiveModel(finalApiKey);
-      console.log(`SEO Gen using model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
+    // FORCE GEMINI FOR STABILITY (Groq JSON mode is failing)
+    // if (finalApiKey.startsWith("gsk_")) { ... } // Disabled
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      text = response.text();
-    }
+    const genAI = new GoogleGenerativeAI(finalApiKey);
+    // Use flash model specifically for speed and JSON adherence
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    text = response.text();
 
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
