@@ -267,21 +267,39 @@
 
 .stickyCard {
     position: sticky;
-    top: 100px;
+    top: 80px;
+    /* Reduced from 100px to give more space */
     background: white;
     border: 1px solid #eee;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 12px;
     text-align: center;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    max-height: calc(100vh - 100px);
+    /* Prevent overflow */
+    overflow-y: auto;
+    /* Scroll if absolutely necessary */
+    scrollbar-width: thin;
+}
+
+.stickyCard h3 {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #333;
 }
 
 .miniImg {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    margin: 1rem auto;
-    border-radius: 8px;
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    /* Changed to contain so product is fully visible */
+    margin: 0.5rem auto;
+    border-radius: 6px;
 }
 
 .nexusSidebarBtn {
