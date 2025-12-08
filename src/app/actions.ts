@@ -102,7 +102,7 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
     const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
 
     const genAI = new GoogleGenerativeAI(finalApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
 
@@ -232,9 +232,9 @@ export async function generateSeoContent(
     // if (finalApiKey.startsWith("gsk_")) { ... } // Disabled
 
     const genAI = new GoogleGenerativeAI(finalApiKey);
-    // Use flash model specifically for speed and JSON adherence
+    // Use gemini-2.0-flash (Available in user key)
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
 
