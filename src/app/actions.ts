@@ -133,7 +133,12 @@ export async function generateSeoContent(
   existingCampaigns: any[] = []
 ) {
   // FORCE GOOGLE KEY SELECTION
-  let finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || apiKey;
+  // Buscamos la clave en todas las variables posibles
+  let finalApiKey =
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    apiKey;
 
   // If the user manually provided a Groq key (starts with gsk_), ignore it and try to find a system Google key
   if (finalApiKey?.startsWith('gsk_')) {
