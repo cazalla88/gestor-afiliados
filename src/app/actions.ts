@@ -102,21 +102,40 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
     const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
 
     const genAI = new GoogleGenerativeAI(finalApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
 
-    const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
+    // Retry Logic for Vision
+    const modelsToTry = [
+      "gemini-2.0-flash-lite-preview-02-05",
+      "gemini-2.0-flash",
+      "gemini-2.0-pro-exp-02-05",
+      "gemini-2.5-flash"
+    ];
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          data: base64Image,
-          mimeType: mimeType
-        }
+    let lastError: any = null;
+
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
+
+        const result = await model.generateContent([
+          prompt,
+          {
+            inlineData: {
+              data: base64Image,
+              mimeType: mimeType
+            }
+          }
+        ]);
+        const response = await result.response;
+        return { description: response.text() };
+      } catch (e: any) {
+        console.warn(`Vision Model ${modelName} failed: ${e.message}`);
+        lastError = e;
+        continue;
       }
-    ]);
-    const response = await result.response;
-    return { description: response.text() };
+    }
+    throw lastError || new Error("All vision models failed");
   } catch (e: any) {
     console.error("Vision AI Error:", e);
     return { error: `Could not analyze image (${provider}). Details: ${e.message}` };
@@ -225,11 +244,12 @@ export async function generateSeoContent(
     `;
   }
 
-  // LIST OF MODELS TO TRY (In order of quota efficiency)
+  // LIST OF MODELS TO TRY (In order of priority)
   const modelsToTry = [
-    "gemini-2.0-flash-lite-preview-02-05", // First choice: Lite
-    "gemini-1.5-flash",                    // Second: Standard Flash
-    "gemini-1.5-pro",                      // Third: Standard Pro
+    "gemini-2.0-flash-lite-preview-02-05", // 1. Lite (Efficient)
+    "gemini-2.0-flash",                    // 2. Standard 2.0
+    "gemini-2.0-pro-exp-02-05",            // 3. Pro Experimental (Separate quota)
+    "gemini-2.5-flash"                     // 4. Cutting Edge
   ];
 
   let lastError: any = null;
