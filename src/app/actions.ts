@@ -420,7 +420,7 @@ export async function createCampaign(data: any) {
     return { success: true, slug: campaign.slug, type: campaign.type };
   } catch (error: any) {
     console.error("DB Create Error:", error);
-    return { error: "Failed to save campaign. Slug might be duplicate." };
+    return { error: `DB Error: ${error.message}` };
   }
 }
 
