@@ -74,7 +74,7 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
     if (provider === 'groq') {
       const groq = new Groq({ apiKey: finalApiKey });
       const completion = await groq.chat.completions.create({
-        model: "llama-3.2-90b-vision-preview",
+        model: "llama-3.2-11b-vision-preview",
         messages: [
           {
             role: "user",
