@@ -12,6 +12,7 @@ datasource db {
 }
 
 model Campaign {
+  // Force Rebuild V1
   id            String   @id @default(uuid())
   slug          String   @unique
   type          String   // 'landing' or 'blog'
