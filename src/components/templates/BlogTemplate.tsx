@@ -144,6 +144,14 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                         </section>
                     )}
 
+                    {/* ULTRA DEBUG: DATA INSPECTOR */}
+                    <div style={{ background: '#000', color: '#0f0', padding: '20px', margin: '20px 0', fontFamily: 'monospace', fontSize: '12px', wordBreak: 'break-all' }}>
+                        <h3>🕵️‍♂️ DATA INSPECTOR</h3>
+                        <p><strong>DB Gallery:</strong> {JSON.stringify(campaign.galleryImages)}</p>
+                        <p><strong>Backup Gallery:</strong> {JSON.stringify(content?.galleryImagesBackup)}</p>
+                        <p><strong>Main Image:</strong> {campaign.imageUrl}</p>
+                    </div>
+
                     {/* NEW: QUICK VERDICT / KEY HIGHLIGHTS BOX */}
                     {content.pros && content.pros.length > 0 && (
                         <div style={{
