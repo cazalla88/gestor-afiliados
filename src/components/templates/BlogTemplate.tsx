@@ -60,8 +60,6 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
 
     const date = new Date(campaign.createdAt).toLocaleDateString(lang === 'es' ? "es-ES" : "en-US", { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const jsonLd = { /* ... keep jsonLd same ... */ }; // Simplify for brevity in this replace call if possible, acts as context
-
     const jsonLdFull = {
         "@context": "https://schema.org/",
         "@type": "Review",
@@ -77,8 +75,8 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
         },
         "reviewRating": {
             "@type": "Rating",
-            "ratingValue": "4.5",
-            "bestRating": "5"
+            "ratingValue": "9.5",
+            "bestRating": "10"
         },
         "publisher": {
             "@type": "Organization",
@@ -97,7 +95,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
             <section className={styles.heroSection}>
                 <div className="container">
                     <div className={styles.heroGrid}>
-                        {/* LEFT: IMAGE */}
+                        {/* LEFT: IMAGE WITH BADGE */}
                         <div className={styles.heroImageWrapper} style={{ position: 'relative', minHeight: '400px', width: '100%' }}>
                             <Image
                                 src={campaign.imageUrl || "https://placehold.co/600x600/222/FFF?text=Product+Image"}
@@ -108,6 +106,11 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                                 priority
                                 sizes="(max-width: 768px) 100vw, 500px"
                             />
+                            {/* NEW: HERO SCORE BADGE */}
+                            <div className={styles.heroBadge}>
+                                <span className={styles.badgeScore}>{content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}</span>
+                                <span className={styles.badgeLabel}>{lang === 'es' ? 'EXCELENTE' : 'EXCELLENT'}</span>
+                            </div>
                         </div>
 
                         {/* RIGHT: CONTENT */}

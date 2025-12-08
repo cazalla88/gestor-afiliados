@@ -421,6 +421,40 @@
     filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
 }
 
+.heroBadge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    padding: 10px 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #eee;
+    z-index: 10;
+    min-width: 80px;
+}
+
+.badgeScore {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #16a34a;
+    /* Success Green */
+    line-height: 1;
+}
+
+.badgeLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
 .heroCategory {
     color: #db2777;
     font-weight: 700;
