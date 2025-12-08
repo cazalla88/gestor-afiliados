@@ -413,7 +413,7 @@ export async function createCampaign(data: any) {
         description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
         affiliateLink: data.affiliateLink,
         imageUrl: mainImage,
-        galleryImages: galleryImages,
+        // galleryImages: galleryImages, // <--- COMENTADO para evitar error si la columna no existe en Prod
         content: JSON.stringify(contentData),
       }
     });
