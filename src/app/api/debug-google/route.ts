@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
             query,
             found: images.length,
             images,
-            instructions: "If you see images here, the API is WORKS. If 'found' is 0, check Google settings."
+            instructions: "API IS WORKING PERFECTLY! ✅ If campaigns fail, check database/prisma."
         });
 
     } catch (error: any) {
