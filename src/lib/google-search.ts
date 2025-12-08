@@ -5,8 +5,7 @@ const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX;
 
 export async function searchProductImages(query: string, count: number = 4): Promise<string[]> {
     if (!GOOGLE_API_KEY || !GOOGLE_CX) {
-        console.warn("Google Search API keys not configured.");
-        return [];
+        throw new Error("Missing Google API Configuration (Server Side)");
     }
 
     try {

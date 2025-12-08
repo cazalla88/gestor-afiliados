@@ -373,11 +373,20 @@ export async function createCampaign(data: any) {
 
         galleryImages = Array.from(uniqueSet).slice(0, 4);
       }
-    } catch (imgError) {
+    } catch (imgError: any) {
       console.error("Auto-Image Fetch Failed (Non-blocking):", imgError);
+      // DEBUG: Inject error into description so user can see it
+      data.description = `[DEBUG ERROR: ${imgError.message || "Unknown error"}] ` + data.description;
+
       // Fallback: If no gallery, ensure at least main image is in gallery if it exists
       if (mainImage) galleryImages = [mainImage];
     }
+
+    // DEBUG: Check environment variables
+    if (!process.env.GOOGLE_SEARCH_API_KEY) {
+      data.description = `[DEBUG ERROR: Missing GOOGLE_SEARCH_API_KEY var] ` + data.description;
+    }
+
     // === AUTO-IMAGE FETCHING END ===
 
     const campaign = await prisma.campaign.create({
