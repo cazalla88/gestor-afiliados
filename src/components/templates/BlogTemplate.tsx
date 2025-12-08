@@ -173,9 +173,10 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                                         color: '#333',
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                                         border: '1px solid #fbcfe8',
-                                        fontWeight: 500
+                                        fontWeight: 500,
+                                        display: 'inline-block' // Ensure layout stability
                                     }}>
-                                        ✅ {pro.length > 30 ? pro.substring(0, 30) + '...' : pro}
+                                        ✅ {pro}
                                     </span>
                                 ))}
                                 <span style={{
