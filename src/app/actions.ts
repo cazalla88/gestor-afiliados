@@ -232,7 +232,7 @@ export async function generateSeoContent(
     "gemini-1.5-pro",                      // Third: Standard Pro
   ];
 
-  let lastError = null;
+  let lastError: any = null;
 
   for (const modelName of modelsToTry) {
     try {
@@ -258,7 +258,6 @@ export async function generateSeoContent(
   }
 
   return { error: `AI Generation Failed on all models. Last error: ${lastError?.message || "Unknown"}` };
-}
 }
 
 export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
