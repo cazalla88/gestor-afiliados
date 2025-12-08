@@ -104,6 +104,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                                 productName={campaign.productName}
                                 score={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
                                 badgeLabel={lang === 'es' ? 'EXCELENTE' : 'EXCELLENT'}
+                                galleryImages={campaign.galleryImages || []}
                             />
                         </div>
 

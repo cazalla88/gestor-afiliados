@@ -9,17 +9,15 @@ interface ProductGalleryProps {
     productName: string;
     score?: string;
     badgeLabel?: string;
+    galleryImages?: string[];
 }
 
-export default function ProductGallery({ mainImage, productName, score = "9.5", badgeLabel = "EXCELENTE" }: ProductGalleryProps) {
-    // Simulate multiple images if we only have one. 
-    // In a real scenario, you would pass an array of images here.
-    const images = [
-        mainImage,
-        mainImage, // Placeholder for demo (would be image 2)
-        mainImage, // Placeholder for demo (would be image 3)
-        mainImage  // Placeholder for demo (would be image 4)
-    ];
+export default function ProductGallery({ mainImage, productName, score = "9.5", badgeLabel = "EXCELENTE", galleryImages = [] }: ProductGalleryProps) {
+    // Use provided gallery images, or fallback to mainImage duplicated if empty
+    // Ensure mainImage is always first if we're building a composite list
+    const images = galleryImages.length > 0
+        ? [mainImage, ...galleryImages.filter(img => img !== mainImage).slice(0, 3)]
+        : [mainImage, mainImage, mainImage, mainImage];
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
