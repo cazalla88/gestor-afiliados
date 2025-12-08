@@ -262,7 +262,7 @@
     }
 }
 
-.ctaButton {
+.pulseCtaButton {
     display: inline-block;
     background: #db2777;
     color: white;
@@ -279,12 +279,11 @@
     animation: pulse 2s infinite;
 }
 
-.ctaButton:hover {
+.pulseCtaButton:hover {
     background: #be185d;
     transform: translateY(-2px);
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
     animation: none;
-    /* Stop pulsing on hover */
 }
 
 .sidebar {
@@ -294,7 +293,6 @@
 .stickyCard {
     position: sticky;
     top: 80px;
-    /* Reduced from 100px to give more space */
     background: white;
     border: 1px solid #eee;
     padding: 1.25rem;
