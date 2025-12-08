@@ -382,23 +382,21 @@ export async function createCampaign(data: any) {
       if (mainImage) galleryImages = [mainImage];
     }
 
-    // DEBUG: Ensure message is visible
-    let debugMsg = "";
-    if (!process.env.GOOGLE_SEARCH_API_KEY) {
-      debugMsg = `[DEBUG ERROR: Missing GOOGLE_SEARCH_API_KEY] `;
-    } else {
-      debugMsg = `[DEBUG: Found ${galleryImages.length} images. Saved?] `;
-    }
-
-    data.description = debugMsg + (data.description || "");
-    data.heroDescription = debugMsg + (data.heroDescription || "");
-
-    // Final safety check before save
-    if (galleryImages.length === 0 && mainImage) {
-      galleryImages = [mainImage];
-    }
-
     // === AUTO-IMAGE FETCHING END ===
+
+    // BACKUP STRATEGY: Save images in content JSON too
+    const contentData = {
+      introduction: data.introduction,
+      targetAudience: data.targetAudience,
+      quantitativeAnalysis: data.quantitativeAnalysis,
+      features: data.features,
+      pros: data.pros,
+      cons: data.cons,
+      comparisonTable: data.comparisonTable,
+      verdict: data.verdict,
+      internalLinks: data.internalLinks,
+      galleryImagesBackup: galleryImages // <--- Backup here
+    };
 
     const campaign = await prisma.campaign.create({
       data: {
@@ -412,17 +410,7 @@ export async function createCampaign(data: any) {
         affiliateLink: data.affiliateLink,
         imageUrl: mainImage,
         galleryImages: galleryImages,
-        content: JSON.stringify({
-          introduction: data.introduction,
-          targetAudience: data.targetAudience,
-          quantitativeAnalysis: data.quantitativeAnalysis,
-          features: data.features,
-          pros: data.pros,
-          cons: data.cons,
-          comparisonTable: data.comparisonTable,
-          verdict: data.verdict,
-          internalLinks: data.internalLinks
-        }),
+        content: JSON.stringify(contentData),
       }
     });
     return { success: true, slug: campaign.slug, type: campaign.type };
