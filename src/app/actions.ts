@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 // @ts-ignore
 import googleTrends from 'google-trends-api';
 import Groq from "groq-sdk";
+import { searchProductImages } from "@/lib/google-search";
 
 export async function debugAiConnection(apiKey: string) {
   let finalApiKey = apiKey;
@@ -336,6 +337,33 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
 
 export async function createCampaign(data: any) {
   try {
+    // === AUTO-IMAGE FETCHING START ===
+    let galleryImages: string[] = [];
+    let mainImage = data.imageUrl;
+
+    try {
+      // If the user didn't provide a real image (or empty/placeholder)
+      if (!mainImage || mainImage.includes('placehold.co') || mainImage.trim() === "") {
+        console.log(`Auto-fetching images for: ${data.productName}`);
+        const foundImages = await searchProductImages(data.productName + " product", 4);
+        if (foundImages.length > 0) {
+          mainImage = foundImages[0];
+          galleryImages = foundImages;
+        }
+      } else {
+        // User provided an image, try to fetch 3 more variants to fill gallery
+        console.log(`Fetching extra gallery images for: ${data.productName}`);
+        const additionalImages = await searchProductImages(data.productName + " product view", 3);
+        // Ensure unique images
+        galleryImages = [mainImage, ...additionalImages.filter(img => img !== mainImage)].slice(0, 4);
+      }
+    } catch (imgError) {
+      console.error("Auto-Image Fetch Failed (Non-blocking):", imgError);
+      // Fallback: If no gallery, ensure at least main image is in gallery if it exists
+      if (mainImage) galleryImages = [mainImage];
+    }
+    // === AUTO-IMAGE FETCHING END ===
+
     const campaign = await prisma.campaign.create({
       data: {
         slug: data.id,
@@ -346,7 +374,8 @@ export async function createCampaign(data: any) {
         title: data.title || data.productName,
         description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
         affiliateLink: data.affiliateLink,
-        imageUrl: data.imageUrl,
+        imageUrl: mainImage,
+        galleryImages: galleryImages,
         content: JSON.stringify({
           introduction: data.introduction,
           targetAudience: data.targetAudience,
