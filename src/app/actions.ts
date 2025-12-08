@@ -8,10 +8,32 @@ import googleTrends from 'google-trends-api';
 import Groq from "groq-sdk";
 
 export async function debugAiConnection(apiKey: string) {
-  if (!apiKey) return { error: "No API Key" };
+  let finalApiKey = apiKey;
+
+  if (!finalApiKey) {
+    if (process.env.GROQ_API_KEY) finalApiKey = process.env.GROQ_API_KEY;
+    else if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    else if (process.env.GOOGLE_API_KEY) finalApiKey = process.env.GOOGLE_API_KEY;
+  }
+
+  if (!finalApiKey) return { error: "No API Key found in request or environment variables (GROQ_API_KEY, GOOGLE_API_KEY)." };
+
+  // Check provider based on key format or precedence
+  const isGroq = finalApiKey.startsWith('gsk_') || (!apiKey && process.env.GROQ_API_KEY);
+
+  if (isGroq) {
+    try {
+      const groq = new Groq({ apiKey: finalApiKey });
+      // Simple call to list models or just verify connection
+      const models = await groq.models.list();
+      return { models: models.data.map(m => m.id) };
+    } catch (e: any) {
+      return { error: "Groq Error: " + e.message };
+    }
+  }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${finalApiKey}`);
     const data = await response.json();
 
     if (data.error) {
