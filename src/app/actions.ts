@@ -383,6 +383,7 @@ export async function createCampaign(data: any) {
     }
 
     // === AUTO-IMAGE FETCHING END ===
+    console.log("🔍 DEBUG: Final Gallery Count:", galleryImages.length);
 
     // BACKUP STRATEGY: Save images in content JSON too
     const contentData = {
