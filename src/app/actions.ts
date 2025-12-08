@@ -61,8 +61,11 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
   let provider = 'google';
 
   if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
+    // override provider to google for stability
     finalApiKey = apiKey?.startsWith('gsk_') ? apiKey : process.env.GROQ_API_KEY!;
     provider = 'groq';
+    // TEMPORARY FIX: Force Google for Vision due to Groq model deprecation
+    if (!process.env.GROQ_API_KEY) provider = 'google';
   } else {
     finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   }
