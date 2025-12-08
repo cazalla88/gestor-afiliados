@@ -465,18 +465,20 @@
 }
 
 .heroTitle {
-    font-size: 3rem;
-    /* Big like landing */
-    font-weight: 800;
-    line-height: 1.1;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
     color: #111;
     font-family: var(--font-sans);
     margin: 0;
+    letter-spacing: -0.02em;
+    /* Tighten tracking slightly for modern look */
 }
 
 @media (max-width: 768px) {
     .heroTitle {
-        font-size: 2.25rem;
+        font-size: 1.8rem;
+        line-height: 1.35;
     }
 }
 
