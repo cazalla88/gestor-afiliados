@@ -2,6 +2,7 @@ import styles from "@/app/blog/[slug]/page.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import RelatedProducts from "@/components/RelatedProducts";
+import StickyBar from "@/components/StickyBar";
 
 interface BlogTemplateProps {
     campaign: any;
@@ -135,126 +136,169 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                             <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
                                 {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
                             </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div className={`container ${styles.contentGrid}`}>
-                <div className={styles.mainContent}>
-                    {/* Intro Section - Hide if identical to Hero Description to avoid duplication */}
-                    {content.introduction && content.introduction.trim() !== (campaign.description || "").trim() && (
-                        <section className={styles.intro}>
                             <div dangerouslySetInnerHTML={{ __html: content.introduction }} />
                         </section>
                     )}
 
-                    {content.targetAudience && (
-                        <section className={styles.features} style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
-                            <h3 style={{ marginTop: 0, color: '#111' }}>{t.whoFor}</h3>
-                            <p style={{ marginBottom: 0, color: '#444' }}>{content.targetAudience}</p>
-                        </section>
-                    )}
+                        {/* NEW: QUICK VERDICT / KEY HIGHLIGHTS BOX */}
+                        {content.pros && content.pros.length > 0 && (
+                            <div style={{
+                                background: '#fdf2f8',
+                                borderLeft: '4px solid #db2777',
+                                padding: '1.25rem',
+                                borderRadius: '8px',
+                                marginBottom: '2.5rem',
+                                marginTop: '1rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.5rem'
+                            }}>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#831843' }}>⚡ {t.verdict === 'Veredicto Final' ? 'En Resumen:' : 'Quick Verdict:'}</h3>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
+                                    {content.pros.slice(0, 3).map((pro: string, idx: number) => (
+                                        <span key={idx} style={{
+                                            background: 'white',
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '20px',
+                                            fontSize: '0.9rem',
+                                            color: '#333',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                            border: '1px solid #fbcfe8',
+                                            fontWeight: 500
+                                        }}>
+                                            ✅ {pro.length > 30 ? pro.substring(0, 30) + '...' : pro}
+                                        </span>
+                                    ))}
+                                    <span style={{
+                                        background: 'white',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: '20px',
+                                        fontSize: '0.9rem',
+                                        color: '#be185d',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                        border: '1px solid #fbcfe8',
+                                        fontWeight: 800
+                                    }}>
+                                        ⭐ {content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}/10 {lang === 'es' ? 'Nota' : 'Score'}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
 
-                    {content.quantitativeAnalysis && (
+                        {content.targetAudience && (
+                            <section className={styles.features} style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
+                                <h3 style={{ marginTop: 0, color: '#111' }}>{t.whoFor}</h3>
+                                <p style={{ marginBottom: 0, color: '#444' }}>{content.targetAudience}</p>
+                            </section>
+                        )}
+
+                        {content.quantitativeAnalysis && (
+                            <section className={styles.features}>
+                                <h3>{t.score}</h3>
+                                <p className={styles.scoreText}>{content.quantitativeAnalysis}</p>
+                            </section>
+                        )}
+
                         <section className={styles.features}>
-                            <h3>{t.score}</h3>
-                            <p className={styles.scoreText}>{content.quantitativeAnalysis}</p>
+                            <h2>{t.features}</h2>
+                            <p>{content.features || "Features to be added."}</p>
                         </section>
-                    )}
 
-                    <section className={styles.features}>
-                        <h2>{t.features}</h2>
-                        <p>{content.features || "Features to be added."}</p>
-                    </section>
-
-                    <section className={styles.prosCons}>
-                        <div className={styles.pros}>
-                            <h3>{t.pros}</h3>
-                            <ul>
-                                {content.pros?.map((p: string, i: number) => <li key={i}>{p}</li>) || <li>Great Product</li>}
-                            </ul>
-                        </div>
-                        <div className={styles.cons}>
-                            <h3>{t.cons}</h3>
-                            <ul>
-                                {content.cons?.map((c: string, i: number) => <li key={i}>{c}</li>) || <li>None observed</li>}
-                            </ul>
-                        </div>
-                    </section>
-
-                    {content.comparisonTable && (
-                        <section className={styles.comparison}>
-                            <h2>{t.comparison}</h2>
-                            <div className={styles.tableWrapper}>
-                                <table className={styles.table}>
-                                    <thead>
-                                        <tr>
-                                            <th>{t.product}</th>
-                                            <th>{t.price}</th>
-                                            <th>{t.rating}</th>
-                                            <th>{t.mainFeature}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {content.comparisonTable.map((item: any, i: number) => (
-                                            <tr key={i} className={item.name.includes(campaign.productName) ? styles.highlightRow : ''}>
-                                                <td>{item.name}</td>
-                                                <td>{item.price.replace(/\$/g, '€')}</td>
-                                                <td><strong>{item.rating}</strong> <span style={{ color: '#888', fontSize: '0.8em' }}>/ 10</span></td>
-                                                <td>{item.mainFeature}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                        <section className={styles.prosCons}>
+                            <div className={styles.pros}>
+                                <h3>{t.pros}</h3>
+                                <ul>
+                                    {content.pros?.map((p: string, i: number) => <li key={i}>{p}</li>) || <li>Great Product</li>}
+                                </ul>
+                            </div>
+                            <div className={styles.cons}>
+                                <h3>{t.cons}</h3>
+                                <ul>
+                                    {content.cons?.map((c: string, i: number) => <li key={i}>{c}</li>) || <li>None observed</li>}
+                                </ul>
                             </div>
                         </section>
-                    )}
 
-                    {content.internalLinks && content.internalLinks.length > 0 && (
-                        <section className={styles.features} style={{ backgroundColor: '#f0fdf4', border: '1px solid #86efac', padding: '1.5rem', borderRadius: '8px', marginTop: '2rem' }}>
-                            <h3 style={{ color: '#166534', marginTop: 0 }}>{t.review === 'Análisis' ? '📚 Te puede interesar:' : '📚 Read Next:'}</h3>
-                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                {content.internalLinks.map((link: any, i: number) => (
-                                    <li key={i} style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>
-                                        <span style={{ marginRight: '0.5rem' }}>👉</span>
-                                        <Link href={`/${link.category || 'general'}/${link.slug}`} style={{ color: '#15803d', textDecoration: 'underline', fontWeight: 600 }}>
-                                            {link.anchorText}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
+                        {content.comparisonTable && (
+                            <section className={styles.comparison}>
+                                <h2>{t.comparison}</h2>
+                                <div className={styles.tableWrapper}>
+                                    <table className={styles.table}>
+                                        <thead>
+                                            <tr>
+                                                <th>{t.product}</th>
+                                                <th>{t.price}</th>
+                                                <th>{t.rating}</th>
+                                                <th>{t.mainFeature}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {content.comparisonTable.map((item: any, i: number) => (
+                                                <tr key={i} className={item.name.includes(campaign.productName) ? styles.highlightRow : ''}>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.price.replace(/\$/g, '€')}</td>
+                                                    <td><strong>{item.rating}</strong> <span style={{ color: '#888', fontSize: '0.8em' }}>/ 10</span></td>
+                                                    <td>{item.mainFeature}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        )}
+
+                        {content.internalLinks && content.internalLinks.length > 0 && (
+                            <section className={styles.features} style={{ backgroundColor: '#f0fdf4', border: '1px solid #86efac', padding: '1.5rem', borderRadius: '8px', marginTop: '2rem' }}>
+                                <h3 style={{ color: '#166534', marginTop: 0 }}>{t.review === 'Análisis' ? '📚 Te puede interesar:' : '📚 Read Next:'}</h3>
+                                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                    {content.internalLinks.map((link: any, i: number) => (
+                                        <li key={i} style={{ marginBottom: '0.75rem', fontSize: '1.05rem' }}>
+                                            <span style={{ marginRight: '0.5rem' }}>👉</span>
+                                            <Link href={`/${link.category || 'general'}/${link.slug}`} style={{ color: '#15803d', textDecoration: 'underline', fontWeight: 600 }}>
+                                                {link.anchorText}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+
+                        <section className={styles.verdict}>
+                            <h2>{t.verdict}</h2>
+                            <p>{content.verdict || "Highly Recommended."}</p>
+                            <div className={styles.verdictCta}>
+                                <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.pulseCtaButton}>
+                                    {lang === 'es' ? 'Ver Mejor Precio Ahora' : 'Check Best Price Now'}
+                                </a>
+                            </div>
                         </section>
-                    )}
+                    </div>
 
-                    <section className={styles.verdict}>
-                        <h2>{t.verdict}</h2>
-                        <p>{content.verdict || "Highly Recommended."}</p>
-                        <div className={styles.verdictCta}>
-                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.pulseCtaButton}>
-                                {lang === 'es' ? 'Ver Mejor Precio Ahora' : 'Check Best Price Now'}
+                    <aside className={styles.sidebar}>
+                        <div className={styles.stickyCard}>
+                            <h3>{campaign.productName}</h3>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
+                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
+                                {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
                             </a>
                         </div>
-                    </section>
+                    </aside>
                 </div>
 
-                <aside className={styles.sidebar}>
-                    <div className={styles.stickyCard}>
-                        <h3>{campaign.productName}</h3>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
-                        <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
-                            {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
-                        </a>
-                    </div>
-                </aside>
-            </div>
-
-            <RelatedProducts
-                currentSlug={currentSlug}
-                category={campaign.category || 'general'}
-                products={relatedProducts}
-            />
+                <RelatedProducts
+                    currentSlug={currentSlug}
+                    category={campaign.category || 'general'}
+                    products={relatedProducts}
+                />
+                <StickyBar
+                    title={campaign.title}
+                    price={content.comparisonTable?.[0]?.price || "€€€"}
+                    rating={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
+                    affiliateLink={campaign.affiliateLink}
+                    imageUrl={campaign.imageUrl}
+                    lang={lang}
+                />
         </article>
     );
 }
