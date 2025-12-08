@@ -229,7 +229,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                         <p>{content.verdict || "Highly Recommended."}</p>
                         <div className={styles.verdictCta}>
                             <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.ctaButton}>
-                                {t.checkPrice} {campaign.productName}
+                                {lang === 'es' ? 'Ver Mejor Precio Ahora' : 'Check Best Price Now'}
                             </a>
                         </div>
                     </section>

@@ -245,20 +245,46 @@
     text-align: center;
 }
 
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(219, 39, 119, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(219, 39, 119, 0);
+    }
+}
+
 .ctaButton {
     display: inline-block;
     background: #db2777;
     color: white;
     font-family: var(--font-sans);
     font-weight: 700;
-    padding: 1rem 2rem;
-    border-radius: 8px;
+    padding: 1.2rem 2.5rem;
+    border-radius: 50px;
     text-decoration: none;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s infinite;
 }
 
 .ctaButton:hover {
-    opacity: 0.9;
+    background: #be185d;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+    animation: none;
+    /* Stop pulsing on hover */
 }
 
 .sidebar {
