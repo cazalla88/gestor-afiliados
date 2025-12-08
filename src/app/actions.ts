@@ -353,9 +353,25 @@ export async function createCampaign(data: any) {
       } else {
         // User provided an image, try to fetch 3 more variants to fill gallery
         console.log(`Fetching extra gallery images for: ${data.productName}`);
-        const additionalImages = await searchProductImages(data.productName + " product view", 3);
-        // Ensure unique images
-        galleryImages = [mainImage, ...additionalImages.filter(img => img !== mainImage)].slice(0, 4);
+
+        // Strategy: Try succinct query first ("Name"), then broader ("Name review")
+        let additionalImages = await searchProductImages(data.productName, 4);
+
+        if (additionalImages.length < 2) {
+          const retryImages = await searchProductImages(data.productName + " review", 3);
+          additionalImages = [...additionalImages, ...retryImages];
+        }
+
+        // Ensure unique images (remove duplicates of mainImage, and duplicates within list)
+        // Normalize URLs slightly to catch obvious dupes
+        const uniqueSet = new Set<string>();
+        if (mainImage) uniqueSet.add(mainImage);
+
+        additionalImages.forEach(img => {
+          if (img && img !== mainImage) uniqueSet.add(img);
+        });
+
+        galleryImages = Array.from(uniqueSet).slice(0, 4);
       }
     } catch (imgError) {
       console.error("Auto-Image Fetch Failed (Non-blocking):", imgError);
