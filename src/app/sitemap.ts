@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados-web.vercel.app';
 
     // 1. Static Routes
     const staticRoutes = [

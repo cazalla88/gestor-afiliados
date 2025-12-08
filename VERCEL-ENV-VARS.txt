@@ -45,7 +45,7 @@ Environments: ✅ Production ✅ Preview ✅ Development
 # Variable 6 de 6 (ACTUALIZAR DESPUÉS)
 # ----------------------------------------------
 Nombre: NEXT_PUBLIC_BASE_URL
-Valor: https://gestor-afiliados.vercel.app
+Valor: https://gestor-afiliados-web.vercel.app
 Environments: ✅ Production ✅ Preview ✅ Development
 
 # ⚠️ NOTA: Después del primer deploy, actualiza esta variable
@@ -62,5 +62,5 @@ Environments: ✅ Production ✅ Preview ✅ Development
   "ADMIN_PASSWORD": "KejQf$^Pt*s31RJr2jbT",
   "NEXTAUTH_SECRET": "8UkjgZm1puNHLkc+V5m2Daji3eGnaRty8sxFWXe5gno=",
   "CRON_SECRET": "BsBAcBhESxRkfBverSensh2h6A54BQdQ",
-  "NEXT_PUBLIC_BASE_URL": "https://gestor-afiliados.vercel.app"
+  "NEXT_PUBLIC_BASE_URL": "https://gestor-afiliados-web.vercel.app"
 }

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: any }): Promise<Met
     }
 
     const isBlog = product.type === 'blog';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gestor-afiliados-web.vercel.app';
     const url = `${baseUrl}/${category}/${slug}`;
 
     return {
