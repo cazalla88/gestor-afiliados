@@ -225,30 +225,40 @@ export async function generateSeoContent(
     `;
   }
 
-  try {
-    let text = "";
+  // LIST OF MODELS TO TRY (In order of quota efficiency)
+  const modelsToTry = [
+    "gemini-2.0-flash-lite-preview-02-05", // First choice: Lite
+    "gemini-1.5-flash",                    // Second: Standard Flash
+    "gemini-1.5-pro",                      // Third: Standard Pro
+  ];
 
-    // FORCE GEMINI FOR STABILITY (Groq JSON mode is failing)
-    // if (finalApiKey.startsWith("gsk_")) { ... } // Disabled
+  let lastError = null;
 
-    const genAI = new GoogleGenerativeAI(finalApiKey);
-    // Use LITE version to avoid 429 Quota Exceeded errors
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-lite-preview-02-05",
-      generationConfig: { responseMimeType: "application/json" }
-    });
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`Trying SEO Gen with model: ${modelName}`);
+      const genAI = new GoogleGenerativeAI(finalApiKey);
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: "application/json" }
+      });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    text = response.text();
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let text = response.text();
 
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(text); // If success, return immediately
 
-  } catch (error: any) {
-    console.error(`Failed generation:`, error.message);
-    return { error: `AI Generation Failed: ${error.message || "Unknown error"}` };
+    } catch (error: any) {
+      console.warn(`Model ${modelName} failed: ${error.message}`);
+      lastError = error;
+      continue; // Try next model
+    }
   }
+
+  return { error: `AI Generation Failed on all models. Last error: ${lastError?.message || "Unknown"}` };
+}
 }
 
 export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
