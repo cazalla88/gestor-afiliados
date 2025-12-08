@@ -1,4 +1,4 @@
-"use server";
+
 
 import { getCampaign, getCampaignsByCategory } from "@/app/actions";
 import { notFound } from "next/navigation";

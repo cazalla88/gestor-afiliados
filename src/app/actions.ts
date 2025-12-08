@@ -34,7 +34,7 @@ export async function debugAiConnection(apiKey: string) {
 
 export async function analyzeImage(imageUrl: string, apiKey: string) {
   // Check for Groq FIRST
-  let finalApiKey = apiKey;
+  let finalApiKey: string | undefined = apiKey;
   let provider = 'google';
 
   if (apiKey?.startsWith('gsk_') || process.env.GROQ_API_KEY) {
