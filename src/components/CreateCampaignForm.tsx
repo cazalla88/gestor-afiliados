@@ -31,7 +31,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
     const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); // Vision AI State
-    const [showApiKey, setShowApiKey] = useState(false);
+    const [showApiKey, setShowApiKey] = useState(true); // <--- SIEMPRE VISIBLE PARA TI
     const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
