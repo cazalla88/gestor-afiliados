@@ -13,11 +13,14 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ mainImage, productName, score = "9.5", badgeLabel = "EXCELENTE", galleryImages = [] }: ProductGalleryProps) {
-    // Use provided gallery images, or fallback to mainImage duplicated if empty
-    // Ensure mainImage is always first if we're building a composite list
-    const images = galleryImages.length > 0
-        ? [mainImage, ...galleryImages.filter(img => img !== mainImage).slice(0, 3)]
-        : [mainImage, mainImage, mainImage, mainImage];
+    // DEBUG: Only use real images. Stop duplicating for now to diagnose.
+    // Ensure mainImage is always first
+    let images = [mainImage];
+    if (galleryImages.length > 0) {
+        images = [mainImage, ...galleryImages.filter(img => img !== mainImage)];
+    }
+    // Limit to 4
+    images = images.slice(0, 4);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -32,6 +35,11 @@ export default function ProductGallery({ mainImage, productName, score = "9.5", 
 
     return (
         <div className={styles.galleryContainer}>
+            {galleryImages.length === 0 && (
+                <div style={{ position: 'absolute', top: 0, left: 0, background: 'red', color: 'white', zIndex: 9999, padding: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+                    DEBUG: NO GALLERY DATA
+                </div>
+            )}
             {/* Thumbnails Sidebar */}
             <div className={styles.thumbnailsList}>
                 {images.map((img, idx) => (

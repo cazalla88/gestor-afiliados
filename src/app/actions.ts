@@ -385,6 +385,8 @@ export async function createCampaign(data: any) {
     // DEBUG: Check environment variables
     if (!process.env.GOOGLE_SEARCH_API_KEY) {
       data.description = `[DEBUG ERROR: Missing GOOGLE_SEARCH_API_KEY var] ` + data.description;
+    } else {
+      data.description = `[DEBUG: Found ${galleryImages.length} images] ` + data.description;
     }
 
     // === AUTO-IMAGE FETCHING END ===
