@@ -7,9 +7,9 @@ import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// export const revalidate = 0; // Removed to prevent potential conflicts
 
-export async function generateMetadata({ params }: { params: Promise<{ category: string, slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
     const { category, slug } = await params;
     const product = await getCampaign(slug);
 
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 }
 
 
-export default async function DynamicCategoryPage({ params }: { params: Promise<{ category: string, slug: string }> }) {
+export default async function DynamicCategoryPage({ params }: { params: any }) {
     const { category, slug } = await params;
     const product = await getCampaign(slug);
 

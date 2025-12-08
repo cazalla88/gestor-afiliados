@@ -2,7 +2,7 @@ import { getCampaign } from "@/app/actions";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
     const { slug } = await params;
     const campaign = await getCampaign(slug);
 
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({ params }: { params: any }) {
     const { slug } = await params;
     const campaign = await getCampaign(slug);
 
