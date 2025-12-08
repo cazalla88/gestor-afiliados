@@ -17,7 +17,6 @@ export async function searchProductImages(query: string, count: number = 4): Pro
                 searchType: 'image',
                 num: count, // Max 10
                 imgSize: 'large', // Get good quality images
-                fileType: 'jpg,png,webp',
                 safe: 'active'
             }
         });
