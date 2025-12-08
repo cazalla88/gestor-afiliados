@@ -35,11 +35,6 @@ export default function ProductGallery({ mainImage, productName, score = "9.5", 
 
     return (
         <div className={styles.galleryContainer}>
-            {galleryImages.length === 0 && (
-                <div style={{ position: 'absolute', top: 0, left: 0, background: 'red', color: 'white', zIndex: 9999, padding: '4px', fontSize: '10px', fontWeight: 'bold' }}>
-                    DEBUG: NO GALLERY DATA
-                </div>
-            )}
             {/* Thumbnails Sidebar */}
             <div className={styles.thumbnailsList}>
                 {images.map((img, idx) => (
