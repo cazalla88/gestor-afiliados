@@ -125,6 +125,7 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
   }
 }
 
+// REFACTORED: ROBUST WATERFALL STRATEGY (Google -> Groq)
 export async function generateSeoContent(
   productName: string,
   basicDescription: string,
@@ -134,45 +135,32 @@ export async function generateSeoContent(
   tone: string = 'Professional',
   existingCampaigns: any[] = []
 ) {
-  // FORCE GOOGLE KEY SELECTION
-  // Buscamos la clave en todas las variables posibles
-  let finalApiKey =
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    apiKey;
+  // 1. RESOLVE KEYS SEPARATELY
+  // Try to find a valid Google Key
+  let googleKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  if (apiKey && !apiKey.startsWith('gsk_')) googleKey = apiKey; // User provided a Google key
 
-  // If the user manually provided a Groq key (starts with gsk_), ignore it and try to find a system Google key
-  if (finalApiKey?.startsWith('gsk_')) {
-    finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-  }
+  // Try to find a valid Groq Key
+  let groqKey = process.env.GROQ_API_KEY || "";
+  if (apiKey && apiKey.startsWith('gsk_')) groqKey = apiKey; // User provided a Groq key
 
-  if (!finalApiKey) {
-    return { error: "API Key Missing. Please set NEXT_PUBLIC_GEMINI_API_KEY environment variable or provide it in the form." };
-  }
 
+  // PREPARE PROMPT (Common for both)
   const langName = language === 'es' ? 'Spanish' : 'English';
   const campaignsContext = existingCampaigns.length > 0
     ? `
     CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
-    Here is a list of other articles purely for reference context.
     ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
-    
     MANDATORY SEO INSTRUCTION:
-    If any of the above existing articles are HIGHLY relevant to this new product (same category or complementary), 
-    you MUST strictly include them in an "internalLinks" array in the JSON response.
-    Each link object must have: { "slug": "slug-here", "category": "category-here", "anchorText": "text-here" }.
-    Auto-connect the dots for the user.
+    If relevant, include them in "internalLinks" array.
     `
     : "";
 
   const SALES_STORYTELLING_FRAMEWORK = `
-    ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES (StoryBrand + Challenger Sale):
-    1. THE HERO'S JOURNEY: The Customer is the Hero. Product is the Guide.
-    2. CHALLENGER INSIGHT: Teach them something new about their problem.
-    3. EMOTIONAL ARC: Use sensory words.
-    4. SCARCITY: Imply rarity.
-    5. SOCIAL PROOF: Weave in stories.
+    ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES:
+    1. THE HERO'S JOURNEY: Customer is Hero.
+    2. CHALLENGER INSIGHT: Teach something new.
+    3. SOCIAL PROOF: Weave in stories.
   `;
 
   let prompt = "";
@@ -183,59 +171,80 @@ export async function generateSeoContent(
         Details: "${basicDescription}"
         Tone: ${tone}
         Language: ${langName}
-
         ${campaignsContext}
         ${SALES_STORYTELLING_FRAMEWORK}
 
         Generate strict JSON:
         {
             "title": "Story-Driven Hook Title",
-            "heroDescription": "Short, punchy summary for the top hero section (max 2 sentences). MUST BE DIFFERENT from introduction.",
-            "introduction": "3-paragraph narrative hook for the main content body.",
+            "heroDescription": "Short, punchy summary (max 2 sentences).",
+            "introduction": "3-paragraph narrative hook.",
             "targetAudience": "Who is the Hero?",
             "quantitativeAnalysis": "Performance Score/Gap.",
             "pros": ["Benefit 1", "Benefit 2", "Benefit 3", "Benefit 4"],
             "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
-            "features": "Superpower features based on real specs.",
+            "features": "Superpower features.",
             "comparisonTable": [
-                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2 - NEVER DEFAULT TO 9.5)", "mainFeature": "Solution" },
-                { "name": "Competitor", "price": "€€", "rating": "REALISTIC_LOWER_SCORE", "mainFeature": "Problem" }
+                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2)", "mainFeature": "Solution" },
+                { "name": "Competitor", "price": "€€", "rating": "LOWER_SCORE", "mainFeature": "Problem" }
             ],
-            "internalLinks": [
-               { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
-            ],
+            "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
             "verdict": "Final transformation promise."
         }
-        IMPORTANT: The 'rating' MUST vary between 7.5 and 9.8. Do NOT use 9.5 unless it is truly perfect. Be critical.
-        Return ONLY valid JSON.
+        IMPORTANT: 'rating' MUST vary (7.5 - 9.8). Never default to 9.5.
+        Return ONLY valid JSON string. No markdown block.
     `;
   } else {
-    prompt = `
-        Act as a Direct Response Copywriter.
-        Product: "${productName}"
-        Details: "${basicDescription}"
-        Tone: ${tone}
-        Language: ${langName}
-        ${campaignsContext}
-        ${SALES_STORYTELLING_FRAMEWORK}
-
-        Generate JSON:
-        {
-            "optimizedTitle": "Story-Driven Meta Title (max 60 chars)",
-            "optimizedDescription": "Meta Description (max 155 chars)"
-        }
-        Return ONLY valid JSON.
-    `;
+    prompt = `Act as Copywriter. Product: "${productName}". Details: "${basicDescription}". Lang: ${langName}. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." }`;
   }
 
-  // GROQ SUPPORT BRANCH
-  if (finalApiKey.startsWith('gsk_')) {
-    console.log("🚀 Using Groq for SEO Content Generation (Llama 3.3)");
+  let lastError: string = "";
+
+  // --- PHASE 1: TRY GOOGLE GEMINI (Priority) ---
+  if (googleKey) {
+    const googleModels = [
+      "gemini-2.0-flash",           // Fast & Smart
+      "gemini-2.0-flash-lite-preview-02-05", // Cheaper
+      "gemini-1.5-flash",           // Old Reliable
+      "gemini-1.5-pro",             // High Quality
+      "gemini-pro"                  // Legacy
+    ];
+
+    for (const modelName of googleModels) {
+      try {
+        console.log(`🤖 Trying Google Model: ${modelName}`);
+        const genAI = new GoogleGenerativeAI(googleKey);
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: { responseMimeType: "application/json" }
+        });
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        let text = response.text();
+
+        // Clean and Parse
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(text); // SUCCESS! Return result.
+
+      } catch (error: any) {
+        console.warn(`❌ Google ${modelName} failed: ${error.message}`);
+        lastError = `Google Error: ${error.message}`;
+        // Continue to next Google model...
+      }
+    }
+  } else {
+    console.log("ℹ️ No Google API Key found. Skipping to Groq...");
+  }
+
+  // --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
+  if (groqKey) {
+    console.log("🚀 Switching to Groq (Llama 3.3) Fallback...");
     try {
-      const groq = new Groq({ apiKey: finalApiKey });
+      const groq = new Groq({ apiKey: groqKey });
       const completion = await groq.chat.completions.create({
         messages: [
-          { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks ```json ... ```. Just the raw JSON string." },
+          { role: "system", content: "You are a JSON-only API. Return ONLY raw JSON object." },
           { role: "user", content: prompt }
         ],
         model: "llama-3.3-70b-versatile",
@@ -244,52 +253,19 @@ export async function generateSeoContent(
       });
 
       const content = completion.choices[0]?.message?.content || "{}";
-      // Clean potential markdown if Llama ignores system prompt instructions
       const jsonStr = content.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(jsonStr);
+      return JSON.parse(jsonStr); // SUCCESS!
 
     } catch (groqError: any) {
-      console.error("Groq Generation Failed:", groqError);
-      return { error: `Groq Error: ${groqError.message}` };
+      console.error("❌ Groq Failed:", groqError);
+      lastError += ` | Groq Error: ${groqError.message}`;
     }
+  } else {
+    console.log("ℹ️ No Groq API Key found.");
   }
 
-  // GOOGLE GEMINI BRANCH (Legacy)
-  // LIST OF MODELS TO TRY (In order of priority)
-  const modelsToTry = [
-    "gemini-2.0-flash-lite-preview-02-05", // 1. Lite (Efficient)
-    "gemini-2.0-flash",                    // 2. Standard 2.0
-    "gemini-2.0-pro-exp-02-05",            // 3. Pro Experimental (Separate quota)
-    "gemini-2.5-flash",                    // 4. Cutting Edge
-    "gemini-1.5-flash"                     // 5. STABLE BACKUP
-  ];
-
-  let lastError: any = null;
-
-  for (const modelName of modelsToTry) {
-    try {
-      console.log(`Trying SEO Gen with model: ${modelName}`);
-      const genAI = new GoogleGenerativeAI(finalApiKey);
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        generationConfig: { responseMimeType: "application/json" }
-      });
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      let text = response.text();
-
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(text); // If success, return immediately
-
-    } catch (error: any) {
-      console.warn(`Model ${modelName} failed: ${error.message}`);
-      lastError = error;
-      continue; // Try next model
-    }
-  }
-
-  return { error: `AI Generation Failed on all models. Last error: ${lastError?.message || "Unknown"}` };
+  // --- PHASE 3: TOTAL FAILURE ---
+  return { error: `ALL AI Models Failed. Please check API Keys. Details: ${lastError}` };
 }
 
 export async function generateBattleContent(productA: any, productB: any, apiKey: string, language: 'en' | 'es') {
