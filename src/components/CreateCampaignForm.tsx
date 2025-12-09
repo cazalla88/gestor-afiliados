@@ -368,7 +368,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                                         ...prev,
                                         productName: data.productName || prev.productName,
                                         imageUrl: data.imageUrl || prev.imageUrl,
-                                        // manualGallery: REMOVED to allow Google Auto-Search to take precedence
+                                        manualGallery: data.manualGallery || prev.manualGallery, /* Auto-fill gallery restored */
                                         // Append scraped data to description so AI can use it
                                         description: prev.description ? prev.description + "<br/><hr/>" + scrapedInfo : scrapedInfo
                                     }));

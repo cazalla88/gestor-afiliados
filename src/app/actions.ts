@@ -676,32 +676,19 @@ export async function scrapeAmazonProduct(url: string) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-      redirect: 'follow'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
+      }
     });
 
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // Check for Captcha
-    if ($('title').text().includes('Robot') || $('title').text().includes('Captcha')) {
-      return { error: 'Amazon Anti-Bot Blocked Request. Please fill fields manually.' };
-    }
-
     // 1. Title Extraction
     let title = $('#productTitle').text().trim();
     if (!title) {
       title = $('meta[name="title"]').attr('content') || $('title').text().split(':')[0] || "";
-    }
-
-    // Critical Failure Check
-    if (!title || title.length < 3) {
-      return { error: 'Could not extract product data (Amazon Layout changed or Blocked). Fill manually.' };
     }
 
     // 2. Image Extraction
