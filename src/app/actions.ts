@@ -498,6 +498,17 @@ export async function createCampaign(data: any) {
 
 export async function updateCampaign(slug: string, data: any) {
   try {
+    // Process Manual Gallery Override for Updates
+    let galleryImagesBackup = data.galleryImagesBackup; // Try to keep existing if passed
+
+    if (data.manualGallery && data.manualGallery.trim().length > 0) {
+      galleryImagesBackup = data.manualGallery
+        .split(/[\n,]+/)
+        .map((url: string) => url.trim())
+        .filter((url: string) => url.startsWith('http'))
+        .slice(0, 4);
+    }
+
     const campaign = await prisma.campaign.update({
       where: { slug },
       data: {
@@ -517,7 +528,8 @@ export async function updateCampaign(slug: string, data: any) {
           cons: data.cons,
           comparisonTable: data.comparisonTable,
           verdict: data.verdict,
-          internalLinks: data.internalLinks
+          internalLinks: data.internalLinks,
+          galleryImagesBackup: galleryImagesBackup // <--- SAVE IT
         }),
       }
     });
