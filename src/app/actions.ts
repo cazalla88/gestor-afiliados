@@ -135,14 +135,23 @@ export async function generateSeoContent(
   tone: string = 'Professional',
   existingCampaigns: any[] = []
 ) {
-  // 1. RESOLVE KEYS SEPARATELY
-  // Try to find a valid Google Key
+  // 1. RESOLVE KEYS SEPARATELY & FIX CROSS-CONFIGURATION
+  // Start with Environment Variables
   let googleKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
-  if (apiKey && !apiKey.startsWith('gsk_')) googleKey = apiKey; // User provided a Google key
-
-  // Try to find a valid Groq Key
   let groqKey = process.env.GROQ_API_KEY || "";
-  if (apiKey && apiKey.startsWith('gsk_')) groqKey = apiKey; // User provided a Groq key
+
+  // Override with User Input if provided
+  if (apiKey) {
+    if (apiKey.startsWith('gsk_')) groqKey = apiKey;
+    else googleKey = apiKey;
+  }
+
+  // CRITICAL FIX: Check if Google Key is actually a Groq Key (User misconfiguration)
+  if (googleKey.startsWith('gsk_')) {
+    console.warn("⚠️ Detectada Clave de Groq en variable de Google. Corrigiendo...");
+    groqKey = googleKey;
+    googleKey = ""; // Invalidate Google path to prevent 404/Auth errors
+  }
 
 
   // PREPARE PROMPT (Common for both)
@@ -171,6 +180,7 @@ export async function generateSeoContent(
         Details: "${basicDescription}"
         Tone: ${tone}
         Language: ${langName}
+
         ${campaignsContext}
         ${SALES_STORYTELLING_FRAMEWORK}
 
@@ -202,12 +212,11 @@ export async function generateSeoContent(
 
   // --- PHASE 1: TRY GOOGLE GEMINI (Priority) ---
   if (googleKey) {
+    // PRIORITY CHANGE: Use 1.5-flash ONLY as primary to avoid 404s on experimental models
     const googleModels = [
-      "gemini-2.0-flash",           // Fast & Smart
-      "gemini-2.0-flash-lite-preview-02-05", // Cheaper
-      "gemini-1.5-flash",           // Old Reliable
-      "gemini-1.5-pro",             // High Quality
-      "gemini-pro"                  // Legacy
+      "gemini-1.5-flash",           // <--- MOST STABLE & FASTEST (Primary)
+      "gemini-1.5-pro",             // High Quality Backup
+      "gemini-2.0-flash"            // Experimental (Try last)
     ];
 
     for (const modelName of googleModels) {
