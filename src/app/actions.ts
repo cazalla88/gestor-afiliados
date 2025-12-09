@@ -450,45 +450,34 @@ export async function createCampaign(data: any) {
             galleryImages = foundImages;
           }
         } else {
-          // User provided an image, try to fetch 3 more variants to fill gallery
+          // User provided an image (Amazon Auto-fill), fetch extra gallery images
           console.log(`Fetching extra gallery images for: ${data.productName}`);
 
-          // Strategy: High-Volume Search to ensure visual diversity
-          // 1. Get Base Images (Request 8 to have a good pool of candidates)
-          console.log("📸 Fetching Primary Image Batch...");
-          let additionalImages = await searchProductImages(data.productName, 8);
+          // Optimized Strategy: Single High-Quality Fetch to save API Quota
+          console.log("📸 Fetching High Quality Gallery Candidates...");
 
-          // Ensure unique images from the start
+          // Request 8 images to have enough to choose from
+          // Search query optimized for product photography
+          const candidates = await searchProductImages(`${data.productName} official product photo high resolution`, 8);
+
           const uniqueSet = new Set<string>();
-          if (mainImage) uniqueSet.add(mainImage);
 
-          additionalImages.forEach(img => {
-            if (img && !uniqueSet.has(img)) uniqueSet.add(img);
+          // Add candidates to set, skipping the main image to avoid dupe
+          candidates.forEach(img => {
+            if (img && img !== mainImage && !uniqueSet.has(img)) {
+              uniqueSet.add(img);
+            }
           });
 
-          // 2. If we don't have enough unique images, try "Lifestyle/Context" query
-          if (uniqueSet.size < 5) { // We want main + 4 others ideally
-            console.log("📸 Not enough variety. Fetching Lifestyle Batch...");
-            const lifestyleImages = await searchProductImages(data.productName + " lifestyle review real", 6);
-            lifestyleImages.forEach(img => {
-              if (img && !uniqueSet.has(img)) uniqueSet.add(img);
-            });
-          }
+          // Select top 3 unique images for the gallery
+          galleryImages = Array.from(uniqueSet).slice(0, 3);
 
-          // 3. Last resort: "Unboxing/Packaging" for different angles
-          if (uniqueSet.size < 5) {
-            console.log("📸 Still low. Fetching Detail Batch...");
-            const detailImages = await searchProductImages(data.productName + " unboxing detail", 4);
-            detailImages.forEach(img => {
-              if (img && !uniqueSet.has(img)) uniqueSet.add(img);
-            });
+          if (galleryImages.length === 0) {
+            console.log("⚠️ No specific images found, trying broader query...");
+            // Fallback: simpler query
+            const broadCandidates = await searchProductImages(data.productName, 4);
+            galleryImages = broadCandidates.filter(img => img !== mainImage).slice(0, 3);
           }
-
-          // Convert set to array and take top 4 EXCLUDING mainImage (since mainImage is handled separately in Gallery)
-          // Actually, let's just pass them all and let Gallery Component sort it, 
-          // but we need to pass a list of *extra* images to 'galleryImages'.
-          const allUnique = Array.from(uniqueSet);
-          galleryImages = allUnique.filter(img => img !== mainImage).slice(0, 4);
         }
       }
     } catch (imgError: any) {
@@ -496,34 +485,15 @@ export async function createCampaign(data: any) {
       // DEBUG: Inject error into description so user can see it
       data.description = `[DEBUG ERROR: ${imgError.message || "Unknown error"}] ` + data.description;
 
-      // Fallback: If no gallery, ensure at least main image is in gallery if it exists
-      if (mainImage) {
-        if (galleryImages.length === 0) galleryImages = [mainImage];
-
-        // FORCE FILL: If we still don't have 4 images (common for future/fake products),
-        // duplicate the main image with fake query params to ensure gallery UI looks full.
-        let variantCounter = 1;
-        while (galleryImages.length < 4) {
-          const separator = mainImage.includes('?') ? '&' : '?';
-          galleryImages.push(`${mainImage}${separator}variant=${variantCounter}`);
-          variantCounter++;
-        }
+      // Fallback: If absolutely no images, ensure mainImage is used
+      if (mainImage && galleryImages.length === 0) {
+        galleryImages = [mainImage];
       }
     }
 
-    // FINAL GLOBAL CHECK: Ensure we ALWAYS have 4 images for the UI
-    // This runs whether the try block succeeded (but found < 4 images) or failed.
-    if (mainImage && galleryImages.length < 4) {
-      let variantCounter = 1;
-      while (galleryImages.length < 4) {
-        const separator = mainImage.includes('?') ? '&' : '?';
-        const variantUrl = `${mainImage}${separator}variant=${variantCounter}`;
-        // Avoid duplicates just in case
-        if (!galleryImages.includes(variantUrl)) {
-          galleryImages.push(variantUrl);
-        }
-        variantCounter++;
-      }
+    // Ensure we list at least the main image if gallery is still empty
+    if (galleryImages.length === 0 && mainImage) {
+      galleryImages.push(mainImage);
     }
 
     // === AUTO-IMAGE FETCHING END ===

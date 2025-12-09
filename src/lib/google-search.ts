@@ -1,5 +1,5 @@
 export async function searchProductImages(query: string, count: number = 4): Promise<string[]> {
-    const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
+    const apiKey = process.env.GOOGLE_SEARCH_API_KEY || process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     const cx = process.env.GOOGLE_SEARCH_CX;
 
     if (!apiKey || !cx) {
