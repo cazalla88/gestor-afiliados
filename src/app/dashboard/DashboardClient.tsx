@@ -405,7 +405,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                         return (
                             <Link
                                 key={slug}
-                                href={`/categories/${slug}`}
+                                href={`/categories/${slug}?source=dashboard`}
                                 style={{
                                     position: 'relative',
                                     background: 'rgba(30, 30, 46, 0.6)',
