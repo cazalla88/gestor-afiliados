@@ -676,19 +676,37 @@ export async function scrapeAmazonProduct(url: string) {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
-      }
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache'
+      },
+      redirect: 'follow'
     });
 
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // 1. Title Extraction
+    // 1. Title Extraction (Robust Fallbacks)
     let title = $('#productTitle').text().trim();
     if (!title) {
-      title = $('meta[name="title"]').attr('content') || $('title').text().split(':')[0] || "";
+      title = $('meta[property="og:title"]').attr('content') ||
+        $('meta[name="title"]').attr('content') ||
+        $('title').text().split(':')[0] ||
+        "";
+    }
+
+    // CHECK: If still no title, we are blocked or page is broken
+    if (!title || title.includes("Captcha") || title.includes("Robot")) {
+      return { error: "Amazon bloqueó el escaneo automático (Anti-Bot). Por favor, copia el Título y la Imagen manualmente." };
     }
 
     // 2. Image Extraction
@@ -698,7 +716,10 @@ export async function scrapeAmazonProduct(url: string) {
     if (scriptContent) {
       image = scriptContent[1];
     } else {
-      image = $('#landingImage').attr('src') || $('#imgBlkFront').attr('src') || "";
+      image = $('#landingImage').attr('src') ||
+        $('#imgBlkFront').attr('src') ||
+        $('meta[property="og:image"]').attr('content') || // Layout fallback
+        "";
     }
 
     // 3. Features (Bullet Points)
