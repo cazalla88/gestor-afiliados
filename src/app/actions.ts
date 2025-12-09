@@ -728,12 +728,32 @@ export async function scrapeAmazonProduct(url: string) {
       .sort((a, b) => b.length - a.length)
       .slice(0, 8);
 
+    // HYBRID FALLBACK: If Amazon scraper found few images (likely due to AJAX loading),
+    // supplement with Google Images to ensure Variety.
+    if (galleryUrls.length < 3) {
+      console.log("⚠️ Scraper found few images. Supplementing with Google Search...");
+      try {
+        // Search for "Product Name + lifestyle/context"
+        const query = `${title} lifestyle review`;
+        const googleImages = await searchProductImages(query, 4);
+
+        // Add unique Google images
+        googleImages.forEach(gImg => {
+          if (gImg !== image && !galleryUrls.includes(gImg)) {
+            galleryUrls.push(gImg);
+          }
+        });
+      } catch (e) {
+        console.error("Google Fallback failed:", e);
+      }
+    }
+
     return {
       productName: title,
       imageUrl: image,
       features: features.slice(0, 6).join("\n- "),
       description: description.slice(0, 1000),
-      manualGallery: galleryUrls.join('\n')
+      manualGallery: galleryUrls.slice(0, 6).join('\n') // Limit to top 6 mixed
     };
 
   } catch (error) {
