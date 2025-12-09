@@ -388,7 +388,33 @@ export async function createCampaign(data: any) {
       data.description = `[DEBUG ERROR: ${imgError.message || "Unknown error"}] ` + data.description;
 
       // Fallback: If no gallery, ensure at least main image is in gallery if it exists
-      if (mainImage) galleryImages = [mainImage];
+      if (mainImage) {
+        if (galleryImages.length === 0) galleryImages = [mainImage];
+
+        // FORCE FILL: If we still don't have 4 images (common for future/fake products),
+        // duplicate the main image with fake query params to ensure gallery UI looks full.
+        let variantCounter = 1;
+        while (galleryImages.length < 4) {
+          const separator = mainImage.includes('?') ? '&' : '?';
+          galleryImages.push(`${mainImage}${separator}variant=${variantCounter}`);
+          variantCounter++;
+        }
+      }
+    }
+
+    // FINAL GLOBAL CHECK: Ensure we ALWAYS have 4 images for the UI
+    // This runs whether the try block succeeded (but found < 4 images) or failed.
+    if (mainImage && galleryImages.length < 4) {
+      let variantCounter = 1;
+      while (galleryImages.length < 4) {
+        const separator = mainImage.includes('?') ? '&' : '?';
+        const variantUrl = `${mainImage}${separator}variant=${variantCounter}`;
+        // Avoid duplicates just in case
+        if (!galleryImages.includes(variantUrl)) {
+          galleryImages.push(variantUrl);
+        }
+        variantCounter++;
+      }
     }
 
     // === AUTO-IMAGE FETCHING END ===
