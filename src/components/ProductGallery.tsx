@@ -17,8 +17,24 @@ export default function ProductGallery({ mainImage, productName, score = "9.5", 
     // Ensure mainImage is always first
     let images = [mainImage];
     if (galleryImages.length > 0) {
-        images = [mainImage, ...galleryImages.filter(img => img !== mainImage)];
+        // Filter out EXACT duplicates of mainImage, but keep variants
+        const uniqueGallery = galleryImages.filter(img => img !== mainImage);
+        images = [mainImage, ...uniqueGallery];
     }
+
+    // FRONTEND FALLBACK: If we still have < 4 images, force duplicates of mainImage
+    // just so the carousel looks "full" and consistent.
+    if (images.length < 4) {
+        let fillCount = 1;
+        while (images.length < 4) {
+            // Append a dummy query param to make React/Key happy and look different
+            // (Though src is same, it will render independent slots)
+            const separator = mainImage.includes('?') ? '&' : '?';
+            images.push(`${mainImage}${separator}fe_fill=${fillCount}`);
+            fillCount++;
+        }
+    }
+
     // Limit to 4
     images = images.slice(0, 4);
 
