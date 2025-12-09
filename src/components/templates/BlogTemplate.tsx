@@ -96,9 +96,9 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
             {/* NEW SPLIT HERO SECTION */}
             <section className={styles.heroSection}>
                 <div className="container">
-                    {/* NEW EDITORIAL HEADER (Full Width) */}
-                    <div style={{ maxWidth: '900px', margin: '0 0 3rem 0', textAlign: 'left' }}>
-                        <div className={styles.meta} style={{ justifyContent: 'flex-start', marginBottom: '1rem' }}>
+                    {/* NEW EDITORIAL HEADER (Centered) */}
+                    <div style={{ maxWidth: '1000px', margin: '0 auto 3rem auto', textAlign: 'center' }}>
+                        <div className={styles.meta} style={{ justifyContent: 'center', marginBottom: '1rem' }}>
                             <span className={styles.heroCategory}>{t.review}</span>
                             <span style={{ margin: '0 0.5rem', color: '#ccc' }}>|</span>
                             <span className={styles.date}>{date}</span>
@@ -106,7 +106,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
 
                         <h1 className={styles.heroTitle}>{campaign.title}</h1>
 
-                        <div className={styles.author} style={{ justifyContent: 'flex-start', marginTop: '1.5rem' }}>
+                        <div className={styles.author} style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
                             <div className={styles.avatar} style={{ background: '#111', color: '#fff' }}>N</div>
                             <span>{t.by} <strong>{["Sarah Jenkins", "Michael Ross", "Jessica Chen", "David Baker", "Emma Wilson"][campaign.productName.length % 5]}</strong> <span style={{ opacity: 0.6, fontSize: '0.9em' }}> | Nexus Team</span></span>
                         </div>
