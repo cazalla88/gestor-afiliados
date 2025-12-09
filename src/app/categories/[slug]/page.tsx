@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getAllCampaigns } from '@/app/actions';
 import { CATEGORIES, getCategoryName, getCategoryIcon } from '@/lib/categories';
 import Link from 'next/link';
@@ -41,7 +42,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <BackButton className={styles.backButton} />
+                <Suspense fallback={<div className={styles.backButton}>← Volver</div>}>
+                    <BackButton className={styles.backButton} />
+                </Suspense>
 
 
                 <div className={styles.categoryTitle}>
