@@ -105,24 +105,76 @@ export default function ProductGallery({
         e.dataTransfer.dropEffect = "copy";
     };
 
+    const handlePaste = async (index: number) => {
+        if (!isEditable || !onImageUpdate) return;
+
+        try {
+            // Try to read generic text first
+            const text = await navigator.clipboard.readText();
+            if (text && text.startsWith('http')) {
+                onImageUpdate(index, text);
+                setSelectedIndex(index);
+                return;
+            }
+        } catch (err) {
+            // Clipboard API might be blocked or require permission
+            console.warn("Clipboard read failed, falling back to prompt", err);
+        }
+
+        // Fallback for mouse users if API fails
+        const manualUrl = prompt("Paste the image link here:");
+        if (manualUrl && manualUrl.startsWith('http')) {
+            onImageUpdate(index, manualUrl);
+            setSelectedIndex(index);
+        }
+    };
+
+    // Handle Ctrl+V event
+    const handlePasteEvent = (e: React.ClipboardEvent, index: number) => {
+        if (!isEditable || !onImageUpdate) return;
+        const text = e.clipboardData.getData('text');
+        if (text && text.startsWith('http')) {
+            e.preventDefault();
+            onImageUpdate(index, text);
+            setSelectedIndex(index);
+        }
+    };
+
     return (
         <div className={styles.galleryContainer}>
             {/* Thumbnails Sidebar */}
             <div className={styles.thumbnailsList}>
                 {images.map((img, idx) => (
-                    <button
-                        key={idx}
-                        className={`${styles.thumbnailBtn} ${selectedIndex === idx ? styles.active : ''}`}
-                        onClick={() => setSelectedIndex(idx)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, idx)}
-                        aria-label={`View image ${idx + 1}`}
-                        style={isEditable ? { border: '2px dashed #444', cursor: 'copy' } : {}}
-                        title={isEditable ? "Drag & Drop Image URL here to update" : ""}
-                    >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img} alt={`Thumbnail ${idx}`} className={styles.thumbImg} />
-                    </button>
+                    <div key={idx} style={{ position: 'relative' }}>
+                        <button
+                            className={`${styles.thumbnailBtn} ${selectedIndex === idx ? styles.active : ''}`}
+                            onClick={() => setSelectedIndex(idx)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            onPaste={(e) => handlePasteEvent(e, idx)}
+                            aria-label={`View image ${idx + 1}`}
+                            style={isEditable ? { border: '2px dashed #444', cursor: 'pointer' } : {}}
+                            title={isEditable ? "Click to Edit or Drag Image" : ""}
+                        >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={img} alt={`Thumbnail ${idx}`} className={styles.thumbImg} />
+                        </button>
+                        {isEditable && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); handlePaste(idx); }}
+                                style={{
+                                    position: 'absolute', top: -5, right: -5,
+                                    background: '#2563eb', color: 'white', border: 'none',
+                                    borderRadius: '50%', width: '20px', height: '20px',
+                                    cursor: 'pointer', fontSize: '12px', zIndex: 10,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
+                                title="Paste Image URL"
+                            >
+                                📋
+                            </button>
+                        )}
+                    </div>
                 ))}
             </div>
 
@@ -131,7 +183,9 @@ export default function ProductGallery({
                 className={styles.mainStage}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, selectedIndex)}
-                style={isEditable ? { outline: '2px dashed rgba(255,255,255,0.2)', outlineOffset: '-10px' } : {}}
+                onPaste={(e) => handlePasteEvent(e, selectedIndex)}
+                tabIndex={0} // Make focusable for paste
+                style={isEditable ? { outline: '2px dashed rgba(255,255,255,0.2)', outlineOffset: '-10px', position: 'relative' } : {}}
             >
                 <Image
                     src={images[selectedIndex] || safeMainImage}
@@ -140,7 +194,7 @@ export default function ProductGallery({
                     className={styles.mainImage}
                     style={{ objectFit: "contain" }}
                     priority
-                    unoptimized // Bypass Next.js optimization to prevent crashes with external URLs
+                    unoptimized
                 />
 
                 {/* Score Badge Overlay */}
@@ -150,11 +204,26 @@ export default function ProductGallery({
                 </div>
 
                 {isEditable && (
-                    <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', pointerEvents: 'none' }}>
-                        ✍️ Drag Image Here
-                    </div>
+                    <>
+                        <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', pointerEvents: 'none' }}>
+                            ✍️ Drag or Paste (Ctrl+V)
+                        </div>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); handlePaste(selectedIndex); }}
+                            style={{
+                                position: 'absolute', top: 10, right: 10,
+                                background: '#2563eb', color: 'white', border: 'none',
+                                padding: '8px 12px', borderRadius: '4px',
+                                cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                            }}
+                        >
+                            📋 Paste URL
+                        </button>
+                    </>
                 )}
             </div>
         </div>
     );
 }
+```
