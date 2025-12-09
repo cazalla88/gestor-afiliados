@@ -17,6 +17,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 export const metadata: Metadata = {
   title: "Gestor de Afiliados IA",
   description: "Crea y gestiona campañas de afiliados con Inteligencia Artificial",
+  verification: {
+    google: "AVtTf8QGf0LrRqKa8_YWgIUsUTrGirFQbCkcjxP5sEk",
+  },
 };
 
 import { LanguageProvider } from "@/context/LanguageContext";
