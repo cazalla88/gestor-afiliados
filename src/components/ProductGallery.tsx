@@ -237,23 +237,64 @@ export default function ProductGallery({
                 </div>
 
                 {isEditable && (
-                    <>
-                        <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', pointerEvents: 'none' }}>
-                            ✍️ Drag or Paste (Ctrl+V)
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'rgba(0,0,0,0.85)',
+                        padding: '10px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '5px',
+                        zIndex: 20
+                    }}>
+                        <label style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                            Edit Image {selectedIndex + 1} URL:
+                        </label>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                            <input
+                                type="text"
+                                placeholder="Paste https://... link here"
+                                value={images[selectedIndex] || ""}
+                                onChange={(e) => {
+                                    // Live update as they type/paste
+                                    onImageUpdate && onImageUpdate(selectedIndex, e.target.value);
+                                }}
+                                style={{
+                                    flex: 1,
+                                    padding: '6px',
+                                    borderRadius: '4px',
+                                    border: '1px solid #444',
+                                    background: '#222',
+                                    color: '#fff',
+                                    fontSize: '0.9rem'
+                                }}
+                                onClick={(e) => e.stopPropagation()} // Prevent focus fight
+                            />
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onImageUpdate) onImageUpdate(selectedIndex, "https://placehold.co/600x600/333/666?text=Empty");
+                                }}
+                                style={{
+                                    padding: '5px 10px',
+                                    background: '#ef4444',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem'
+                                }}
+                                title="Clear Image"
+                            >
+                                🗑️
+                            </button>
                         </div>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); handlePaste(selectedIndex); }}
-                            style={{
-                                position: 'absolute', top: 10, right: 10,
-                                background: '#2563eb', color: 'white', border: 'none',
-                                padding: '8px 12px', borderRadius: '4px',
-                                cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                            }}
-                        >
-                            📋 Paste URL
-                        </button>
-                    </>
+                        <span style={{ fontSize: '0.7rem', color: '#aaa' }}>
+                            * Paste exact image address (ends in .jpg/.png)
+                        </span>
+                    </div>
                 )}
             </div>
         </div>
