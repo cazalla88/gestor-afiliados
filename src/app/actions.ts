@@ -244,17 +244,25 @@ export async function generateSeoContent(
       const groq = new Groq({ apiKey: groqKey });
       const completion = await groq.chat.completions.create({
         messages: [
-          { role: "system", content: "You are a JSON-only API. Return ONLY raw JSON object." },
+          { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. No markdown, no conversational text." },
           { role: "user", content: prompt }
         ],
         model: "llama-3.3-70b-versatile",
         temperature: 0.7,
-        response_format: { type: "json_object" }
+        // response_format: { type: "json_object" } // <--- DISABLED due to strict 400 errors
       });
 
       const content = completion.choices[0]?.message?.content || "{}";
-      const jsonStr = content.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(jsonStr); // SUCCESS!
+
+      // Manual Robust JSON Extraction (Find first { and last })
+      const jsonMatch = content.match(/(\{[\s\S]*\})/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]); // Parse the extracted JSON
+      } else {
+        // Fallback simple clean
+        const jsonStr = content.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(jsonStr);
+      }
 
     } catch (groqError: any) {
       console.error("❌ Groq Failed:", groqError);
