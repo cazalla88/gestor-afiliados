@@ -59,13 +59,43 @@ export default function ProductGallery({
         e.preventDefault();
         e.stopPropagation();
 
-        const data = e.dataTransfer.getData("text/plain") || e.dataTransfer.getData("text/uri-list");
-        if (data && (data.startsWith("http") || data.startsWith("data:image"))) {
-            // Index 0 is mainImage, 1+ are galleryImages
-            onImageUpdate(index, data);
-            setSelectedIndex(index); // Focus on the dropped image
+        let imageUrl = "";
+
+        // 1. Try to get direct URL list (standard)
+        const uriList = e.dataTransfer.getData("text/uri-list");
+        if (uriList) {
+            imageUrl = uriList.split('\n')[0].trim();
+        }
+
+        // 2. If empty, try "text/html" (common when dragging <img> tags)
+        if (!imageUrl) {
+            const html = e.dataTransfer.getData("text/html");
+            if (html) {
+                // Extract src="..." from the HTML string
+                const srcMatch = html.match(/src="([^"]+)"/);
+                if (srcMatch && srcMatch[1]) {
+                    imageUrl = srcMatch[1];
+                }
+            }
+        }
+
+        // 3. Fallback to plain text
+        if (!imageUrl) {
+            imageUrl = e.dataTransfer.getData("text/plain");
+        }
+
+        // 4. Validate and Update
+        // Fix encoded google images or weird proxies
+        if (imageUrl && (imageUrl.startsWith("http") || imageUrl.startsWith("data:image"))) {
+            // Removing quotes if any
+            imageUrl = imageUrl.replace(/"/g, '');
+
+            console.log("Image Dropped:", imageUrl); // Debug
+            onImageUpdate(index, imageUrl);
+            setSelectedIndex(index);
         } else {
-            alert("No valid image URL found in drag. Try dragging an image from a Chrome tab.");
+            console.log("Drop failed, data types:", e.dataTransfer.types);
+            alert("Could not extract image URL. Try: Right Click Image -> Open in New Tab -> Drag URL from address bar.");
         }
     };
 
