@@ -528,7 +528,6 @@ export async function updateCampaign(slug: string, data: any) {
           cons: data.cons,
           comparisonTable: data.comparisonTable,
           verdict: data.verdict,
-          internalLinks: data.internalLinks,
           galleryImagesBackup: galleryImagesBackup // <--- SAVE IT
         }),
       }

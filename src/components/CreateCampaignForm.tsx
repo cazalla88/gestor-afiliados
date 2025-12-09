@@ -366,8 +366,9 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
                                     setFormData(prev => ({
                                         ...prev,
-                                        productName: data.title || prev.productName,
-                                        imageUrl: data.image || prev.imageUrl,
+                                        productName: data.productName || prev.productName,
+                                        imageUrl: data.imageUrl || prev.imageUrl,
+                                        manualGallery: data.manualGallery || prev.manualGallery, /* Auto-fill gallery! */
                                         // Append scraped data to description so AI can use it
                                         description: prev.description ? prev.description + "<br/><hr/>" + scrapedInfo : scrapedInfo
                                     }));
