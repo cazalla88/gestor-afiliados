@@ -256,7 +256,12 @@ export default function ProductGallery({
                             <input
                                 type="text"
                                 placeholder="Paste https://... link here"
-                                value={images[selectedIndex] || ""}
+                                value={(() => {
+                                    // Calculate RAW value for input (no placeholders)
+                                    if (selectedIndex === 0) return mainImage;
+                                    const galIdx = selectedIndex - 1;
+                                    return galleryImages[galIdx] || "";
+                                })()}
                                 onChange={(e) => {
                                     // Live update as they type/paste
                                     onImageUpdate && onImageUpdate(selectedIndex, e.target.value);
@@ -275,7 +280,7 @@ export default function ProductGallery({
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (onImageUpdate) onImageUpdate(selectedIndex, "https://placehold.co/600x600/333/666?text=Empty");
+                                    if (onImageUpdate) onImageUpdate(selectedIndex, "");
                                 }}
                                 style={{
                                     padding: '5px 10px',
