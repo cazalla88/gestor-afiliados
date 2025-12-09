@@ -351,56 +351,75 @@ export async function createCampaign(data: any) {
     // === AUTO-IMAGE FETCHING START ===
     let galleryImages: string[] = [];
     let mainImage = data.imageUrl;
+    let skipAutoFetch = false;
+
+    // 1. MANUAL OVERRIDE: Did user provide manual gallery URLs?
+    if (data.manualGallery && data.manualGallery.trim().length > 0) {
+      console.log("🖼️ Using Manual Gallery Images provided by user.");
+      galleryImages = data.manualGallery
+        .split(/[\n,]+/) // Split by newline or comma
+        .map((url: string) => url.trim())
+        .filter((url: string) => url.startsWith('http')) // Basic validation
+        .slice(0, 4);
+
+      if (galleryImages.length > 0) {
+        skipAutoFetch = true;
+        // If no main image provided, use the first manual one
+        if (!mainImage) mainImage = galleryImages[0];
+      }
+    }
 
     try {
-      // If the user didn't provide a real image (or empty/placeholder)
-      if (!mainImage || mainImage.includes('placehold.co') || mainImage.trim() === "") {
-        console.log(`Auto-fetching images for: ${data.productName}`);
-        const foundImages = await searchProductImages(data.productName + " product", 4);
-        if (foundImages.length > 0) {
-          mainImage = foundImages[0];
-          galleryImages = foundImages;
-        }
-      } else {
-        // User provided an image, try to fetch 3 more variants to fill gallery
-        console.log(`Fetching extra gallery images for: ${data.productName}`);
+      if (!skipAutoFetch) {
+        // If the user didn't provide a real image (or empty/placeholder)
+        if (!mainImage || mainImage.includes('placehold.co') || mainImage.trim() === "") {
+          console.log(`Auto-fetching images for: ${data.productName}`);
+          const foundImages = await searchProductImages(data.productName + " product", 4);
+          if (foundImages.length > 0) {
+            mainImage = foundImages[0];
+            galleryImages = foundImages;
+          }
+        } else {
+          // User provided an image, try to fetch 3 more variants to fill gallery
+          console.log(`Fetching extra gallery images for: ${data.productName}`);
 
-        // Strategy: High-Volume Search to ensure visual diversity
-        // 1. Get Base Images (Request 8 to have a good pool of candidates)
-        console.log("📸 Fetching Primary Image Batch...");
-        let additionalImages = await searchProductImages(data.productName, 8);
+          // Strategy: High-Volume Search to ensure visual diversity
+          // 1. Get Base Images (Request 8 to have a good pool of candidates)
+          console.log("📸 Fetching Primary Image Batch...");
+          let additionalImages = await searchProductImages(data.productName, 8);
 
-        // Ensure unique images from the start
-        const uniqueSet = new Set<string>();
-        if (mainImage) uniqueSet.add(mainImage);
+          // Ensure unique images from the start
+          const uniqueSet = new Set<string>();
+          if (mainImage) uniqueSet.add(mainImage);
 
-        additionalImages.forEach(img => {
-          if (img && !uniqueSet.has(img)) uniqueSet.add(img);
-        });
-
-        // 2. If we don't have enough unique images, try "Lifestyle/Context" query
-        if (uniqueSet.size < 5) { // We want main + 4 others ideally
-          console.log("📸 Not enough variety. Fetching Lifestyle Batch...");
-          const lifestyleImages = await searchProductImages(data.productName + " lifestyle review real", 6);
-          lifestyleImages.forEach(img => {
+          additionalImages.forEach(img => {
             if (img && !uniqueSet.has(img)) uniqueSet.add(img);
           });
-        }
 
-        // 3. Last resort: "Unboxing/Packaging" for different angles
-        if (uniqueSet.size < 5) {
-          console.log("📸 Still low. Fetching Detail Batch...");
-          const detailImages = await searchProductImages(data.productName + " unboxing detail", 4);
-          detailImages.forEach(img => {
-            if (img && !uniqueSet.has(img)) uniqueSet.add(img);
-          });
-        }
+          // 2. If we don't have enough unique images, try "Lifestyle/Context" query
+          if (uniqueSet.size < 5) { // We want main + 4 others ideally
+            console.log("📸 Not enough variety. Fetching Lifestyle Batch...");
+            const lifestyleImages = await searchProductImages(data.productName + " lifestyle review real", 6);
+            lifestyleImages.forEach(img => {
+              if (img && !uniqueSet.has(img)) uniqueSet.add(img);
+            });
+          }
 
-        // Convert set to array and take top 4 EXCLUDING mainImage (since mainImage is handled separately in Gallery)
-        // Actually, let's just pass them all and let Gallery Component sort it, 
-        // but we need to pass a list of *extra* images to 'galleryImages'.
-        const allUnique = Array.from(uniqueSet);
-        galleryImages = allUnique.filter(img => img !== mainImage).slice(0, 4);
+          // 3. Last resort: "Unboxing/Packaging" for different angles
+          if (uniqueSet.size < 5) {
+            console.log("📸 Still low. Fetching Detail Batch...");
+            const detailImages = await searchProductImages(data.productName + " unboxing detail", 4);
+            detailImages.forEach(img => {
+              if (img && !uniqueSet.has(img)) uniqueSet.add(img);
+            });
+          }
+
+          // Convert set to array and take top 4 EXCLUDING mainImage (since mainImage is handled separately in Gallery)
+          // Actually, let's just pass them all and let Gallery Component sort it, 
+          // but we need to pass a list of *extra* images to 'galleryImages'.
+          const allUnique = Array.from(uniqueSet);
+          galleryImages = allUnique.filter(img => img !== mainImage).slice(0, 4);
+        }
       }
     } catch (imgError: any) {
       console.error("Auto-Image Fetch Failed (Non-blocking):", imgError);

@@ -25,7 +25,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         apiKey: "",
         type: "landing" as "landing" | "blog",
         category: "general" as CategorySlug,
-        tone: "Professional"
+        tone: "Professional",
+        manualGallery: ""
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,6 +90,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             productName: formData.productName,
             affiliateLink: formData.affiliateLink,
             imageUrl: formData.imageUrl,
+            manualGallery: formData.manualGallery, // Send to backend for override
             title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
             description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
             category: formData.category,
@@ -406,6 +408,23 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                             {isAnalyzingImage ? "👁️ Analyzing..." : "👁️ Analyze Image"}
                         </button>
                     </div>
+                </div>
+
+                <div className={styles.inputGroup}>
+                    <label htmlFor="manualGallery">🖼️ Manual Gallery Images (Optional - One URL per line)</label>
+                    <textarea
+                        id="manualGallery"
+                        name="manualGallery"
+                        className="input-field"
+                        placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg&#10;https://example.com/image3.jpg"
+                        value={formData.manualGallery || ""}
+                        onChange={handleChange}
+                        rows={4}
+                        style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+                    />
+                    <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.2rem' }}>
+                        * If provided, these images will be used INSTEAD of auto-search.
+                    </p>
                 </div>
 
                 <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting}>
