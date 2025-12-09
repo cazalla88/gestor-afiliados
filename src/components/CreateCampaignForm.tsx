@@ -233,6 +233,33 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         campaign={previewData}
                         currentSlug="preview"
                         relatedProducts={[]}
+                        isEditable={true}
+                        onImageUpdate={(index, newUrl) => {
+                            if (index === 0) {
+                                // Update Main Image
+                                setFormData(prev => ({ ...prev, imageUrl: newUrl }));
+                            } else {
+                                // Update Gallery Images
+                                // We need to reconstruct the manualGallery string
+                                // 1. Get current gallery array
+                                let currentGallery = formData.manualGallery
+                                    ? formData.manualGallery.split('\n').filter(url => url.trim().length > 0)
+                                    : [];
+
+                                // Ensure array is big enough if user dropped on empty slot 3 while 1 was empty
+                                while (currentGallery.length < index) {
+                                    currentGallery.push(""); // Fill gaps
+                                }
+
+                                // Update specific index (adjusted by -1 since index 0 is mainImage)
+                                currentGallery[index - 1] = newUrl;
+
+                                setFormData(prev => ({
+                                    ...prev,
+                                    manualGallery: currentGallery.join('\n')
+                                }));
+                            }
+                        }}
                     />
                 )}
             </div>

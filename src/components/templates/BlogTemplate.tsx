@@ -9,6 +9,8 @@ interface BlogTemplateProps {
     campaign: any;
     currentSlug: string;
     relatedProducts: any[];
+    isEditable?: boolean;
+    onImageUpdate?: (index: number, newUrl: string) => void;
 }
 
 const LABELS = {
@@ -48,7 +50,7 @@ const LABELS = {
     }
 };
 
-export default function BlogTemplate({ campaign, currentSlug, relatedProducts }: BlogTemplateProps) {
+export default function BlogTemplate({ campaign, currentSlug, relatedProducts, isEditable, onImageUpdate }: BlogTemplateProps) {
     const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
     const t = LABELS[lang];
 
@@ -121,6 +123,8 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                                 score={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
                                 badgeLabel={lang === 'es' ? 'EXCELENTE' : 'EXCELLENT'}
                                 galleryImages={(campaign.galleryImages && campaign.galleryImages.length > 0) ? campaign.galleryImages : (content.galleryImagesBackup || [])}
+                                isEditable={isEditable}
+                                onImageUpdate={onImageUpdate}
                             />
                         </div>
 
