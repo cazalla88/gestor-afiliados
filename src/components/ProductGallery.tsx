@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import styles from "./ProductGallery.module.css";
 
@@ -129,16 +129,39 @@ export default function ProductGallery({
         }
     };
 
+    const mainStageRef = useRef<HTMLDivElement>(null);
+
     // Handle Ctrl+V event
     const handlePasteEvent = (e: React.ClipboardEvent, index: number) => {
         if (!isEditable || !onImageUpdate) return;
+
+        // 1. Check for Text (URL)
         const text = e.clipboardData.getData('text');
         if (text && text.startsWith('http')) {
             e.preventDefault();
             onImageUpdate(index, text);
             setSelectedIndex(index);
+            return;
+        }
+
+        // 2. Check if user copied "Image" instead of "Image Address"
+        if (e.clipboardData.files.length > 0) {
+            e.preventDefault();
+            alert("⚠️ has copiado la 'Imagen' (Binario). Por favor, haz click derecho y elige 'Copiar Dirección de Imagen' (URL). La base de datos necesita enlaces.");
+            return;
+        }
+
+        console.log("Paste ignored: No URL found");
+    };
+
+    // Force focus when clicking/interacting so Paste works
+    const focusMain = () => {
+        if (mainStageRef.current && isEditable) {
+            mainStageRef.current.focus();
         }
     };
+
+    const [isFocused, setIsFocused] = useState(false);
 
     return (
         <div className={styles.galleryContainer}>
@@ -180,12 +203,22 @@ export default function ProductGallery({
 
             {/* Main Image Stage */}
             <div
+                ref={mainStageRef}
                 className={styles.mainStage}
-                onDragOver={handleDragOver}
+                onClick={focusMain}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onDragOver={(e) => { handleDragOver(e); focusMain(); }}
                 onDrop={(e) => handleDrop(e, selectedIndex)}
                 onPaste={(e) => handlePasteEvent(e, selectedIndex)}
                 tabIndex={0} // Make focusable for paste
-                style={isEditable ? { outline: '2px dashed rgba(255,255,255,0.2)', outlineOffset: '-10px', position: 'relative' } : {}}
+                style={isEditable ? {
+                    outline: isFocused ? '3px solid #3b82f6' : '2px dashed rgba(255,255,255,0.2)', // Blue when focused
+                    outlineOffset: isFocused ? '0px' : '-10px',
+                    position: 'relative',
+                    cursor: 'text',
+                    transition: 'outline 0.1s ease'
+                } : {}}
             >
                 <Image
                     src={images[selectedIndex] || safeMainImage}
