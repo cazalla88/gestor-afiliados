@@ -310,9 +310,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts }:
                 imageUrl={campaign.imageUrl}
                 lang={lang}
             />
-            <div style={{ textAlign: 'center', padding: '20px', color: '#ccc', fontSize: '0.8rem', marginTop: '40px' }}>
-                Nexus System v5.0 (Gallery Fix)
-            </div>
+
         </article>
     );
 }
