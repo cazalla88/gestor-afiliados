@@ -67,7 +67,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         apiKey: "",
                         type: campaign.type as "landing" | "blog",
                         category: (campaign.category as CategorySlug) || "general",
-                        tone: "Professional"
+                        tone: "Professional",
+                        manualGallery: "" // Initialize empty for edit mode (or we could fetch it if saved)
                     });
                 }
                 setIsLoading(false);
