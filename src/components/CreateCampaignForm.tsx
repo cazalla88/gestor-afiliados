@@ -202,6 +202,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction || formData.description,
             affiliateLink: formData.affiliateLink || "#",
             imageUrl: formData.imageUrl,
+            galleryImages: formData.manualGallery ? formData.manualGallery.split('\n').filter(u => u.trim().length > 0) : [],
             category: formData.category,
             language: language,
             createdAt: new Date(),
