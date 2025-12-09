@@ -61,67 +61,67 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
   let provider = 'google';
 
   // FORCE GOOGLE FOR VISION (Groq Vision is deprecated/unstable)
-  provider = 'google';
+  provider = 'google'; // Override
+
   if (apiKey?.startsWith('gsk_')) {
     // If user manually forced a Groq key, we map it to Google Env Key if available
     finalApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  } else {
+    finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   }
-} else {
-  finalApiKey = apiKey || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-}
 
-if (!finalApiKey) return { error: "API Key Missing. Please add it in the form or Vercel env vars." };
+  if (!finalApiKey) return { error: "API Key Missing. Please add it in the form or Vercel env vars." };
 
-try {
-  // GROQ VISION REMOVED (Deprecated) - Proceeding to Google Gemini
-  // if (provider === 'groq') { ... }
+  try {
+    // GROQ VISION REMOVED (Deprecated) - Proceeding to Google Gemini
+    // if (provider === 'groq') { ... }
 
-  // GOOGLE GEMINI FALLBACK
-  const imgRes = await fetch(imageUrl);
-  if (!imgRes.ok) throw new Error("Failed to fetch image");
-  const arrayBuffer = await imgRes.arrayBuffer();
-  const base64Image = Buffer.from(arrayBuffer).toString("base64");
-  const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
+    // GOOGLE GEMINI FALLBACK
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) throw new Error("Failed to fetch image");
+    const arrayBuffer = await imgRes.arrayBuffer();
+    const base64Image = Buffer.from(arrayBuffer).toString("base64");
+    const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
 
-  const genAI = new GoogleGenerativeAI(finalApiKey);
+    const genAI = new GoogleGenerativeAI(finalApiKey);
 
-  // Retry Logic for Vision
-  const modelsToTry = [
-    "gemini-2.0-flash-lite-preview-02-05",
-    "gemini-2.0-flash",
-    "gemini-2.0-pro-exp-02-05",
-    "gemini-2.5-flash"
-  ];
+    // Retry Logic for Vision
+    const modelsToTry = [
+      "gemini-2.0-flash-lite-preview-02-05",
+      "gemini-2.0-flash",
+      "gemini-2.0-pro-exp-02-05",
+      "gemini-2.5-flash"
+    ];
 
-  let lastError: any = null;
+    let lastError: any = null;
 
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const prompt = "Describe this product image in detail for a sales page. Focus on materials, design, and key visible features. Be concise (max 3 sentences).";
 
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            data: base64Image,
-            mimeType: mimeType
+        const result = await model.generateContent([
+          prompt,
+          {
+            inlineData: {
+              data: base64Image,
+              mimeType: mimeType
+            }
           }
-        }
-      ]);
-      const response = await result.response;
-      return { description: response.text() };
-    } catch (e: any) {
-      console.warn(`Vision Model ${modelName} failed: ${e.message}`);
-      lastError = e;
-      continue;
+        ]);
+        const response = await result.response;
+        return { description: response.text() };
+      } catch (e: any) {
+        console.warn(`Vision Model ${modelName} failed: ${e.message}`);
+        lastError = e;
+        continue;
+      }
     }
+    throw lastError || new Error("All vision models failed");
+  } catch (e: any) {
+    console.error("Vision AI Error:", e);
+    return { error: `Could not analyze image (${provider}). Details: ${e.message}` };
   }
-  throw lastError || new Error("All vision models failed");
-} catch (e: any) {
-  console.error("Vision AI Error:", e);
-  return { error: `Could not analyze image (${provider}). Details: ${e.message}` };
-}
 }
 
 export async function generateSeoContent(
