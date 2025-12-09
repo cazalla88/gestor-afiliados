@@ -90,7 +90,8 @@ export async function analyzeImage(imageUrl: string, apiKey: string) {
       "gemini-2.0-flash-lite-preview-02-05",
       "gemini-2.0-flash",
       "gemini-2.0-pro-exp-02-05",
-      "gemini-2.5-flash"
+      "gemini-2.5-flash",
+      "gemini-1.5-flash"
     ];
 
     let lastError: any = null;
@@ -231,7 +232,8 @@ export async function generateSeoContent(
     "gemini-2.0-flash-lite-preview-02-05", // 1. Lite (Efficient)
     "gemini-2.0-flash",                    // 2. Standard 2.0
     "gemini-2.0-pro-exp-02-05",            // 3. Pro Experimental (Separate quota)
-    "gemini-2.5-flash"                     // 4. Cutting Edge
+    "gemini-2.5-flash",                    // 4. Cutting Edge
+    "gemini-1.5-flash"                     // 5. STABLE BACKUP
   ];
 
   let lastError: any = null;
