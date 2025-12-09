@@ -684,19 +684,49 @@ export async function scrapeAmazonProduct(url: string) {
       description = $('meta[name="description"]').attr('content') || "";
     }
 
-    // 5. EXTRACT GALLERY IMAGES
-    // Amazon stores images in JSON blobs. We look for "hiRes" or "large" keys globally.
+    // 5. EXTRACT GALLERY IMAGES (AGGRESSIVE STRATEGY)
     let galleryUrls: string[] = [];
+
+    // Strategy A: Look for "hiRes" or "large" keys (JSON blobs)
     const hiResMatches = [...html.matchAll(/"hiRes":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/g)];
     const largeMatches = [...html.matchAll(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/g)];
 
-    const allMatches = [...hiResMatches, ...largeMatches].map(m => m[1]);
-    const uniqueGallery = Array.from(new Set(allMatches));
+    // Strategy B: Look for data-a-dynamic-image attributes (Common in gallery <li>)
+    // format: data-a-dynamic-image="{&quot;https://...&quot;:[x,y]}"
+    const dynamicImgMatches = [...html.matchAll(/data-a-dynamic-image="([^"]+)"/g)];
 
-    // Filter: Remove the main image if it's already found, and keep top 5
+    // Strategy C: Brute-force look for any Amazon content image URL 
+    const genericMatches = [...html.matchAll(/(https:\/\/m\.media-amazon\.com\/images\/I\/[a-zA-Z0-9\-\._]+\.jpg)/g)];
+
+    let allFound = [
+      ...hiResMatches.map(m => m[1]),
+      ...largeMatches.map(m => m[1]),
+      ...genericMatches.map(m => m[1])
+    ];
+
+    // parse dynamic matches
+    dynamicImgMatches.forEach(m => {
+      try {
+        const raw = m[1].replace(/&quot;/g, '"');
+        const keys = Object.keys(JSON.parse(raw));
+        allFound.push(...keys);
+      } catch (e) { }
+    });
+
+    const uniqueGallery = Array.from(new Set(allFound));
+
+    // Filter
     galleryUrls = uniqueGallery
-      .filter(u => u !== image && !u.includes('sprite') && !u.includes('placeholder'))
-      .slice(0, 6); // Grab up to 6 extra images
+      .filter(u =>
+        u !== image &&
+        !u.includes('sprite') &&
+        !u.includes('placeholder') &&
+        !u.includes('load') &&
+        !u.includes('pixel')
+      )
+      // Heuristic: larger file names often mean better resolution/main images on Amazon
+      .sort((a, b) => b.length - a.length)
+      .slice(0, 8);
 
     return {
       productName: title,
