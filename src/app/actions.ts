@@ -228,6 +228,33 @@ export async function generateSeoContent(
     `;
   }
 
+  // GROQ SUPPORT BRANCH
+  if (finalApiKey.startsWith('gsk_')) {
+    console.log("🚀 Using Groq for SEO Content Generation (Llama 3.3)");
+    try {
+      const groq = new Groq({ apiKey: finalApiKey });
+      const completion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks ```json ... ```. Just the raw JSON string." },
+          { role: "user", content: prompt }
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+      });
+
+      const content = completion.choices[0]?.message?.content || "{}";
+      // Clean potential markdown if Llama ignores system prompt instructions
+      const jsonStr = content.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(jsonStr);
+
+    } catch (groqError: any) {
+      console.error("Groq Generation Failed:", groqError);
+      return { error: `Groq Error: ${groqError.message}` };
+    }
+  }
+
+  // GOOGLE GEMINI BRANCH (Legacy)
   // LIST OF MODELS TO TRY (In order of priority)
   const modelsToTry = [
     "gemini-2.0-flash-lite-preview-02-05", // 1. Lite (Efficient)
