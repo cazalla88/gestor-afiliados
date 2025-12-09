@@ -195,13 +195,14 @@ export async function generateSeoContent(
             "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
             "features": "Superpower features.",
             "comparisonTable": [
-                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2)", "mainFeature": "Solution" },
+                { "name": "${productName}", "price": "€€€ (USE SYMBOLS ONLY: €, €€, or €€€)", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2)", "mainFeature": "Solution" },
                 { "name": "Competitor", "price": "€€", "rating": "LOWER_SCORE", "mainFeature": "Problem" }
             ],
             "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
             "verdict": "Final transformation promise."
         }
         IMPORTANT: 'rating' MUST vary (7.5 - 9.8). Never default to 9.5.
+        IMPORTANT: 'price' MUST be keys: '€' (Cheap), '€€' (Mid), '€€€' (Premium). NO NUMBERS.
         Return ONLY valid JSON string. No markdown block.
     `;
   } else {
