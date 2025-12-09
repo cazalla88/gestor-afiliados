@@ -684,11 +684,26 @@ export async function scrapeAmazonProduct(url: string) {
       description = $('meta[name="description"]').attr('content') || "";
     }
 
+    // 5. EXTRACT GALLERY IMAGES
+    // Amazon stores images in JSON blobs. We look for "hiRes" or "large" keys globally.
+    let galleryUrls: string[] = [];
+    const hiResMatches = [...html.matchAll(/"hiRes":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/g)];
+    const largeMatches = [...html.matchAll(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+\.jpg)"/g)];
+
+    const allMatches = [...hiResMatches, ...largeMatches].map(m => m[1]);
+    const uniqueGallery = Array.from(new Set(allMatches));
+
+    // Filter: Remove the main image if it's already found, and keep top 5
+    galleryUrls = uniqueGallery
+      .filter(u => u !== image && !u.includes('sprite') && !u.includes('placeholder'))
+      .slice(0, 6); // Grab up to 6 extra images
+
     return {
-      title,
-      image,
-      features: features.slice(0, 6).join("\n- "), // Return as bullet list string
-      description: description.slice(0, 1000) // Limit length
+      productName: title,
+      imageUrl: image,
+      features: features.slice(0, 6).join("\n- "),
+      description: description.slice(0, 1000),
+      manualGallery: galleryUrls.join('\n')
     };
 
   } catch (error) {
