@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import styles from './category.module.css';
+import BackButton from '@/components/BackButton';
 
 export async function generateStaticParams() {
     return Object.keys(CATEGORIES).map((slug) => ({
@@ -40,9 +41,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <Link href="/categories" className={styles.backButton}>
-                    ← Volver a categorías
-                </Link>
+                <BackButton className={styles.backButton} />
+
 
                 <div className={styles.categoryTitle}>
                     <span className={styles.categoryIcon}>{categoryIcon}</span>
