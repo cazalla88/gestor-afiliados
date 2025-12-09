@@ -22,6 +22,8 @@ export const metadata: Metadata = {
 import { LanguageProvider } from "@/context/LanguageContext";
 import Footer from "@/components/Footer";
 
+import { GoogleAnalytics } from '@next/third-parties/google'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,6 +37,7 @@ export default function RootLayout({
           <SpeedInsights />
           <Footer />
         </LanguageProvider>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
       </body>
     </html>
   );

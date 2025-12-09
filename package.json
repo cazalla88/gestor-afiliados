@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@next/third-parties": "^16.0.8",
     "@prisma/client": "^5.10.0",
     "@tiptap/extension-link": "^3.13.0",
     "@tiptap/extension-underline": "^3.13.0",
