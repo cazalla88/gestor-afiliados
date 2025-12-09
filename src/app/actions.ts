@@ -363,19 +363,25 @@ export async function createCampaign(data: any) {
         // User provided an image, try to fetch 3 more variants to fill gallery
         console.log(`Fetching extra gallery images for: ${data.productName}`);
 
-        // Strategy: Try succinct query first ("Name"), then broader ("Name review")
-        let additionalImages = await searchProductImages(data.productName, 4);
+        // Strategy: Variety Search to help conversion (Angles, Lifestyle, Details)
+        // 1. Get Base Images
+        let additionalImages = await searchProductImages(data.productName, 2);
 
-        if (additionalImages.length < 2) {
-          const retryImages = await searchProductImages(data.productName + " review", 3);
-          additionalImages = [...additionalImages, ...retryImages];
+        // 2. Get "Lifestyle" or "In Hand" images (Context)
+        if (additionalImages.length < 4) {
+          const lifestyleImages = await searchProductImages(data.productName + " lifestyle in hand", 2);
+          additionalImages = [...additionalImages, ...lifestyleImages];
         }
 
-        // Ensure unique images (remove duplicates of mainImage, and duplicates within list)
-        // Normalize URLs slightly to catch obvious dupes
+        // 3. Get "Back/Detail" images (angles) if we still need more
+        if (additionalImages.length < 4) {
+          const detailImages = await searchProductImages(data.productName + " back design detail", 2);
+          additionalImages = [...additionalImages, ...detailImages];
+        }
+
+        // Ensure unique images
         const uniqueSet = new Set<string>();
         if (mainImage) uniqueSet.add(mainImage);
-
         additionalImages.forEach(img => {
           if (img && img !== mainImage) uniqueSet.add(img);
         });
