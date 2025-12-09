@@ -14,23 +14,25 @@ interface ProductGalleryProps {
 
 export default function ProductGallery({ mainImage, productName, score = "9.5", badgeLabel = "EXCELENTE", galleryImages = [] }: ProductGalleryProps) {
     // DEBUG: Only use real images. Stop duplicating for now to diagnose.
-    // Ensure mainImage is always first
-    let images = [mainImage];
+    // SAFETY CHECK: Ensure we deal with valid URLs only
+    const safeMainImage = (mainImage && (mainImage.startsWith('http') || mainImage.startsWith('/')))
+        ? mainImage
+        : "https://placehold.co/600x600/222/FFF?text=No+Image";
+
+    let images = [safeMainImage];
+
     if (galleryImages.length > 0) {
-        // Filter out EXACT duplicates of mainImage, but keep variants
-        const uniqueGallery = galleryImages.filter(img => img !== mainImage);
-        images = [mainImage, ...uniqueGallery];
+        // Filter out EXACT duplicates and invalid URLs
+        const uniqueGallery = galleryImages.filter(img => img && img !== safeMainImage && (img.startsWith('http') || img.startsWith('/')));
+        images = [safeMainImage, ...uniqueGallery];
     }
 
-    // FRONTEND FALLBACK: If we still have < 4 images, force duplicates of mainImage
-    // just so the carousel looks "full" and consistent.
+    // FRONTEND FALLBACK: Force fill with duplicates of SAFE image
     if (images.length < 4) {
         let fillCount = 1;
         while (images.length < 4) {
-            // Append a dummy query param to make React/Key happy and look different
-            // (Though src is same, it will render independent slots)
-            const separator = mainImage.includes('?') ? '&' : '?';
-            images.push(`${mainImage}${separator}fe_fill=${fillCount}`);
+            const separator = safeMainImage.includes('?') ? '&' : '?';
+            images.push(`${safeMainImage}${separator}fe_fill=${fillCount}`);
             fillCount++;
         }
     }
