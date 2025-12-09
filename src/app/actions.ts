@@ -347,6 +347,7 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
 // === DB Actions ===
 
 export async function createCampaign(data: any) {
+  // FORCE REDEPLOY: Syntax checked, manual gallery logic active
   try {
     // === AUTO-IMAGE FETCHING START ===
     let galleryImages: string[] = [];
