@@ -57,7 +57,7 @@ export default function ProductGallery({
         return () => clearInterval(timer);
     }, [images.length, isEditable]);
 
-    // Sync local state when selected image changes
+    // Sync local state ONLY when switching images (prevents typing race conditions)
     useEffect(() => {
         let val = "";
         if (selectedIndex === 0) {
@@ -66,11 +66,10 @@ export default function ProductGallery({
             const galIdx = selectedIndex - 1;
             val = galleryImages[galIdx] || "";
         }
-        // Don't show placeholders in the edit box, only real data
         if (val.includes("placehold.co")) val = "";
-
         setLocalInputValue(val);
-    }, [selectedIndex, mainImage, galleryImages]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedIndex]); // CRITICAL: Only run on index change, ignore prop updates while editing
 
     const handleDrop = (e: React.DragEvent, index: number) => {
         if (!isEditable || !onImageUpdate) return;
@@ -89,7 +88,6 @@ export default function ProductGallery({
         if (!imageUrl) {
             const html = e.dataTransfer.getData("text/html");
             if (html) {
-                // Extract src="..." from the HTML string
                 const srcMatch = html.match(/src="([^"]+)"/);
                 if (srcMatch && srcMatch[1]) {
                     imageUrl = srcMatch[1];
@@ -103,23 +101,20 @@ export default function ProductGallery({
         }
 
         // 4. Validate and Update
-        // Fix encoded google images or weird proxies
         if (imageUrl && (imageUrl.startsWith("http") || imageUrl.startsWith("data:image"))) {
-            // Removing quotes if any
             imageUrl = imageUrl.replace(/"/g, '');
-
-            console.log("Image Dropped:", imageUrl); // Debug
             onImageUpdate(index, imageUrl);
             setSelectedIndex(index);
+            // Manually update local input if we are on this index
+            if (index === selectedIndex) setLocalInputValue(imageUrl);
         } else {
-            console.log("Drop failed, data types:", e.dataTransfer.types);
-            alert("Could not extract image URL. Try: Right Click Image -> Open in New Tab -> Drag URL from address bar.");
+            alert("Could not extract image URL.");
         }
     };
 
     const handleDragOver = (e: React.DragEvent) => {
         if (!isEditable) return;
-        e.preventDefault(); // Necessary to allow dropping
+        e.preventDefault();
         e.dataTransfer.dropEffect = "copy";
     };
 
@@ -127,49 +122,43 @@ export default function ProductGallery({
         if (!isEditable || !onImageUpdate) return;
 
         try {
-            // Try to read generic text first
             const text = await navigator.clipboard.readText();
             if (text && text.startsWith('http')) {
                 onImageUpdate(index, text);
                 setSelectedIndex(index);
+                if (index === selectedIndex) setLocalInputValue(text);
                 return;
             }
         } catch (err) {
-            // Clipboard API might be blocked or require permission
-            console.warn("Clipboard read failed, falling back to prompt", err);
+            console.warn("Clipboard read failed", err);
         }
 
-        // Fallback for mouse users if API fails
         const manualUrl = prompt("Paste the image link here:");
         if (manualUrl && manualUrl.startsWith('http')) {
             onImageUpdate(index, manualUrl);
             setSelectedIndex(index);
+            if (index === selectedIndex) setLocalInputValue(manualUrl);
         }
     };
 
     const mainStageRef = useRef<HTMLDivElement>(null);
 
-    // Handle Ctrl+V event
     const handlePasteEvent = (e: React.ClipboardEvent, index: number) => {
         if (!isEditable || !onImageUpdate) return;
 
-        // 1. Check for Text (URL)
         const text = e.clipboardData.getData('text');
         if (text && text.startsWith('http')) {
             e.preventDefault();
             onImageUpdate(index, text);
             setSelectedIndex(index);
+            if (index === selectedIndex) setLocalInputValue(text);
             return;
         }
 
-        // 2. Check if user copied "Image" instead of "Image Address"
         if (e.clipboardData.files.length > 0) {
             e.preventDefault();
-            alert("⚠️ has copiado la 'Imagen' (Binario). Por favor, haz click derecho y elige 'Copiar Dirección de Imagen' (URL). La base de datos necesita enlaces.");
-            return;
+            alert("⚠️ Please copy the Image Address (URL), not the image file.");
         }
-
-        console.log("Paste ignored: No URL found");
     };
 
     // Force focus when clicking/interacting so Paste works
