@@ -71,12 +71,13 @@ export default function ProductGallery({ mainImage, productName, score = "9.5", 
             {/* Main Image Stage */}
             <div className={styles.mainStage}>
                 <Image
-                    src={images[selectedIndex] || mainImage}
+                    src={images[selectedIndex] || safeMainImage}
                     alt={productName}
                     fill
                     className={styles.mainImage}
                     style={{ objectFit: "contain" }}
                     priority
+                    unoptimized // Bypass Next.js optimization to prevent crashes with external URLs
                 />
 
                 {/* Score Badge Overlay */}
