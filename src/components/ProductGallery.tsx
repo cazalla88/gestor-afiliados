@@ -41,8 +41,11 @@ export default function ProductGallery({
     while (images.length < 4) {
         images.push("https://placehold.co/600x600/333/666?text=Drop+Image+Here");
     }
+    images = images.slice(0, 4);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const [localInputValue, setLocalInputValue] = useState("");
 
     // Auto-rotate every 10 seconds (only if not editing)
     useEffect(() => {
@@ -53,6 +56,21 @@ export default function ProductGallery({
 
         return () => clearInterval(timer);
     }, [images.length, isEditable]);
+
+    // Sync local state when selected image changes
+    useEffect(() => {
+        let val = "";
+        if (selectedIndex === 0) {
+            val = mainImage || "";
+        } else {
+            const galIdx = selectedIndex - 1;
+            val = galleryImages[galIdx] || "";
+        }
+        // Don't show placeholders in the edit box, only real data
+        if (val.includes("placehold.co")) val = "";
+
+        setLocalInputValue(val);
+    }, [selectedIndex, mainImage, galleryImages]);
 
     const handleDrop = (e: React.DragEvent, index: number) => {
         if (!isEditable || !onImageUpdate) return;
@@ -238,67 +256,46 @@ export default function ProductGallery({
 
                 {isEditable && (
                     <div style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: 'rgba(0,0,0,0.85)',
-                        padding: '10px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '5px',
-                        zIndex: 20
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        background: 'rgba(0,0,0,0.9)', padding: '12px',
+                        display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 100
                     }}>
-                        <label style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                            Edit Image {selectedIndex + 1} URL:
+                        <label style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                            ✏️ Edit Image {selectedIndex + 1} URL:
                         </label>
-                        <div style={{ display: 'flex', gap: '5px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
                             <input
                                 type="text"
-                                placeholder="Paste https://... link here"
-                                value={(() => {
-                                    // Calculate RAW value for input (no placeholders)
-                                    if (selectedIndex === 0) return mainImage;
-                                    const galIdx = selectedIndex - 1;
-                                    return galleryImages[galIdx] || "";
-                                })()}
+                                placeholder="Paste URL here..."
+                                value={localInputValue}
                                 onChange={(e) => {
-                                    // Live update as they type/paste
+                                    setLocalInputValue(e.target.value);
                                     onImageUpdate && onImageUpdate(selectedIndex, e.target.value);
                                 }}
                                 style={{
-                                    flex: 1,
-                                    padding: '6px',
-                                    borderRadius: '4px',
-                                    border: '1px solid #444',
-                                    background: '#222',
-                                    color: '#fff',
-                                    fontSize: '0.9rem'
+                                    flex: 1, padding: '8px', borderRadius: '4px',
+                                    border: '1px solid #555', background: '#222',
+                                    color: '#fff', fontSize: '1rem'
                                 }}
-                                onClick={(e) => e.stopPropagation()} // Prevent focus fight
+                                onClick={(e) => e.stopPropagation()}
+                                onPaste={(e) => e.stopPropagation()} // Let default paste happen
                             />
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    setLocalInputValue("");
                                     if (onImageUpdate) onImageUpdate(selectedIndex, "");
                                 }}
                                 style={{
-                                    padding: '5px 10px',
-                                    background: '#ef4444',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem'
+                                    padding: '8px 12px', background: '#ef4444',
+                                    color: 'white', border: 'none', borderRadius: '4px',
+                                    cursor: 'pointer', fontWeight: 'bold'
                                 }}
-                                title="Clear Image"
+                                title="Clear"
                             >
                                 🗑️
                             </button>
                         </div>
-                        <span style={{ fontSize: '0.7rem', color: '#aaa' }}>
-                            * Paste exact image address (ends in .jpg/.png)
-                        </span>
                     </div>
                 )}
             </div>
