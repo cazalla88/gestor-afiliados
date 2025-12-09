@@ -198,14 +198,15 @@ export async function generateSeoContent(
             "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
             "features": "Superpower features based on real specs.",
             "comparisonTable": [
-                { "name": "${productName}", "price": "€€€", "rating": 9.5, "mainFeature": "Solution" },
-                { "name": "Competitor", "price": "€€", "rating": 6.8, "mainFeature": "Problem" }
+                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2 - NEVER DEFAULT TO 9.5)", "mainFeature": "Solution" },
+                { "name": "Competitor", "price": "€€", "rating": "REALISTIC_LOWER_SCORE", "mainFeature": "Problem" }
             ],
             "internalLinks": [
                { "slug": "slug-of-post", "category": "category-of-post", "anchorText": "Link Text" }
             ],
             "verdict": "Final transformation promise."
         }
+        IMPORTANT: The 'rating' MUST vary between 7.5 and 9.8. Do NOT use 9.5 unless it is truly perfect. Be critical.
         Return ONLY valid JSON.
     `;
   } else {
@@ -734,7 +735,11 @@ export async function scrapeAmazonProduct(url: string) {
       console.log("⚠️ Scraper found few images. Supplementing with Google Search...");
       try {
         // Search for "Product Name + lifestyle/context"
-        const query = `${title} lifestyle review`;
+        // TRUNCATE TITLE: Amazon titles are too long for Google Search query, usually killing results.
+        // Take first 5 words only.
+        const shortTitle = title.split(' ').slice(0, 5).join(' ');
+        const query = `${shortTitle} lifestyle review`;
+
         const googleImages = await searchProductImages(query, 4);
 
         // Add unique Google images
