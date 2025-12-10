@@ -299,10 +299,16 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         type="button"
                         className={`${styles.typeBtn} ${formData.contentDepth === 'standard' ? styles.activeType : ''}`}
                         onClick={() => setFormData(prev => ({ ...prev, contentDepth: 'standard' }))}
-                        style={{ fontSize: '0.85rem', padding: '0.4rem 1rem', flex: 1 }}
+                        style={{
+                            fontSize: '0.85rem',
+                            padding: '0.4rem 1rem',
+                            flex: 1,
+                            background: formData.contentDepth === 'standard' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}
                     >
                         📝 Standard Review
-                        <span style={{ display: 'block', fontSize: '0.7em', opacity: 0.7 }}>~800 Words</span>
+                        <span style={{ display: 'block', fontSize: '0.75em', marginTop: '2px', opacity: 0.7 }}>~800 Words</span>
                     </button>
                     <button
                         type="button"
@@ -312,12 +318,13 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                             fontSize: '0.85rem',
                             padding: '0.4rem 1rem',
                             flex: 1,
-                            background: formData.contentDepth === 'deep' ? 'linear-gradient(135deg, #7c3aed, #db2777)' : '#222',
-                            border: formData.contentDepth === 'deep' ? 'none' : '1px solid #333'
+                            background: formData.contentDepth === 'deep' ? 'linear-gradient(135deg, #7c3aed, #db2777)' : 'rgba(255, 255, 255, 0.05)',
+                            border: formData.contentDepth === 'deep' ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                            color: formData.contentDepth === 'deep' ? 'white' : 'rgba(255, 255, 255, 0.6)'
                         }}
                     >
                         🚀 Pillar Page (Pro)
-                        <span style={{ display: 'block', fontSize: '0.7em', opacity: 0.9 }}>2000+ Words (Deep Dive)</span>
+                        <span style={{ display: 'block', fontSize: '0.75em', marginTop: '2px', opacity: 0.8 }}>2000+ Words (Deep Dive)</span>
                     </button>
                 </div>
             )}

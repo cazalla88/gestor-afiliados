@@ -49,3 +49,33 @@ export async function searchProductImages(query: string, count: number = 4): Pro
         throw error; // Re-throw so actions.ts knows it failed
     }
 }
+
+export async function searchWebContext(query: string, count: number = 3): Promise<string[]> {
+    const apiKey = process.env.GOOGLE_SEARCH_API_KEY || process.env.GOOGLE_API_KEY;
+    const cx = process.env.GOOGLE_SEARCH_CX;
+
+    if (!apiKey || !cx) return [];
+
+    try {
+        const url = new URL("https://www.googleapis.com/customsearch/v1");
+        url.searchParams.append("key", apiKey);
+        url.searchParams.append("cx", cx);
+        url.searchParams.append("q", query);
+        // NO searchType=image here
+        url.searchParams.append("num", count.toString());
+
+        console.log(`🔍 Executing Google Web Search: ${query}`);
+
+        const res = await fetch(url.toString());
+        const data = await res.json();
+
+        if (data.items && Array.isArray(data.items)) {
+            // Return Title + Snippet for context
+            return data.items.map((item: any) => `SOURCE: ${item.title}\nCONTENT: ${item.snippet}`);
+        }
+        return [];
+    } catch (error) {
+        console.warn("Web Search Failed:", error);
+        return [];
+    }
+}

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 // @ts-ignore
 import googleTrends from 'google-trends-api';
 import Groq from "groq-sdk";
-import { searchProductImages } from "@/lib/google-search";
+import { searchProductImages, searchWebContext } from "@/lib/google-search";
 import { requestIndexing } from "@/lib/google-indexing";
 
 export async function debugAiConnection(apiKey: string) {
@@ -158,6 +158,26 @@ export async function generateSeoContent(
 
   // PREPARE PROMPT (Common for both)
   const langName = language === 'es' ? 'Spanish' : 'English';
+
+  // AGENTIC RESEARCH: FETCH REDDIT CONTEXT
+  let redditContext = "";
+  if (type === 'blog') {
+    try {
+      console.log(`🕵️ Agentic Research: Checking Reddit for ${productName}...`);
+      const results = await searchWebContext(`site:reddit.com ${productName} review problems`, 3);
+      if (results.length > 0) {
+        redditContext = `
+            REAL-WORLD USER OPINIONS (SOURCE: REDDIT):
+            ${results.join("\n")}
+            
+            MANDATORY INSTRUCTION: You MUST reference these specific user complaints or praises in the 'Pros/Cons' or 'Verdict' section to make the review authentic.
+            `;
+      }
+    } catch (e) {
+      console.warn("Agentic Research Failed:", e);
+    }
+  }
+
   const campaignsContext = existingCampaigns.length > 0
     ? `
     CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
@@ -190,6 +210,7 @@ export async function generateSeoContent(
             Language: ${langName}
 
             ${campaignsContext}
+            ${redditContext}
             ${SALES_STORYTELLING_FRAMEWORK}
 
             CRITICAL STRUCTURE INSTRUCTIONS (HIT 2000 WORDS):
@@ -233,6 +254,7 @@ export async function generateSeoContent(
             Language: ${langName}
 
             ${campaignsContext}
+            ${redditContext}
             ${SALES_STORYTELLING_FRAMEWORK}
 
             Generate strict JSON:
