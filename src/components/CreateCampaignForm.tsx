@@ -26,7 +26,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         type: "landing" as "landing" | "blog",
         category: "general" as CategorySlug,
         tone: "Professional",
-        manualGallery: ""
+        manualGallery: "",
+        contentDepth: "standard" as "standard" | "deep"
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,7 +134,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             formData.type,
             language,
             formData.tone,
-            existingCampaigns
+            existingCampaigns,
+            formData.contentDepth // Pass depth preference
         );
 
         if (result.error) {
@@ -290,6 +292,35 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                     Blog Review
                 </button>
             </div>
+
+            {formData.type === 'blog' && (
+                <div className={styles.typeSelector} style={{ marginTop: '0.5rem', marginBottom: '1.5rem', gap: '0.5rem' }}>
+                    <button
+                        type="button"
+                        className={`${styles.typeBtn} ${formData.contentDepth === 'standard' ? styles.activeType : ''}`}
+                        onClick={() => setFormData(prev => ({ ...prev, contentDepth: 'standard' }))}
+                        style={{ fontSize: '0.85rem', padding: '0.4rem 1rem', flex: 1 }}
+                    >
+                        📝 Standard Review
+                        <span style={{ display: 'block', fontSize: '0.7em', opacity: 0.7 }}>~800 Words</span>
+                    </button>
+                    <button
+                        type="button"
+                        className={`${styles.typeBtn} ${formData.contentDepth === 'deep' ? styles.activeType : ''}`}
+                        onClick={() => setFormData(prev => ({ ...prev, contentDepth: 'deep' }))}
+                        style={{
+                            fontSize: '0.85rem',
+                            padding: '0.4rem 1rem',
+                            flex: 1,
+                            background: formData.contentDepth === 'deep' ? 'linear-gradient(135deg, #7c3aed, #db2777)' : '#222',
+                            border: formData.contentDepth === 'deep' ? 'none' : '1px solid #333'
+                        }}
+                    >
+                        🚀 Pillar Page (Pro)
+                        <span style={{ display: 'block', fontSize: '0.7em', opacity: 0.9 }}>2000+ Words (Deep Dive)</span>
+                    </button>
+                </div>
+            )}
 
             <div className={styles.inputGroup} style={{ marginBottom: '1.5rem' }}>
                 <label htmlFor="category">📂 Category (SEO Silo)</label>

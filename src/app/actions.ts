@@ -134,7 +134,8 @@ export async function generateSeoContent(
   type: 'landing' | 'blog' = 'landing',
   language: 'en' | 'es' = 'en',
   tone: string = 'Professional',
-  existingCampaigns: any[] = []
+  existingCampaigns: any[] = [],
+  contentDepth: 'standard' | 'deep' = 'standard'
 ) {
   // 1. RESOLVE KEYS SEPARATELY & FIX CROSS-CONFIGURATION
   // Start with Environment Variables
@@ -175,47 +176,87 @@ export async function generateSeoContent(
 
   let prompt = "";
   if (type === 'blog') {
-    prompt = `
-        Act as a Senior Tech Editor for a major publication (like The Verge or XDA).
-        Your goal is to write a **PILLAR PAGE REVIEW (10,000 - 12,000 characters)**.
-        **ABSOLUTE PRIORITY: DEPTH, NUANCE, AND COMPLETENESS.**
-        
-        INPUT DATA:
-        Product: "${productName}"
-        Raw Details: "${basicDescription}"
-        Tone: ${tone}
-        Language: ${langName}
+    if (contentDepth === 'deep') {
+      // --- OPTION A: PILLAR PAGE (2000+ Words) ---
+      prompt = `
+            Act as a Senior Tech Editor for a major publication (like The Verge or XDA).
+            Your goal is to write a **PILLAR PAGE REVIEW (10,000 - 12,000 characters)**.
+            **ABSOLUTE PRIORITY: DEPTH, NUANCE, AND COMPLETENESS.**
+            
+            INPUT DATA:
+            Product: "${productName}"
+            Raw Details: "${basicDescription}"
+            Tone: ${tone}
+            Language: ${langName}
 
-        ${campaignsContext}
-        ${SALES_STORYTELLING_FRAMEWORK}
+            ${campaignsContext}
+            ${SALES_STORYTELLING_FRAMEWORK}
 
-        CRITICAL STRUCTURE INSTRUCTIONS (HIT 2000 WORDS):
-        1. **INTRODUCTION (500 words):** Don't just greet. Discuss the brand's history, the predecessor of this model, the current state of the market, and the unboxing experience.
-        2. **DEEP DIVES (1000 words):** Break down the product into 5 distinct sections (e.g. Design, Display, Performance, Battery, Camera/Features). Write a full paragraph for EACH.
-        3. **COMPARISON:** Don't just list rivals; explain the trade-offs in detail.
-        4. **FAQ SECTION:** Generate 5 common questions and answer them in detail.
+            CRITICAL STRUCTURE INSTRUCTIONS (HIT 2000 WORDS):
+            1. **INTRODUCTION (500 words):** Don't just greet. Discuss the brand's history, the predecessor of this model, the current state of the market, and the unboxing experience.
+            2. **DEEP DIVES (1000 words):** Break down the product into 5 distinct sections (e.g. Design, Display, Performance, Battery, Camera/Features). Write a full paragraph for EACH.
+            3. **COMPARISON:** Don't just list rivals; explain the trade-offs in detail.
+            4. **FAQ SECTION:** Generate 5 common questions and answer them in detail.
 
-        Generate strict JSON:
-        {
-            "title": "A Click-Worthy, SEO-Optimized Title (e.g. Is it worth it in 2025?)",
-            "heroDescription": "Compelling meta-description summary (max 160 chars).",
-            "introduction": "WRITE A 500-WORD ESSAY. Use \\n\\n for paragraphs. Cover: Market Context, Brand Legacy, Design Language, Unboxing impressions.",
-            "targetAudience": "Detailed analysis of user personas (200 words). Who should buy, who should skip.",
-            "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Don't just give a number. Break it down: 'Display: 9/10 because...', 'Battery: 7/10 because...'.",
-            "pros": ["Deep Pro 1 (Full sentence explaining why)", "Deep Pro 2", "Deep Pro 3", "Deep Pro 4", "Deep Pro 5"],
-            "cons": ["Specific Flaw 1 (Full sentence)", "Specific Flaw 2", "Specific Flaw 3"],
-            "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header) inside this string. Analyze: Build Quality, Core Performance, Daily Usability, Unique Features, and Long-term Durability. Total approx 800 words.",
-            "comparisonTable": [
-                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
-                { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
-            ],
-            "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-            "verdict": "A 400-word Final Verdict. Summarize the highs and lows. Give a definitive 'Buy' or 'Pass' recommendation for different budgets."
-        }
-        IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
-        IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
-        Return ONLY valid JSON string. No markdown block.
-    `;
+            Generate strict JSON:
+            {
+                "title": "A Click-Worthy, SEO-Optimized Title (e.g. Is it worth it in 2025?)",
+                "heroDescription": "Compelling meta-description summary (max 160 chars).",
+                "introduction": "WRITE A 500-WORD ESSAY. Use \\n\\n for paragraphs. Cover: Market Context, Brand Legacy, Design Language, Unboxing impressions.",
+                "targetAudience": "Detailed analysis of user personas (200 words). Who should buy, who should skip.",
+                "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Don't just give a number. Break it down: 'Display: 9/10 because...', 'Battery: 7/10 because...'.",
+                "pros": ["Deep Pro 1 (Full sentence explaining why)", "Deep Pro 2", "Deep Pro 3", "Deep Pro 4", "Deep Pro 5"],
+                "cons": ["Specific Flaw 1 (Full sentence)", "Specific Flaw 2", "Specific Flaw 3"],
+                "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header) inside this string. Analyze: Build Quality, Core Performance, Daily Usability, Unique Features, and Long-term Durability. Total approx 800 words.",
+                "comparisonTable": [
+                    { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
+                    { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
+                ],
+                "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
+                "verdict": "A 400-word Final Verdict. Summarize the highs and lows. Give a definitive 'Buy' or 'Pass' recommendation for different budgets."
+            }
+            IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
+            IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
+            Return ONLY valid JSON string. No markdown block.
+        `;
+    } else {
+      // --- OPTION B: STANDARD REVIEW (800-1000 Words) ---
+      prompt = `
+            Act as a Helpful Product Reviewer.
+            Your goal is to write a **SOLID, CONCISE REVIEW (800-1000 words)**.
+            Focus on balance and readability.
+            
+            INPUT DATA:
+            Product: "${productName}"
+            Raw Details: "${basicDescription}"
+            Tone: ${tone}
+            Language: ${langName}
+
+            ${campaignsContext}
+            ${SALES_STORYTELLING_FRAMEWORK}
+
+            Generate strict JSON:
+            {
+                "title": "Clear & Benefit-Driven Title",
+                "heroDescription": "Meta description (max 160 chars).",
+                "introduction": "Engaging Intro (200 words). Context and main promise.",
+                "targetAudience": "Who is this for? (50 words).",
+                "quantitativeAnalysis": "Quick Score Explanation (100 words).",
+                "pros": ["Benefit 1", "Benefit 2", "Benefit 3"],
+                "cons": ["Flaw 1", "Flaw 2"],
+                "features": "Key Features Overview (300 words). Use bullet points or short paragraphs.",
+                "comparisonTable": [
+                    { "name": "${productName}", "price": "€€", "rating": "REALISTIC", "mainFeature": "Key Feature" },
+                    { "name": "Competitor", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
+                ],
+                "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
+                "verdict": "Clear Verdict (150 words). Buy or Pass?"
+            }
+            IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
+            IMPORTANT: 'price' MUST be keys: '€', '€€', '€€€'.
+            Return ONLY valid JSON string. No markdown block.
+        `;
+    }
   } else {
     prompt = `Act as Copywriter. Product: "${productName}". Details: "${basicDescription}". Lang: ${langName}. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." }`;
   }
