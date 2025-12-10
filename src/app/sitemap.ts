@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
-export const revalidate = 3600; // Cache for 1 hour to avoid DB timeouts
+export const revalidate = 0; // DEBUG: No cache to test fixes immediately
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // FORCE PRODUCTION URL to avoid localhost issues in Vercel build
@@ -23,7 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     try {
         const dbCampaigns = await prisma.campaign.findMany({
-            select: { slug: true, category: true, updatedAt: true }
+            select: { slug: true, category: true, updatedAt: true },
+            orderBy: { updatedAt: 'desc' }, // Prioritize fresh content
+            take: 1000 // Limit to prevent timeouts/memory crash
         });
         // Cast category to string as default is set in DB but types might lag
         campaigns = dbCampaigns.map(c => ({
