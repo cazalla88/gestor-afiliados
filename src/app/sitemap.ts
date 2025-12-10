@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
-export const revalidate = 0; // DEBUG: No cache to test fixes immediately
+export const revalidate = 3600; // Cache for 1 hour (Production Ready)
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // FORCE PRODUCTION URL to avoid localhost issues in Vercel build
