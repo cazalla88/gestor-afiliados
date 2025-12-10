@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import googleTrends from 'google-trends-api';
 import Groq from "groq-sdk";
 import { searchProductImages } from "@/lib/google-search";
+import { requestIndexing } from "@/lib/google-indexing";
 
 export async function debugAiConnection(apiKey: string) {
   let finalApiKey = apiKey;
@@ -558,6 +559,13 @@ export async function createCampaign(data: any) {
         content: JSON.stringify(contentData),
       }
     });
+    // --- AUTO-INDEXING SIGNAL ---
+    const baseUrl = 'https://gestor-afiliados-web.vercel.app';
+    const finalUrl = `${baseUrl}/${campaign.category}/${campaign.slug}`;
+    console.log(`🚀 Triggering Background Indexing for: ${finalUrl}`);
+    requestIndexing(finalUrl).catch(err => console.error("⚠️ Background Indexing Error:", err));
+    // -----------------------------
+
     return { success: true, slug: campaign.slug, type: campaign.type };
   } catch (error: any) {
     console.error("DB Create Error:", error);
@@ -601,6 +609,13 @@ export async function updateCampaign(slug: string, data: any) {
         }),
       }
     });
+
+    // --- AUTO-INDEXING SIGNAL (UPDATE) ---
+    const baseUrl = 'https://gestor-afiliados-web.vercel.app';
+    const finalUrl = `${baseUrl}/${campaign.category}/${campaign.slug}`;
+    requestIndexing(finalUrl).catch(err => console.error("⚠️ Background Indexing Error (Update):", err));
+    // -------------------------------------
+
     return { success: true, slug: campaign.slug, type: campaign.type };
   } catch (error: any) {
     console.error("DB Update Error:", error);
