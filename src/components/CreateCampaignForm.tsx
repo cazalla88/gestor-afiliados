@@ -69,7 +69,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         type: campaign.type as "landing" | "blog",
                         category: (campaign.category as CategorySlug) || "general",
                         tone: "Professional",
-                        manualGallery: "" // Initialize empty for edit mode (or we could fetch it if saved)
+                        manualGallery: "", // Initialize empty for edit mode (or we could fetch it if saved)
+                        contentDepth: "standard" as "standard" | "deep"
                     });
                 }
                 setIsLoading(false);
