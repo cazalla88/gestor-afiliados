@@ -1,13 +1,12 @@
 
 
 import { getCampaign, getCampaignsByCategory } from "@/app/actions";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from 'next';
 import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
 
 export const dynamic = 'force-dynamic';
-// export const revalidate = 0; // Removed to prevent potential conflicts
 
 export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
     const { category, slug } = await params;
@@ -47,7 +46,6 @@ export async function generateMetadata({ params }: { params: any }): Promise<Met
     };
 }
 
-
 export default async function DynamicCategoryPage({ params }: { params: any }) {
     const { category, slug } = await params;
     const product = await getCampaign(slug);
@@ -56,8 +54,13 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
         notFound();
     }
 
-    // Validate category matches (optional: redirect if incorrect category but correct slug)
-    // if (product.category !== category) { ... }
+    // SEO PROTECTION: Enforce Canonical URL (Silo Strictness)
+    // If URL category doesn't match product's real category, 301 Redirect.
+    // Example: accessing /shoes/iphone-16 -> redirects to /tech/iphone-16
+    const realCategory = product.category || 'general';
+    if (category !== realCategory) {
+        redirect(`/${realCategory}/${slug}`);
+    }
 
     // Fetch related products for internal linking
     const relatedProducts = await getCampaignsByCategory(product.category || 'general', 5);
