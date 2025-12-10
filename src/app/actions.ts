@@ -176,34 +176,43 @@ export async function generateSeoContent(
   let prompt = "";
   if (type === 'blog') {
     prompt = `
-        Act as a Master Copywriter.
+        Act as a Technical Product Reviewer and Master Copywriter.
+        Your goal is to write a 100% FACTUAL and HIGHLY SPECIFIC review based ONLY on the provided details.
+        
+        INPUT DATA:
         Product: "${productName}"
-        Details: "${basicDescription}"
+        Raw Details: "${basicDescription}"
         Tone: ${tone}
         Language: ${langName}
 
         ${campaignsContext}
         ${SALES_STORYTELLING_FRAMEWORK}
 
+        CRITICAL INSTRUCTIONS (ANTI-HALLUCINATION):
+        1. DO NOT use generic filler like "High Performance", "Nice Design", "Good Battery". 
+        2. BE SPECIFIC: Say "Snapdragon 8 Gen 2 Chip" instead of "Fast Processor". Say "Lasts 2 days" instead of "Good Battery".
+        3. REAL CONS: You MUST find specific flaws in the text (e.g., "No 3.5mm jack", "Slow 10W charging", "Plastic build"). Do NOT use "Price" as a con unless it's explicitly mentioned as expensive.
+        4. IF INFO IS MISSING: Do not invent it. Focus on what is there.
+
         Generate strict JSON:
         {
-            "title": "Story-Driven Hook Title",
-            "heroDescription": "Short, punchy summary (max 2 sentences).",
-            "introduction": "3-paragraph narrative hook.",
-            "targetAudience": "Who is the Hero?",
-            "quantitativeAnalysis": "Performance Score/Gap.",
-            "pros": ["Benefit 1", "Benefit 2", "Benefit 3", "Benefit 4"],
-            "cons": ["Authentic Flaw 1", "Authentic Flaw 2"],
-            "features": "Superpower features.",
+            "title": "Story-Driven Hook Title (Mention a specific benefit/feature)",
+            "heroDescription": "Short summary focusing on the unique selling point (max 160 chars).",
+            "introduction": "3-paragraph deep dive. Paragraph 1: The Problem/Context. Paragraph 2: How this product solves it (Specs). Paragraph 3: The 'Wow' factor.",
+            "targetAudience": "Who exactly is this for? (e.g. 'Vloggers needing 4K60', not just 'Creatives')",
+            "quantitativeAnalysis": "Performance Score based on specs (e.g. '9/10 for Gaming due to RTX 4060').",
+            "pros": ["Specific Pro 1 (e.g. 120Hz OLED)", "Specific Pro 2", "Specific Pro 3", "Specific Pro 4"],
+            "cons": ["Specific Con 1 (e.g. Bloatware)", "Specific Con 2"],
+            "features": "List the Top 5 Hard Specs (bullet style text).",
             "comparisonTable": [
-                { "name": "${productName}", "price": "€€€ (USE SYMBOLS ONLY: €, €€, or €€€)", "rating": "REALISTIC_SCORE (e.g. 8.7, 9.2)", "mainFeature": "Solution" },
-                { "name": "Competitor", "price": "€€", "rating": "LOWER_SCORE", "mainFeature": "Problem" }
+                { "name": "${productName}", "price": "€€€ (USE SYMBOLS ONLY: €, €€, or €€€)", "rating": "REALISTIC_SCORE (e.g. 8.7)", "mainFeature": "The KILLER Feature (Specific)" },
+                { "name": "Generic Competitor", "price": "€€", "rating": "LOWER_SCORE", "mainFeature": "The Alternative" }
             ],
             "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-            "verdict": "Final transformation promise."
+            "verdict": "Final honest verdict. Buy if... Avoid if..."
         }
         IMPORTANT: 'rating' MUST vary (7.5 - 9.8). Never default to 9.5.
-        IMPORTANT: 'price' MUST be keys: '€' (Cheap), '€€' (Mid), '€€€' (Premium). NO NUMBERS.
+        IMPORTANT: 'price' MUST be keys: '€', '€€', '€€€'.
         Return ONLY valid JSON string. No markdown block.
     `;
   } else {
@@ -842,8 +851,8 @@ export async function scrapeAmazonProduct(url: string) {
     return {
       productName: title,
       imageUrl: image,
-      features: features.slice(0, 6).join("\n- "),
-      description: description.slice(0, 1000),
+      features: features.slice(0, 15).join("\n- "),
+      description: description.slice(0, 5000),
       manualGallery: galleryUrls.slice(0, 6).join('\n') // Limit to top 6 mixed
     };
 
