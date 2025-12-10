@@ -176,9 +176,9 @@ export async function generateSeoContent(
   let prompt = "";
   if (type === 'blog') {
     prompt = `
-        Act as a Technical Product Reviewer and Master Copywriter.
-        Your goal is to write a **MASSIVE, LONG-FORM (4000+ characters), SEO-OPTIMIZED** review based ONLY on the provided details.
-        **DEPTH IS CRITICAL.** Do not summarize; ANALYZE deeply.
+        Act as a Senior Tech Editor for a major publication (like The Verge or XDA).
+        Your goal is to write a **PILLAR PAGE REVIEW (10,000 - 12,000 characters)**.
+        **ABSOLUTE PRIORITY: DEPTH, NUANCE, AND COMPLETENESS.**
         
         INPUT DATA:
         Product: "${productName}"
@@ -189,31 +189,31 @@ export async function generateSeoContent(
         ${campaignsContext}
         ${SALES_STORYTELLING_FRAMEWORK}
 
-        CRITICAL INSTRUCTIONS (LENGTH & SEO):
-        1. **LENGTH:** Total output must be substantial. Expand on every point.
-        2. **ANTI-HALLUCINATION:** Be specific (cite specs), but explain what they MEAN for the user.
-        3. **REAL CONS:** You MUST find specific flaws.
-        4. **FORMAT:** Use \\n\\n for paragraph breaks within the JSON strings to make it readable.
+        CRITICAL STRUCTURE INSTRUCTIONS (HIT 2000 WORDS):
+        1. **INTRODUCTION (500 words):** Don't just greet. Discuss the brand's history, the predecessor of this model, the current state of the market, and the unboxing experience.
+        2. **DEEP DIVES (1000 words):** Break down the product into 5 distinct sections (e.g. Design, Display, Performance, Battery, Camera/Features). Write a full paragraph for EACH.
+        3. **COMPARISON:** Don't just list rivals; explain the trade-offs in detail.
+        4. **FAQ SECTION:** Generate 5 common questions and answer them in detail.
 
         Generate strict JSON:
         {
-            "title": "Story-Driven Hook Title (SEO Optimized)",
+            "title": "A Click-Worthy, SEO-Optimized Title (e.g. Is it worth it in 2025?)",
             "heroDescription": "Compelling meta-description summary (max 160 chars).",
-            "introduction": "WRITE A 600-800 WORD ESSAY HERE. Do not be brief. Divide into logical sections using \\n\\n. Discuss: \\n1. Market Context & Competition. \\n2. Unboxing & Design Philosophy. \\n3. Key Technical Innovations. \\n4. Real-world usage scenarios.",
-            "targetAudience": "Detailed analysis of who needs this (100 words).",
-            "quantitativeAnalysis": "Detailed performance breakdown (200 words) explaining exactly WHY it gets this score based on the specs.",
-            "pros": ["Detailed Benefit 1 (Explain why)", "Detailed Benefit 2 (Explain why)", "Detailed Benefit 3", "Detailed Benefit 4"],
-            "cons": ["Specific Flaw 1 (Explain why)", "Specific Flaw 2"],
-            "features": "A comprehensive deep dive into the specs. Don't just list them; explain the real-world benefit of each major spec (300 words).",
+            "introduction": "WRITE A 500-WORD ESSAY. Use \\n\\n for paragraphs. Cover: Market Context, Brand Legacy, Design Language, Unboxing impressions.",
+            "targetAudience": "Detailed analysis of user personas (200 words). Who should buy, who should skip.",
+            "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Don't just give a number. Break it down: 'Display: 9/10 because...', 'Battery: 7/10 because...'.",
+            "pros": ["Deep Pro 1 (Full sentence explaining why)", "Deep Pro 2", "Deep Pro 3", "Deep Pro 4", "Deep Pro 5"],
+            "cons": ["Specific Flaw 1 (Full sentence)", "Specific Flaw 2", "Specific Flaw 3"],
+            "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header) inside this string. Analyze: Build Quality, Core Performance, Daily Usability, Unique Features, and Long-term Durability. Total approx 800 words.",
             "comparisonTable": [
-                { "name": "${productName}", "price": "€€€ (USE SYMBOLS ONLY: €, €€, or €€€)", "rating": "REALISTIC_SCORE (e.g. 8.7)", "mainFeature": "The KILLER Feature (Specific)" },
-                { "name": "Generic Competitor", "price": "€€", "rating": "LOWER_SCORE", "mainFeature": "The Alternative" }
+                { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
+                { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
             ],
             "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-            "verdict": "A 300-word conclusive summary. Discuss value for money, longevity, and final recommendation. Be honest."
+            "verdict": "A 400-word Final Verdict. Summarize the highs and lows. Give a definitive 'Buy' or 'Pass' recommendation for different budgets."
         }
-        IMPORTANT: 'rating' MUST vary (7.5 - 9.8). Never default to 9.5.
-        IMPORTANT: 'price' MUST be keys: '€', '€€', '€€€'.
+        IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
+        IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
         Return ONLY valid JSON string. No markdown block.
     `;
   } else {
