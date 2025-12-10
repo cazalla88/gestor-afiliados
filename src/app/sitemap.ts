@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 
+export const revalidate = 3600; // Cache for 1 hour to avoid DB timeouts
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // FORCE PRODUCTION URL to avoid localhost issues in Vercel build
     const baseUrl = 'https://gestor-afiliados-web.vercel.app';
