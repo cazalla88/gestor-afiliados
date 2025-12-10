@@ -347,160 +347,176 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 </select>
             </div>
 
-            <div className={styles.aiToggle}>
-                <button
-                    type="button"
-                    className={styles.previewBtn}
-                    onClick={handlePreview}
-                >
-                    👁️ Preview Page
-                </button>
-                <button
-                    type="button"
-                    className={styles.aiButton}
-                    onClick={handleAiOptimize}
-                    disabled={isOptimizing}
-                >
-                    {isOptimizing ? "✨ Generating Content..." : (formData.type === 'blog' ? "✨ Generate Full Review" : "✨ AI Magic Optimize")}
-                </button>
-            </div>
 
-            {showApiKey && (
-                <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="apiKey" style={{ color: '#fbbf24' }}>Google Gemini API Key</label>
-                    <input
-                        type="password"
-                        id="apiKey"
-                        name="apiKey"
-                        className="input-field"
-                        value={formData.apiKey}
-                        onChange={handleChange}
-                    />
-                </div>
-            )}
 
             <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.inputGroup}>
-                    <label htmlFor="productName">{t.form.productName}</label>
-                    <input
-                        type="text"
-                        id="productName"
-                        name="productName"
-                        className="input-field"
-                        placeholder={t.form.productPlaceholder}
-                        value={formData.productName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
 
-                <div className={styles.inputGroup}>
-                    <RichTextEditor
-                        label={formData.type === 'blog' ? "Product/Topic Details & Post Content" : t.form.description}
-                        content={formData.description}
-                        onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
-                    />
-                </div>
+                {/* LEFT COLUMN: METADATA & ASSETS */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                <div className={styles.inputGroup}>
-                    <label htmlFor="affiliateLink">{t.form.affiliateLink}</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div className={styles.inputGroup}>
+                        <label htmlFor="productName">{t.form.productName}</label>
                         <input
-                            type="url"
-                            id="affiliateLink"
-                            name="affiliateLink"
+                            type="text"
+                            id="productName"
+                            name="productName"
                             className="input-field"
-                            placeholder={t.form.linkPlaceholder}
-                            value={formData.affiliateLink}
+                            placeholder={t.form.productPlaceholder}
+                            value={formData.productName}
                             onChange={handleChange}
                             required
                         />
-                        <button
-                            type="button"
-                            onClick={async () => {
-                                if (!formData.affiliateLink) return alert("Paste link first!");
-                                setIsSubmitting(true);
-                                const data = await import("@/app/actions").then(mod => mod.scrapeAmazonProduct(formData.affiliateLink));
-                                setIsSubmitting(false);
-
-                                if (data.error) {
-                                    alert(data.error);
-                                } else {
-                                    // Construct rich scraped data for AI context
-                                    let scrapedInfo = "";
-                                    if (data.description) scrapedInfo += `<p><strong>Official Description:</strong> ${data.description.substring(0, 500)}...</p>`;
-                                    if (data.features) scrapedInfo += `<p><strong>Key Specifications:</strong><br/>${data.features.replace(/\n/g, '<br/>')}</p>`;
-
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        productName: data.productName || prev.productName,
-                                        imageUrl: data.imageUrl || prev.imageUrl,
-                                        manualGallery: data.manualGallery || prev.manualGallery, /* Auto-fill gallery restored */
-                                        // Append scraped data to description so AI can use it
-                                        description: prev.description ? prev.description + "<br/><hr/>" + scrapedInfo : scrapedInfo
-                                    }));
-                                }
-                            }}
-                            className={styles.typeBtn}
-                            style={{ padding: '0 1rem', whiteSpace: 'nowrap' }}
-                            title="Auto-fill Title, Image & Features from Amazon"
-                        >
-                            🪄 Auto-Fill & Scrape
-                        </button>
                     </div>
-                </div>
 
-                <div className={styles.inputGroup}>
-                    <label htmlFor="imageUrl">{t.form.image}</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input
-                            type="url"
-                            id="imageUrl"
-                            name="imageUrl"
+                    <div className={styles.inputGroup}>
+                        <label htmlFor="affiliateLink">{t.form.affiliateLink}</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="url"
+                                id="affiliateLink"
+                                name="affiliateLink"
+                                className="input-field"
+                                placeholder={t.form.linkPlaceholder}
+                                value={formData.affiliateLink}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (!formData.affiliateLink) return alert("Paste link first!");
+                                    setIsSubmitting(true);
+                                    const data = await import("@/app/actions").then(mod => mod.scrapeAmazonProduct(formData.affiliateLink));
+                                    setIsSubmitting(false);
+
+                                    if (data.error) {
+                                        alert(data.error);
+                                    } else {
+                                        let scrapedInfo = "";
+                                        if (data.description) scrapedInfo += `<p><strong>Official Description:</strong> ${data.description.substring(0, 500)}...</p>`;
+                                        if (data.features) scrapedInfo += `<p><strong>Key Specifications:</strong><br/>${data.features.replace(/\n/g, '<br/>')}</p>`;
+
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            productName: data.productName || prev.productName,
+                                            imageUrl: data.imageUrl || prev.imageUrl,
+                                            manualGallery: data.manualGallery || prev.manualGallery,
+                                            description: prev.description ? prev.description + "<br/><hr/>" + scrapedInfo : scrapedInfo
+                                        }));
+                                    }
+                                }}
+                                className={styles.typeBtn}
+                                style={{ padding: '0 1rem', whiteSpace: 'nowrap' }}
+                                title="Auto-fill"
+                            >
+                                🪄 Auto-Fill
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label htmlFor="imageUrl">{t.form.image}</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="url"
+                                id="imageUrl"
+                                name="imageUrl"
+                                className="input-field"
+                                placeholder={t.form.imagePlaceholder}
+                                value={formData.imageUrl}
+                                onChange={handleChange}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleImageAnalysis}
+                                disabled={isAnalyzingImage}
+                                className={styles.typeBtn}
+                                style={{
+                                    padding: '0 1rem',
+                                    whiteSpace: 'nowrap',
+                                    background: 'linear-gradient(135deg, #10b981, #059669)'
+                                }}
+                            >
+                                {isAnalyzingImage ? "👁️..." : "👁️ Vision"}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label htmlFor="manualGallery">🖼️ Gallery (One URL per line)</label>
+                        <textarea
+                            id="manualGallery"
+                            name="manualGallery"
                             className="input-field"
-                            placeholder={t.form.imagePlaceholder}
-                            value={formData.imageUrl}
+                            placeholder="https://example.com/img1.jpg&#10;https://example.com/img2.jpg"
+                            value={formData.manualGallery || ""}
                             onChange={handleChange}
+                            rows={4}
+                            style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
                         />
-                        <button
-                            type="button"
-                            onClick={handleImageAnalysis}
-                            disabled={isAnalyzingImage}
-                            className={styles.typeBtn}
-                            style={{
-                                padding: '0 1rem',
-                                whiteSpace: 'nowrap',
-                                background: 'linear-gradient(135deg, #10b981, #059669)' // Green for Vision
-                            }}
-                            title="Use AI Vision to describe image"
-                        >
-                            {isAnalyzingImage ? "👁️ Analyzing..." : "👁️ Analyze Image"}
-                        </button>
+                    </div>
+
+                    {showApiKey && (
+                        <div className={styles.inputGroup}>
+                            <label htmlFor="apiKey" style={{ color: '#fbbf24' }}>Google Gemini API Key</label>
+                            <input
+                                type="password"
+                                id="apiKey"
+                                name="apiKey"
+                                className="input-field"
+                                value={formData.apiKey}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* RIGHT COLUMN: EDITOR & AI TOOLS */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '100%' }}>
+
+                    {/* Action Toolbar */}
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <label style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
+                            {formData.type === 'blog' ? "📝 Blog Post Content & Deep Dive" : "📄 Landing Page Copy"}
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                                type="button"
+                                className={styles.previewBtn}
+                                onClick={handlePreview}
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                            >
+                                👁️ Preview
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.aiButton}
+                                onClick={handleAiOptimize}
+                                disabled={isOptimizing}
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+                            >
+                                {isOptimizing ? "✨ Generating..." : "✨ AI Magic Writer"}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={styles.inputGroup} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <RichTextEditor
+                            label="" // Label handled by Toolbar above
+                            content={formData.description}
+                            onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
+                        />
+                        <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem', textAlign: 'right' }}>
+                            Pro Tip: Use the AI button to generate a 2000+ word draft first, then edit here.
+                        </p>
                     </div>
                 </div>
 
-                <div className={styles.inputGroup}>
-                    <label htmlFor="manualGallery">🖼️ Manual Gallery Images (Optional - One URL per line)</label>
-                    <textarea
-                        id="manualGallery"
-                        name="manualGallery"
-                        className="input-field"
-                        placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg&#10;https://example.com/image3.jpg"
-                        value={formData.manualGallery || ""}
-                        onChange={handleChange}
-                        rows={4}
-                        style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
-                    />
-                    <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.2rem' }}>
-                        * If provided, these images will be used INSTEAD of auto-search.
-                    </p>
-                </div>
-
-                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting}>
+                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
                     {isSubmitting ? (
                         <span className={styles.loadingSpinner}>{t.form.buttonLoading}</span>
                     ) : (
-                        formData.type === 'blog' ? "Publish Review" : t.form.button
+                        formData.type === 'blog' ? "🚀 Publish SEO Pillar Page" : t.form.button
                     )}
                 </button>
             </form>

@@ -50,105 +50,42 @@
     padding: 10px;
 }
 
+
 .formContainer {
-    background: rgba(20, 20, 22, 0.4);
+    background: rgba(20, 20, 22, 0.6);
+    /* Slightly more opaque */
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
-    padding: 2.5rem;
+    padding: 3rem;
     width: 100%;
-    max-width: 500px;
+    max-width: 1100px;
+    /* <--- WIDE MODE ACTIVATED */
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s ease;
 }
 
-/* ... keep previous styles ... */
-
-.formContainer:hover {
-    border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-}
-
-.header {
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(to right, #fff, #a1a1aa);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.header p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-
-.aiToggle {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-}
-
-.previewBtn {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.previewBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-}
-
-.aiButton {
-    background: linear-gradient(135deg, #a855f7, #ec4899);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.aiButton:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
-}
-
-.aiButton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
+/* ... headers ... */
 
 .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 2 Columns */
+    gap: 2rem;
+    align-items: start;
 }
 
+@media (max-width: 768px) {
+    .form {
+        grid-template-columns: 1fr;
+        /* Stack on mobile */
+    }
+}
+
+/* Make RichText Editor span full height or specific placement if needed */
+/* For now, just a raw grid is fine, inputs will flow L->R, T->B */
+
+/* Specific Input Tweaks */
 .inputGroup {
     display: flex;
     flex-direction: column;
