@@ -475,27 +475,29 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '100%' }}>
 
                     {/* Action Toolbar */}
-                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <label style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
-                            {formData.type === 'blog' ? "📝 Blog Post Content & Deep Dive" : "📄 Landing Page Copy"}
-                        </label>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {/* Action Toolbar */}
+                    <div className={styles.toolbar}>
+                        <div className={styles.sectionTitle}>
+                            <span style={{ fontSize: '1.2em', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))' }}>
+                                {formData.type === 'blog' ? '📝' : '📄'}
+                            </span>
+                            {formData.type === 'blog' ? "Editor de Review & Deep Dive" : "Editor de Landing Page"}
+                        </div>
+                        <div className={styles.actionButtons}>
                             <button
                                 type="button"
-                                className={styles.previewBtn}
+                                className={`${styles.premiumBtn} ${styles.glassBtn}`}
                                 onClick={handlePreview}
-                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                             >
                                 👁️ Preview
                             </button>
                             <button
                                 type="button"
-                                className={styles.aiButton}
+                                className={`${styles.premiumBtn} ${styles.magicBtn}`}
                                 onClick={handleAiOptimize}
                                 disabled={isOptimizing}
-                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                             >
-                                {isOptimizing ? "✨ Generating..." : "✨ AI Magic Writer"}
+                                {isOptimizing ? "✨ Escribiendo..." : "✨ AI Magic Writer"}
                             </button>
                         </div>
                     </div>
