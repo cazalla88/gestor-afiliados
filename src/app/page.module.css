@@ -66,25 +66,32 @@
 }
 
 .heroTitle {
-  font-size: 3.5rem;
+  font-size: 4rem;
   line-height: 1.1;
   font-weight: 800;
-  margin-bottom: 1.5rem;
-  letter-spacing: -1px;
+  margin-bottom: 2rem;
+  letter-spacing: -1.5px;
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @media (max-width: 600px) {
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
   }
 }
 
 .heroText {
-  font-size: 1.125rem;
+  font-size: 1.2rem;
   color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  max-width: 600px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  /* Wider text block */
+  text-wrap: balance;
+  /* Modern text wrapping */
 }
 
 .features {

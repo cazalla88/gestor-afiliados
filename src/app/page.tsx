@@ -37,29 +37,7 @@ function Content() {
               {t.hero.subtitle}
             </p>
 
-            <div className={styles.features}>
-              <div className={styles.featureItem}>
-                <span className={styles.icon}>🚀</span>
-                <div>
-                  <strong>{t.hero.faster}</strong>
-                  <p>{t.hero.fasterDesc}</p>
-                </div>
-              </div>
-              <div className={styles.featureItem}>
-                <span className={styles.icon}>💎</span>
-                <div>
-                  <strong>{t.hero.premium}</strong>
-                  <p>{t.hero.premiumDesc}</p>
-                </div>
-              </div>
-              <div className={styles.featureItem}>
-                <span className={styles.icon}>📈</span>
-                <div>
-                  <strong>{t.hero.seo}</strong>
-                  <p>{t.hero.seoDesc}</p>
-                </div>
-              </div>
-            </div>
+
           </div>
 
           <div className={styles.formSection}>
