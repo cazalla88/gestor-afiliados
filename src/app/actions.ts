@@ -636,8 +636,11 @@ export async function getCampaignsByCategory(category: string, limit: number = 1
       select: {
         slug: true,
         productName: true,
+        title: true,
+        description: true,
         imageUrl: true,
         category: true,
+        type: true,
       },
       orderBy: { createdAt: 'desc' },
       take: limit
