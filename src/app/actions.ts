@@ -224,53 +224,55 @@ export async function generateSeoContent(
     if (contentDepth === 'deep') {
       // --- OPTION A: PILLAR PAGE (2000+ Words) ---
       prompt = `
-            Act as a World - Class Direct Response Copywriter(Level of Dan Kennedy / Gary Halbert).
-            Your goal is to write a ** PILLAR PAGE REVIEW(10,000 - 12,000 characters) ** that converts cold traffic into buyers.
-            
-            INPUT DATA:
-      Product: "${productName}"
+            Act as a LEGENDARY Direct Response Copywriter(Master Level like Dan Kennedy or Gary Halbert).
+            Your goal is to write a ** PILLAR PAGE REVIEW ** that converts cold traffic into obsessed buyers.
+            ** AUTHORITY LEVEL: GOD MODE.Write with absolute confidence.**
+
+    INPUT DATA:
+  Product: "${productName}"
             Raw Details: "${basicDescription}"
-            Tone: ${ tone }
-            Language: ${ langName }
+  Tone: ${ tone }
+  Language: ${ langName }
 
             ${ campaignsContext }
             ${ redditContext }
             ${ COPYWRITING_MASTER_INSTRUCTIONS }
 
             CRITICAL STRUCTURE INSTRUCTIONS(HIT 2000 WORDS):
-      1. ** INTRODUCTION(Use P.A.S.T.O.R.Framework):** Hook them immediately. 
+  1. ** INTRODUCTION(Use P.A.S.T.O.R.Framework):** Hook them immediately. 
             2. ** DEEP DIVES:** Break down the product into 5 distinct sections.Use "Slippery Slide" narrative flow.
             3. ** COMPARISON:** position this product as the * smart * choice.
             4. ** FAQ SECTION:** Answer objections before they arise.
 
             Generate strict JSON:
-      {
-        "title": "A Magnetic Headline (Use Numbers, Curiosity, or Strong Benefit)",
-        "heroDescription": "Meta-description that forces a click (max 160 chars).",
+  {
+    "title": "A Magnetic Headline (Use Numbers, Curiosity, or Strong Benefit)",
+      "heroDescription": "Meta-description that forces a click (max 160 chars).",
         "introduction": "An engaging 500-word P.A.S.T.O.R. opener. Make them feel the problem before offering the solution.",
-        "targetAudience": "Detailed persona analysis (200 words).",
-        "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Be specific like Claude Hopkins.",
-        "pros": ["Benefit-focused Pro 1", "Benefit-focused Pro 2", "Benefit-focused Pro 3", "Benefit-focused Pro 4", "Benefit-focused Pro 5"],
-        "cons": ["Honest Flaw 1 (Builds Trust)", "Honest Flaw 2", "Honest Flaw 3"],
-        "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header). Focus on the 'Transformation' (Benefits). Total approx 800 words.",
-        "comparisonTable": [
-          { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
-          { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
-        ],
-        "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-        "verdict": "A 400-word Final Verdict. Use Cialdini's Authority. Tell them clearly whether to buy or not."
-      }
-            IMPORTANT: 'rating' MUST vary(7.5 - 9.8).
-      IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
+          "targetAudience": "Detailed persona analysis (200 words).",
+            "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Be specific like Claude Hopkins.",
+              "pros": ["Benefit-focused Pro 1", "Benefit-focused Pro 2", "Benefit-focused Pro 3", "Benefit-focused Pro 4", "Benefit-focused Pro 5"],
+                "cons": ["Honest Flaw 1 (Builds Trust)", "Honest Flaw 2", "Honest Flaw 3"],
+                  "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header). Focus on the 'Transformation' (Benefits). Total approx 800 words.",
+                    "comparisonTable": [
+                      { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
+                      { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
+                    ],
+                      "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
+                        "verdict": "A 400-word Final Verdict. Use Cialdini's Authority. Tell them clearly whether to buy or not."
+  }
+  IMPORTANT: 'rating' MUST vary(7.5 - 9.8).
+    IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
             Return ONLY valid JSON string.No markdown block.
         `;
     } else {
       // --- OPTION B: STANDARD REVIEW (800-1000 Words) ---
       prompt = `
-  Act as a Persuasive Marketing Copywriter.
-            Your goal is to write a ** HIGH - CONVERSION REVIEW(800 - 1000 words) **.
-            
-            INPUT DATA:
+  Act as a SENIOR MASTER Copywriter(Specialized in High - Ticket Sales).
+            Your goal is to write a ** HIGH - CONVERSION REVIEW ** (No fluff, pure persuasion).
+            ** AUTHORITY LEVEL: EXPERT.Do not use hedging language.**
+
+    INPUT DATA:
   Product: "${productName}"
             Raw Details: "${basicDescription}"
   Tone: ${ tone }
