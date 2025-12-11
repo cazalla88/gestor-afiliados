@@ -62,24 +62,102 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
         redirect(`/${realCategory}/${slug}`);
     }
 
+    // --- SEO: JSON-LD SCHEMA GENERATION ---
+    let jsonLd = null;
+    try {
+        const contentStr = typeof product.content === 'string' ? product.content : JSON.stringify(product.content);
+        const contentJson = contentStr ? JSON.parse(contentStr) : {};
+
+        // Attempt to extract Rating value
+        let ratingValue = 4.5; // Safe fallback
+        let bestRating = 10;
+
+        // 1. Try numeric match from "8.5/10" string in quantitativeAnalysis
+        if (contentJson.quantitativeAnalysis) {
+            const match = contentJson.quantitativeAnalysis.match(/(\d+(\.\d+)?)\/(\d+)/);
+            if (match) {
+                ratingValue = parseFloat(match[1]);
+                bestRating = parseInt(match[3]);
+            }
+        }
+        // 2. Fallback to comparison table rating if available
+        else if (Array.isArray(contentJson.comparisonTable) && contentJson.comparisonTable.length > 0) {
+            const selfRow = contentJson.comparisonTable.find((r: any) => r.name.includes(product.productName) || r.name === 'Este Producto');
+            if (selfRow && selfRow.rating) {
+                ratingValue = parseFloat(selfRow.rating);
+            }
+        }
+
+        jsonLd = {
+            '@context': 'https://schema.org',
+            '@type': product.type === 'blog' ? 'Article' : 'Product',
+            'name': product.title,
+            'description': product.description,
+            'image': product.imageUrl,
+            'author': {
+                '@type': 'Organization',
+                'name': 'Gestor Afiliados Expert Team' // Customize this later
+            },
+            'publisher': {
+                '@type': 'Organization',
+                'name': 'Gestor Afiliados',
+                'logo': {
+                    '@type': 'ImageObject',
+                    'url': 'https://gestor-afiliados-web.vercel.app/logo.png' // Ensure this exists or use a generic one
+                }
+            },
+            'datePublished': product.createdAt,
+            'dateModified': product.updatedAt,
+        };
+
+        // Enrich with Review Data if it's a product review
+        if (product.type !== 'blog' || (product.type === 'blog' && ratingValue)) {
+            jsonLd = {
+                ...jsonLd,
+                '@type': 'Product',
+                'review': {
+                    '@type': 'Review',
+                    'reviewRating': {
+                        '@type': 'Rating',
+                        'ratingValue': ratingValue,
+                        'bestRating': bestRating
+                    },
+                    'author': {
+                        '@type': 'Person',
+                        'name': 'Expert Reviewer'
+                    }
+                }
+            };
+        }
+    } catch (e) {
+        console.error("Schema Gen Error:", e);
+    }
+    // -------------------------------------
+
     // Fetch related products for internal linking
     const relatedProducts = await getCampaignsByCategory(product.category || 'general', 5);
 
-    if (product.type === 'blog') {
-        return (
-            <BlogTemplate
-                campaign={product}
-                currentSlug={slug}
-                relatedProducts={relatedProducts}
-            />
-        );
-    }
-
     return (
-        <LandingTemplate
-            product={product}
-            currentSlug={slug}
-            relatedProducts={relatedProducts}
-        />
+        <>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
+            {product.type === 'blog' ? (
+                <BlogTemplate
+                    campaign={product}
+                    currentSlug={slug}
+                    relatedProducts={relatedProducts}
+                />
+            ) : (
+                <LandingTemplate
+                    product={product}
+                    currentSlug={slug}
+                    relatedProducts={relatedProducts}
+                />
+            )}
+        </>
     );
 }
