@@ -335,7 +335,7 @@ export async function generateSeoContent(
         let text = response.text();
 
         // Clean and Parse
-        text = text.replace(/```json / g, '').replace(/```/g, '').trim();
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(text); // SUCCESS! Return result.
 
       } catch (error: any) {
