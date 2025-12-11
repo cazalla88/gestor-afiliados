@@ -28,5 +28,11 @@ model Campaign {
   updatedAt     DateTime @updatedAt
 
   // Blog Specific Structured Data
+  // Blog Specific Structured Data
   content       String?  // JSON string: pros, cons, features, verdict, comparisonTable
+
+  // Hub / Cluster Structure (Self-Relation)
+  parentId      String?
+  parent        Campaign?  @relation("CampaignHierarchy", fields: [parentId], references: [id])
+  children      Campaign[] @relation("CampaignHierarchy")
 }

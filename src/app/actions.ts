@@ -131,7 +131,7 @@ export async function generateSeoContent(
   productName: string,
   basicDescription: string,
   apiKey: string,
-  type: 'landing' | 'blog' = 'landing',
+  type: 'landing' | 'blog' | 'hub_principal' | 'subhub' = 'landing',
   language: 'en' | 'es' = 'en',
   tone: string = 'Professional',
   existingCampaigns: any[] = [],
@@ -657,6 +657,7 @@ export async function createCampaign(data: any) {
         imageUrl: mainImage,
         // galleryImages: galleryImages, // <--- COMENTADO para evitar error si la columna no existe en Prod
         content: JSON.stringify(contentData),
+        parentId: data.parentId && data.parentId.trim() !== "" ? data.parentId : null, // Link to Parent Hub
       }
     });
     // --- AUTO-INDEXING SIGNAL ---
@@ -725,8 +726,36 @@ export async function updateCampaign(slug: string, data: any) {
 
 export async function getCampaign(slug: string) {
   return await prisma.campaign.findUnique({
-    where: { slug }
+    where: { slug },
+    include: {
+      parent: {
+        select: { slug: true, title: true, category: true }
+      },
+      children: {
+        select: { slug: true, title: true, type: true, description: true, imageUrl: true }
+      }
+    }
   });
+}
+
+// NEW: Fetch Hubs for Dropdown
+export async function getAvailableHubs() {
+  try {
+    return await prisma.campaign.findMany({
+      where: {
+        // We consider Hubs anything that is not a standard 'review' or 'product'
+        // Ideally we should use the new types 'hub_principal' | 'subhub'
+        OR: [
+          { type: 'hub_principal' },
+          { type: 'subhub' },
+          { type: 'landing' } // Fallback
+        ]
+      },
+      select: { id: true, title: true, slug: true, type: true }
+    });
+  } catch (e) {
+    return [];
+  }
 }
 
 export async function getCampaignsByCategory(category: string, limit: number = 10) {

@@ -5,7 +5,7 @@ import styles from "./CreateCampaignForm.module.css";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
-import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign, analyzeImage, getAllCampaigns } from "@/app/actions";
+import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, getCampaign, analyzeImage, getAllCampaigns, getAvailableHubs } from "@/app/actions";
 import { CATEGORIES, type CategorySlug } from "@/lib/categories";
 import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
@@ -23,34 +23,38 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         affiliateLink: "",
         imageUrl: "",
         apiKey: "",
-        type: "landing" as "landing" | "blog",
+        type: "landing" as "landing" | "blog" | "hub_principal" | "subhub", // Added Hub types
         category: "general" as CategorySlug,
         tone: "Professional",
         manualGallery: "",
-        contentDepth: "standard" as "standard" | "deep"
+        contentDepth: "standard" as "standard" | "deep",
+        parentId: "" // New Parent Link
     });
 
+    const [hubs, setHubs] = useState<any[]>([]); // New Hubs State
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
-    const [isAnalyzingImage, setIsAnalyzingImage] = useState(false); // Vision AI State
-    const [showApiKey, setShowApiKey] = useState(true); // <--- SIEMPRE VISIBLE PARA TI
+    const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+    const [showApiKey, setShowApiKey] = useState(true);
     const [generatedBlogData, setGeneratedBlogData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
-    const [existingCampaigns, setExistingCampaigns] = useState<any[]>([]); // SEO Context
+    const [existingCampaigns, setExistingCampaigns] = useState<any[]>([]);
 
-    // Load API Key from local storage
     useEffect(() => {
         const storedKey = localStorage.getItem("gemini_api_key");
         if (storedKey) {
             setFormData(prev => ({ ...prev, apiKey: storedKey }));
         }
 
-        // Load campaigns for SEO Auto-Linking context
+        // Load campaigns context
         getAllCampaigns().then(campaigns => {
-            if (Array.isArray(campaigns)) {
-                setExistingCampaigns(campaigns);
-            }
+            if (Array.isArray(campaigns)) setExistingCampaigns(campaigns);
+        });
+
+        // NEW: Load available hubs for parent selector
+        getAvailableHubs().then(hubsList => {
+            if (Array.isArray(hubsList)) setHubs(hubsList);
         });
     }, []);
 
@@ -66,11 +70,12 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         affiliateLink: campaign.affiliateLink,
                         imageUrl: campaign.imageUrl || "",
                         apiKey: "",
-                        type: campaign.type as "landing" | "blog",
+                        type: campaign.type as any,
                         category: (campaign.category as CategorySlug) || "general",
                         tone: "Professional",
-                        manualGallery: "", // Initialize empty for edit mode (or we could fetch it if saved)
-                        contentDepth: "standard" as "standard" | "deep"
+                        manualGallery: "",
+                        contentDepth: "standard",
+                        parentId: (campaign as any).parentId || "" // Load parent
                     });
                 }
                 setIsLoading(false);
@@ -93,11 +98,12 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             productName: formData.productName,
             affiliateLink: formData.affiliateLink,
             imageUrl: formData.imageUrl,
-            manualGallery: formData.manualGallery, // Send to backend for override
-            title: formData.type === 'landing' ? formData.productName : generatedBlogData?.title,
-            description: formData.type === 'landing' ? formData.description : generatedBlogData?.introduction,
+            manualGallery: formData.manualGallery,
+            title: (formData.type === 'landing' || formData.type.includes('hub')) ? formData.productName : generatedBlogData?.title,
+            description: (formData.type === 'landing' || formData.type.includes('hub')) ? formData.description : generatedBlogData?.introduction,
             category: formData.category,
             language: language,
+            parentId: formData.parentId, // Send to backend
             ...generatedBlogData
         };
 
@@ -124,19 +130,23 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
         if (formData.apiKey) {
             localStorage.setItem("gemini_api_key", formData.apiKey);
+            if (formData.type.includes('hub')) {
+                // Special Prompt for Hubs could be added here in future
+                // For now treating as 'deep' blog
+                formData.contentDepth = 'deep';
+            }
         }
 
         setIsOptimizing(true);
-        // Pass existingCampaigns for SEO Auto-Linking
         const result = await generateSeoContent(
             formData.productName,
             formData.description,
             formData.apiKey,
-            formData.type,
+            formData.type, // Action now knows about 'hub' types
             language,
             formData.tone,
             existingCampaigns,
-            formData.contentDepth // Pass depth preference
+            formData.contentDepth
         );
 
         if (result.error) {
@@ -277,22 +287,67 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 <p>{t.form.subtitle}</p>
             </div>
 
-            <div className={styles.typeSelector}>
+            <div className={styles.typeSelector} style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
                 <button
                     type="button"
                     className={`${styles.typeBtn} ${formData.type === 'landing' ? styles.activeType : ''}`}
                     onClick={() => setFormData(prev => ({ ...prev, type: 'landing' }))}
+                    style={{ flex: '1 1 45%' }}
                 >
-                    Landing Page
+                    🛒 Landing Page
                 </button>
                 <button
                     type="button"
                     className={`${styles.typeBtn} ${formData.type === 'blog' ? styles.activeType : ''}`}
                     onClick={() => setFormData(prev => ({ ...prev, type: 'blog' }))}
+                    style={{ flex: '1 1 45%' }}
                 >
-                    Blog Review
+                    📝 Product Review
+                </button>
+                <button
+                    type="button"
+                    className={`${styles.typeBtn} ${formData.type === 'hub_principal' ? styles.activeType : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'hub_principal' }))}
+                    style={{ flex: '1 1 45%', background: formData.type === 'hub_principal' ? '#7c3aed' : undefined }}
+                >
+                    🌐 Hub Cluster (Padre)
+                </button>
+                <button
+                    type="button"
+                    className={`${styles.typeBtn} ${formData.type === 'subhub' ? styles.activeType : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'subhub' }))}
+                    style={{ flex: '1 1 45%', background: formData.type === 'subhub' ? '#db2777' : undefined }}
+                >
+                    🔗 Sub-Hub (Hijo)
                 </button>
             </div>
+
+            {/* PARENT Hub SELECTOR */}
+            {(formData.type === 'subhub' || formData.type === 'blog') && hubs.length > 0 && (
+                <div className={styles.inputGroup} style={{ marginTop: '1rem', border: '1px solid #334', padding: '1rem', borderRadius: '8px', background: '#1a1a1a' }}>
+                    <label htmlFor="parentId" style={{ color: '#db2777', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        🔗 Link to Parent Hub (Cluster Strategy)
+                    </label>
+                    <select
+                        id="parentId"
+                        name="parentId"
+                        value={formData.parentId}
+                        onChange={handleChange}
+                        className={styles.selectInput}
+                        style={{ border: '1px solid #db2777' }}
+                    >
+                        <option value="">-- No Parent (Root Level) --</option>
+                        {hubs.map((hub: any) => (
+                            <option key={hub.id} value={hub.id}>
+                                {hub.type === 'hub_principal' ? '🌐' : '🔗'} {hub.title} ({hub.slug})
+                            </option>
+                        ))}
+                    </select>
+                    <p style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.5rem' }}>
+                        Selecting a parent will create automatic breadcrumbs and internal linking silo.
+                    </p>
+                </div>
+            )}
 
             {formData.type === 'blog' && (
                 <div className={styles.typeSelector} style={{ marginTop: '0.5rem', marginBottom: '1.5rem', gap: '0.5rem' }}>

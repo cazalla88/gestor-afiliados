@@ -126,6 +126,22 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
             {/* NEW SPLIT HERO SECTION */}
             <section className={styles.heroSection}>
                 <div className="container">
+                    {/* BREADCRUMBS */}
+                    <nav aria-label="Breadcrumb" style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
+                        <Link href={`/`} style={{ textDecoration: 'none', color: '#ccc', opacity: 0.8 }}>Home</Link>
+                        <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>/</span>
+                        <Link href={`/${campaign.category}`} style={{ textDecoration: 'none', color: '#fff', fontWeight: 500 }}>
+                            {campaign.category.charAt(0).toUpperCase() + campaign.category.slice(1)}
+                        </Link>
+                        {campaign.parent && (
+                            <>
+                                <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>/</span>
+                                <Link href={`/${campaign.parent.category || campaign.category}/${campaign.parent.slug}`} style={{ textDecoration: 'none', color: '#db2777', fontWeight: 600 }}>
+                                    {campaign.parent.title}
+                                </Link>
+                            </>
+                        )}
+                    </nav>
                     {/* NEW EDITORIAL HEADER (Centered via CSS) */}
                     <div className={styles.editorialHeader}>
                         <div className={styles.meta}>
@@ -354,6 +370,39 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </aside>
             </div>
 
+
+            {/* CLUSTER CONTENT (HUB CHILDREN) */}
+            {campaign.children && campaign.children.length > 0 && (
+                <section className="container" style={{ margin: '4rem auto', maxWidth: '1200px', padding: '0 1rem' }}>
+                    <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem', borderLeft: '4px solid #7c3aed', paddingLeft: '1rem' }}>
+                        {lang === 'es' ? `Explora más en esta Guía` : `More in this Guide`}
+                    </h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                        {campaign.children.map((child: any) => (
+                            <Link key={child.slug} href={`/${campaign.category}/${child.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <div style={{ border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden', height: '100%', transition: 'transform 0.2s', backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}
+                                // onMouseOver handled in CSS ideally, simplified here
+                                >
+                                    {child.imageUrl && (
+                                        <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
+                                            <Image src={child.imageUrl} alt={child.title || 'Post Image'} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 300px" />
+                                        </div>
+                                    )}
+                                    <div style={{ padding: '1rem' }}>
+                                        <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                                            {child.type === 'subhub' ? '📚 GUIDE' : '📝 REVIEW'}
+                                        </span>
+                                        <h3 style={{ fontSize: '1.1rem', margin: '0.5rem 0', fontWeight: '600', lineHeight: '1.3' }}>{child.title}</h3>
+                                        <p style={{ fontSize: '0.9rem', color: '#666', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                            {child.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <RelatedProducts
                 currentSlug={currentSlug}
