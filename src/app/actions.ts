@@ -225,84 +225,66 @@ export async function generateSeoContent(
   let prompt = "";
 
   // --- NEW: MASTER HUB & SUB-HUB LOGIC (Universal Expert Authority) ---
-  if (type === 'hub_principal' || type === 'subhub') {
+  // --- 3. MASTER HUB STRATEGY (The "Silo" Core) ---
+  if (type === 'hub_principal') {
     prompt = `
-      ACT AS: The World's Leading Editorial Authority for the specific industry of the topic: "${productName}".
-      - If Tech: Act as a Senior Engineer at Wirecutter/RTings.
-      - If Fashion: Act as a Senior Editor at Vogue/GQ.
-      - If Home/Decor: Act as a Lead Designer at Architectural Digest.
-      - If Fitness: Act as a Head Coach at Men's Health.
+      ROLE: You are an elite Industry Expert and Shopping Guide Editor for 2026.
+      TONE: Direct, helpful, authoritative but accessible. NO fluff. conversational ("tú" in Spanish).
+      LANGUAGE: ${langName} (CRITICAL: Output must be 100% in ${langName}).
 
-      TASK: Write a COMPREHENSIVE MASTER GUIDE (Hub Page) about: "${productName}".
-      GOAL: To be the absolute #1 evergreen resource on the internet for this topic. Educate, establish authority, and define the category.
-      LENGTH: Target 2500+ Words of high-value, deep-dive content.
-
-      INPUT DATA:
-      Topic: "${productName}"
-      Brief: "${basicDescription}"
-      Tone: authoritative, educational, objective, yet accessible.
-      Language: ${langName}
-      CRITICAL INSTRUCTION: ALL OUTPUT MUST BE WRITTEN IN ${langName.toUpperCase()}. DO NOT Use English if language is Spanish.
-
-      ${campaignsContext}
-
-      STRUCTURE & CONTENT GUIDELINES (ADAPT TO INDUSTRY):
-
-      1. **H1 TITLE:** Must be definitive (e.g., "The Ultimate Guide to [Topic] in 2026", "Everything You Need to Know About [Topic]").
-      2. **INTRODUCTION (The Hook & Definition):** 
-         - Start with a clear, concise definition. "What is [Topic] (and what is it NOT)?"
-         - Context: Why is this relevant today? (Trends, Seasonality, Innovation).
+      TASK: Create a "Definitive Buying Guide 2026" for the Master Hub: "${productName}".
       
-      3. **CORE CONCEPTS ("The Science/Art Behind It"):**
-         - Break down industry terminology.
-         - For Tech: Explain the hardware (Sensors, Panels, Chips).
-         - For Fashion: Explain the materials (Fabrics, Cuts, Stitching).
-         - For Beauty: Explain the ingredients (Actives, Skin types).
+      STRUCTURE TO FOLLOW STRICTLY (Based on the "Smartphones" gold standard):
       
-      4. **THE BUYING GUIDE (Critical Decision Factors):**
-         - Identify the 3-5 non-negotiable factors when choosing in this category.
-         - DEEP DIVE COMPARISONS (The "Versus"):
-           - Tech: "OLED vs QLED"
-           - Fashion: "Cotton vs Linen", "Slim vs Regular Fit"
-           - Home: "Solid Wood vs MDF"
+      1. **HOOK**: Start directly. "If you are here it's for two reasons...". define the user's pain point immediately.
+      2. **STEP 1: BUDGET**: "Define tu presupuesto". Break down the niche into:
+         - Entry Level (Cheap/Barato) -> Who is it for?
+         - Mid Range (Calidad/Precio) -> The sweet spot.
+         - High End (Flagship/Premium) -> For enthusiasts.
+         *Suggest placeholders for internal links like: /${productName.toLowerCase().replace(/ /g, '-')}/baratos*
       
-      5. **TYPES / CLASSIFICATIONS:**
-         - Segment the market clearly. (e.g., "Budget vs Luxury", "Professional vs Casual").
-         - *SEO NOTE*: This helps create natural sub-hub interlinking opportunities.
+      3. **STEP 2: USE CASES**: "Elige según el uso". Create 4-5 profiles.
+         - Example: "Just for basics", "For Pros/Work", "For Kids/Seniors", "For Specific Feature X (e.g. Gaming/Photos)".
+         *Suggest placeholders for internal links.*
 
-      6. **FAQ (Voice Search):**
-         - 7-10 questions that real beginners ask. Answer with absolute precision.
+      4. **STEP 3: MAIN DICHOTOMY**: "The Eternal Fight" (e.g., Android vs iPhone, Gas vs Electric, Wood vs Metal).
+         - When to choose Option A.
+         - When to choose Option B.
 
-      FORMATTING RULES:
-      - Use H2/H3 hierarchy strictly.
-      - Use "Pro Tips" boxes (simulated with > blockquotes).
-      - ❌ NO Generic Fluff. Don't say "It depends". Give a stance.
-      - ✅ YES Specifics. Name specific materials, specs, or standards.
+      5. **STEP 4: TECHNICAL SPECS**: "Cómo leer la ficha técnica sin que te tomen el pelo".
+         - Explain 3-4 key technical specs for THIS niche (e.g., for Coffee: Bar Pressure, Grinder Type; for Laptops: CPU, RAM).
+         - Use bullet points. tell the truth about "marketing myths".
 
-      GENERATE STRICT JSON:
+      6. **STEP 5: COMMON MISTAKES**: "Errores típicos al comprar ${productName} en 2026".
+         - List 4-5 mistakes users make (e.g., buying for the brand, ignoring size, overspending).
+
+      7. **STEP 6: FAQ**: 3-4 Quick Questions & Answers.
+
+      8. **STEP 7: NEXT STEPS**: "Y ahora... ¿qué hago?".
+         - A final summary guiding them to specific sub-hubs (Best Cheap, Best Premium, Best for X).
+
+      OUTPUT FORMAT (JSON):
       {
-        "title": "The definitive H1 Title",
-        "introduction": "Complete Intro + Definition (HTML)",
+        "title": "The Definitive Guide to ${productName} in 2026: What you really need",
+        "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
+        "introduction": "<h3>La guía definitiva de ${productName} en 2026: qué necesitas de verdad</h3><p>Si estás aquí es porque necesitas un cambio...</p> (Write a compelling hook HTML)",
         "features": [
-           { 
-             "title": "Core Concept / Buying Factor", 
-             "description": "Deep educational content (300+ words). Use HTML." 
-           }
-           // Generate 4-6 of these detailed sections
+           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías...</p> (Detailed content for Step 1)",
+           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas...</p> (Detailed content for Step 2 with Profiles)",
+           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal...</p> (The Main Dichotomy)",
+           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde...</p> (Explain key specs)",
+           "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero...</p>",
+           "<h2>6. Preguntas Frecuentes</h2><p>Respuestas rápidas...</p>",
+           "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. Ahora elige tu camino: (List potential Sub-Hub links)</p>"
         ],
-        "pros": ["Key Advantage 1 (Industry specific)", "Key Advantage 2"], 
-        "cons": ["Key Downside 1", "Key Downside 2"],
-        "techSpecs": { 
-            "Key Spec/Material 1": "Value", 
-            "Key Spec/Material 2": "Value" 
-            // Map this to: "Fabric", "Dimensions", "Warranty", "Ingredients", etc. depending on industry
-        }, 
-        "faq": [{ "question": "...", "answer": "..." }],
-        "verdict": "A powerful summary of the category landscape.",
-        "seoMetaDescription": "Click-worthy meta summary.",
-        "internalLinks": ["slug1", "slug2"] 
+        "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
+        "internalLinks": [
+          { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
+          { "anchorText": "${productName} Gama Alta", "slug": "gama-alta", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
+          { "anchorText": "Mejora tu experiencia (Accesorios)", "slug": "accesorios", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" }
+        ]
       }
-      `;
+    `;
   }
   else if (type === 'blog') {
     if (contentDepth === 'deep') {

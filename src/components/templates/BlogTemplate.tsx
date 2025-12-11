@@ -202,9 +202,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
                         {/* RIGHT: DESCRIPTION & CTA */}
                         <div className={styles.heroContent} style={{ justifyContent: 'center' }}>
-                            <p className={styles.heroDescription}>
-                                {campaign.description}
-                            </p>
+                            <div className={styles.heroDescription} dangerouslySetInnerHTML={{ __html: campaign.description }} />
 
                             {!isHub && (
                                 <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
@@ -218,7 +216,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
             <div className={`container ${styles.contentGrid}`}>
                 <div className={styles.mainContent}>
-                    {/* Intro Section */}
+                    {/* Intro Section - Only show if different from hero description */}
                     {content.introduction && content.introduction.trim() !== (campaign.description || "").trim() && (
                         <section id="intro" className={styles.intro}>
                             <div dangerouslySetInnerHTML={{ __html: content.introduction.replace(/\n/g, '<br/>') }} />
@@ -286,7 +284,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     )}
 
                     <section id="features" className={styles.features}>
-                        <h2>{t.features}</h2>
+                        {!isHub && <h2>{t.features}</h2>}
                         {/* RENDER PARSED FEATURES HTML */}
                         <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>Features to be added.</p>" }} />
                     </section>
@@ -374,21 +372,40 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         <nav>
                             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                 <li><a href="#intro" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>1. {lang === 'es' ? 'Introducción' : 'Introduction'}</a></li>
-                                <li>
-                                    <a href="#features" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>2. {t.features}</a>
-                                    {featureHeaders.length > 0 && (
-                                        <ul style={{ listStyle: 'none', paddingLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                            {featureHeaders.map((h, i) => (
-                                                <li key={i}>
-                                                    <a href={`#feat-${i}`} style={{ color: '#888', textDecoration: 'none', fontSize: '0.85rem' }}>• {h.text}</a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </li>
+
+                                {/* LOGIC BRANCH: FLAT for Hubs, NESTED for Reviews */}
+                                {isHub ? (
+                                    // HUB TOC: Flattened Headers (2, 3, 4...)
+                                    featureHeaders.map((h, i) => (
+                                        <li key={i}>
+                                            <a href={`#${h.id}`} style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>{i + 2}. {h.text}</a>
+                                        </li>
+                                    ))
+                                ) : (
+                                    // REVIEW TOC: Nested under "Features"
+                                    <li>
+                                        <a href="#features" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>2. {t.features}</a>
+                                        {featureHeaders.length > 0 && (
+                                            <ul style={{ listStyle: 'none', paddingLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                {featureHeaders.map((h, i) => (
+                                                    <li key={i}>
+                                                        <a href={`#${h.id}`} style={{ color: '#888', textDecoration: 'none', fontSize: '0.85rem' }}>• {h.text}</a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </li>
+                                )}
+
                                 {!isHub && <li><a href="#pros-cons" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>3. {t.pros} & {t.cons}</a></li>}
                                 {!isHub && <li><a href="#comparison" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>4. {t.comparison}</a></li>}
-                                <li><a href="#verdict" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>{isHub ? '3.' : '5.'} {isHub ? (lang === 'es' ? 'Conclusión' : 'Summary') : t.verdict}</a></li>
+
+                                <li>
+                                    <a href="#verdict" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>
+                                        {/* Dynamic numbering calculation */}
+                                        {isHub ? (featureHeaders.length + 2) + '.' : '5.'} {isHub ? (lang === 'es' ? 'Conclusión' : 'Summary') : t.verdict}
+                                    </a>
+                                </li>
                             </ul>
                         </nav>
                     </div>
