@@ -267,13 +267,14 @@ export async function generateSeoContent(
       {
         "title": "The Definitive Guide to ${productName} in 2026: What you really need",
         "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
-        "introduction": "<h3>La guía definitiva de ${productName} en 2026: qué necesitas de verdad</h3><p>Si estás aquí es porque necesitas un cambio...</p> (Write a compelling hook HTML)",
+        "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with the hook. Si estás aquí es porque necesitas un cambio...</p> (Write a compelling, deep introduction of 200+ words)",
         "features": [
-           // CRITICAL: GENERATE MINIMUM 5-7 DETAILED SECTIONS. DO NOT LEAVE EMPTY.
-           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías... (Write 300 words)</p>",
-           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas... (Write 300 words)</p>",
-           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal... (Write 300 words)</p>",
-           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde... (Explain key specs)</p>",
+           // CRITICAL: GENERATE MINIMUM 5-7 DETAILED SECTIONS.
+           // CONTENT MUST BE EXTENSIVE (400-500 WORDS PER SECTION). PURE VALUE. NO FLUFF.
+           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías... (Write 500 words of deep analysis)</p>",
+           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas... (Write 500 words with specific profiles)</p>",
+           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal... (Write 500 words comparison)</p>",
+           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde... (Explain key specs in depth)</p>",
            "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero...</p>",
            "<h2>6. Preguntas Frecuentes</h2><p>Respuestas rápidas...</p>",
            "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. (Summary)</p>"

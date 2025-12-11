@@ -204,7 +204,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                             <span className={styles.date}>{date}</span>
                         </div>
 
-                        <h1 className={styles.heroTitle}>{campaign.title}</h1>
+                        <h1 className={styles.heroTitle} style={{ maxWidth: '1000px', margin: '0 auto 1.5rem auto' }}>{campaign.title}</h1>
 
                         <div className={styles.author}>
                             <div className={styles.avatar} style={{ background: '#111', color: '#fff' }}>N</div>
@@ -212,32 +212,64 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         </div>
                     </div>
 
-                    <div className={styles.heroGrid}>
-                        {/* LEFT: IMAGE GALLERY */}
-                        <div style={{ width: '100%', minHeight: '400px' }}>
-                            <ProductGallery
-                                mainImage={campaign.imageUrl || "https://placehold.co/600x600/222/FFF?text=Product+Image"}
-                                productName={campaign.productName}
-                                score={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
-                                badgeLabel={lang === 'es' ? 'EXCELENTE' : 'EXCELLENT'}
-                                galleryImages={(campaign.galleryImages && campaign.galleryImages.length > 0) ? campaign.galleryImages : (content.galleryImagesBackup || [])}
-                                isEditable={isEditable}
-                                onImageUpdate={onImageUpdate}
-                                affiliateLink={campaign.affiliateLink}
-                            />
+                    {/* CONDITIONAL HERO LAYOUT */}
+                    {isHub ? (
+                        // --- OPTION A: MASTER HUB LAYOUT (Centered, Full Width Image, Premium Text) ---
+                        <div className="hub-hero-container" style={{ maxWidth: '900px', margin: '2rem auto 4rem auto' }}>
+
+                            {/* 1. Full Width Banner Image (Editable via pasted URL in DB, but rendered simply here) */}
+                            <div style={{
+                                width: '100%',
+                                height: 'auto',
+                                minHeight: '300px',
+                                maxHeight: '500px',
+                                overflow: 'hidden',
+                                borderRadius: '12px',
+                                marginBottom: '2.5rem',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                                position: 'relative'
+                            }}>
+                                <img
+                                    src={campaign.imageUrl || "https://placehold.co/1200x600/222/FFF?text=Master+Hub+Cover"}
+                                    alt={campaign.title}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
+
+                            {/* 2. Centered Introduction Text (No Sidebar distraction here) */}
+                            <div className={styles.heroContent} style={{ justifyContent: 'center', textAlign: 'left', fontSize: '1.15rem', lineHeight: '1.8' }}>
+                                {/* Render Description/Intro directly. The AI prompt removes the duplicate H1/H3. */}
+                                <div className={styles.heroDescription} dangerouslySetInnerHTML={{ __html: campaign.description }} />
+                            </div>
+
                         </div>
+                    ) : (
+                        // --- OPTION B: STANDARD REVIEW LAYOUT (Grid with Gallery) ---
+                        <div className={styles.heroGrid}>
+                            {/* LEFT: IMAGE GALLERY */}
+                            <div style={{ width: '100%', minHeight: '400px' }}>
+                                <ProductGallery
+                                    mainImage={campaign.imageUrl || "https://placehold.co/600x600/222/FFF?text=Product+Image"}
+                                    productName={campaign.productName}
+                                    score={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
+                                    badgeLabel={lang === 'es' ? 'EXCELENTE' : 'EXCELLENT'}
+                                    galleryImages={(campaign.galleryImages && campaign.galleryImages.length > 0) ? campaign.galleryImages : (content.galleryImagesBackup || [])}
+                                    isEditable={isEditable}
+                                    onImageUpdate={onImageUpdate}
+                                    affiliateLink={campaign.affiliateLink}
+                                />
+                            </div>
 
-                        {/* RIGHT: DESCRIPTION & CTA */}
-                        <div className={styles.heroContent} style={{ justifyContent: 'center' }}>
-                            <div className={styles.heroDescription} dangerouslySetInnerHTML={{ __html: campaign.description }} />
+                            {/* RIGHT: DESCRIPTION & CTA */}
+                            <div className={styles.heroContent} style={{ justifyContent: 'center' }}>
+                                <div className={styles.heroDescription} dangerouslySetInnerHTML={{ __html: campaign.description }} />
 
-                            {!isHub && (
                                 <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
                                     {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
                                 </a>
-                            )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
@@ -296,14 +328,14 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         </div>
                     )}
 
-                    {content.targetAudience && (
+                    {!isHub && content.targetAudience && (
                         <section className={styles.features} style={{ backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
                             <h3 style={{ marginTop: 0, color: '#111' }}>{t.whoFor}</h3>
                             <p style={{ marginBottom: 0, color: '#444' }}>{content.targetAudience}</p>
                         </section>
                     )}
 
-                    {content.quantitativeAnalysis && (
+                    {!isHub && content.quantitativeAnalysis && (
                         <section className={styles.features}>
                             <h3>{t.score}</h3>
                             <p className={styles.scoreText}>{content.quantitativeAnalysis}</p>
