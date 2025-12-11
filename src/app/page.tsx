@@ -62,7 +62,7 @@ export default async function Home() {
           <span style={{ width: '20px', height: '4px', background: '#db2777', borderRadius: '2px', display: 'block' }}></span>
           Explora por Categorías
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+        <div className={styles.categoriesGrid}>
           {Object.entries(CATEGORIES).map(([slug, cat]) => (
             <Link key={slug} href={`/categories/${slug}`} style={{ textDecoration: 'none' }}>
               <div style={{
