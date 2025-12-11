@@ -249,7 +249,9 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                         relatedProducts={[]}
                         isEditable={true}
                         onImageUpdate={(index, newUrl) => {
-                            if (index === 0) {
+                            // Index 0 comes from ProductGallery Main Image.
+                            // Index -1 comes from Master Hub Banner Paste.
+                            if (index === 0 || index === -1) {
                                 // Update Main Image
                                 setFormData(prev => ({ ...prev, imageUrl: newUrl }));
                             } else {

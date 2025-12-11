@@ -240,6 +240,8 @@ export async function generateSeoContent(
       - OPINIONATED. Don't be neutral. Guide the user. Tell them what matters and what is marketing BS.
       
       LANGUAGE: ${langName} (CRITICAL: Output must be 100% in ${langName}).
+      CURRENCY: EUROS (€) ONLY. DO NOT USE DOLLARS ($) UNDER ANY CIRCUMSTANCES.
+      MARKET: SPAIN/EUROPE. Cite European prices and availability.
 
       STRUCTURE & CONTENT REQUIREMENTS (STRICT):
       

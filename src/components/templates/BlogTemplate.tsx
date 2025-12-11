@@ -215,20 +215,20 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     {/* CONDITIONAL HERO LAYOUT */}
                     {isHub ? (
                         // --- OPTION A: MASTER HUB LAYOUT (Centered, Full Width Image, Premium Text) ---
-                        <div className="hub-hero-container" style={{ maxWidth: '900px', margin: '2rem auto 4rem auto' }}>
+                        <div className="hub-hero-container" style={{ maxWidth: '1200px', margin: '2rem auto 4rem auto' }}>
 
-                            {/* 1. Full Width Banner Image (Editable via pasted URL in DB, but rendered simply here) */}
                             {/* 1. Full Width Banner Image (Editable via pasted URL) */}
                             <div
                                 style={{
                                     width: '100%',
                                     height: 'auto',
-                                    minHeight: '300px',
-                                    maxHeight: '500px',
+                                    aspectRatio: '21/9', // Force cinematic ratio
+                                    minHeight: '250px',
+                                    maxHeight: '450px',
                                     overflow: 'hidden',
-                                    borderRadius: '12px',
-                                    marginBottom: '2.5rem',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                                    borderRadius: '16px', // Slightly more rounded
+                                    marginBottom: '3rem',
+                                    boxShadow: '0 20px 40px rgba(0,0,0,0.12)', // Deeper shadow
                                     position: 'relative',
                                     cursor: isEditable ? 'pointer' : 'default',
                                     border: isEditable ? '2px dashed #ccc' : 'none'
