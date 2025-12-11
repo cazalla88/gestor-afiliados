@@ -145,7 +145,8 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
                 />
             )}
-            {product.type === 'blog' ? (
+            {/* ROUTING LOGIC: Blog, Hub, Subhub -> BlogTemplate | Landing -> LandingTemplate */}
+            {['blog', 'hub_principal', 'subhub'].includes(product.type) ? (
                 <BlogTemplate
                     campaign={product}
                     currentSlug={slug}
