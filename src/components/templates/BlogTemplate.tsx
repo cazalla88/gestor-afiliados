@@ -103,23 +103,44 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
         const headers: { id: string, text: string }[] = [];
         let count = 0;
 
-        // CASE A: NEW MASTER HUB FORMAT (Array of Objects)
+        // CASE A: MASTER HUB FORMAT (Array)
         if (Array.isArray(rawFeatures)) {
             let htmlChunks: string[] = [];
             rawFeatures.forEach((feat: any) => {
                 const id = `feat-${count++}`;
-                headers.push({ id, text: feat.title });
 
-                htmlChunks.push(`
-                    <div class="hub-section">
-                        <h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">
-                            ${feat.title}
-                        </h3>
-                        <div style="font-size: 1.05rem; line-height: 1.8; color: #374151;">
-                            ${feat.description}
+                // SUB-CASE A1: String HTML (New Prompt Format)
+                if (typeof feat === 'string') {
+                    // Extract Title from <h2> or <h3> tags for TOC
+                    const titleMatch = feat.match(/<h[23][^>]*>(.*?)<\/h[23]>/);
+                    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : `Section ${count}`;
+
+                    headers.push({ id, text: title });
+
+                    // Inject ID into the first heading tag found in the string
+                    let processedHtml = feat;
+                    if (titleMatch) {
+                        processedHtml = feat.replace(titleMatch[0], `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${title}</h3>`);
+                    } else {
+                        // If no heading found, prepend one (fallback)
+                        processedHtml = `<h3 id="${id}">${title}</h3>` + feat;
+                    }
+                    htmlChunks.push(`<div class="hub-section">${processedHtml}</div>`);
+                }
+                // SUB-CASE A2: Object Format (Legacy / Fallback)
+                else if (typeof feat === 'object' && feat.title) {
+                    headers.push({ id, text: feat.title });
+                    htmlChunks.push(`
+                        <div class="hub-section">
+                            <h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">
+                                ${feat.title}
+                            </h3>
+                            <div style="font-size: 1.05rem; line-height: 1.8; color: #374151;">
+                                ${feat.description || ""}
+                            </div>
                         </div>
-                    </div>
-                `);
+                    `);
+                }
             });
             return { html: htmlChunks.join(""), headers };
         }
