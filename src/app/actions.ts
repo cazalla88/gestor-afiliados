@@ -228,58 +228,71 @@ export async function generateSeoContent(
   // --- 3. MASTER HUB STRATEGY (The "Silo" Core) ---
   if (type === 'hub_principal') {
     prompt = `
-      ROLE: You are an elite Industry Expert and Shopping Guide Editor for 2026.
-      TONE: Direct, helpful, authoritative but accessible. NO fluff. conversational ("tú" in Spanish).
+      ROLE: You are the Editor-in-Chief of a world-renowned Tech Publication (like The Verge, Wirecutter, or Xataka). You are a cynical, highly experienced expert who hates marketing fluff.
+      
+      GOAL: Write the definitive, authoritative "Buying Guide 2026" for the Master Hub: "${productName}".
+      This page is the SEO PILLAR of the website. It must be better than anything currently on Page 1 of Google.
+
+      TONE: 
+      - Authoritative, Critical, Expert.
+      - Conversational but Professional ("Tú" in Spanish).
+      - NO FLUFF. Every sentence must add value. If it's filler, DELETE IT.
+      - OPINIONATED. Don't be neutral. Guide the user. Tell them what matters and what is marketing BS.
+      
       LANGUAGE: ${langName} (CRITICAL: Output must be 100% in ${langName}).
 
-      TASK: Create a "Definitive Buying Guide 2026" for the Master Hub: "${productName}".
+      STRUCTURE & CONTENT REQUIREMENTS (STRICT):
       
-      STRUCTURE TO FOLLOW STRICTLY (Based on the "Smartphones" gold standard):
+      1. **HOOK (Introduction)**: 
+         - Do NOT start with "In today's world...". Start with the User's Pain.
+         - Tell them why buying ${productName} in 2026 is hard/confusing and promise a solution.
+         - DO NOT repeat the Title.
       
-      1. **HOOK**: Start directly. "If you are here it's for two reasons...". define the user's pain point immediately.
-      2. **STEP 1: BUDGET**: "Define tu presupuesto". Break down the niche into:
-         - Entry Level (Cheap/Barato) -> Who is it for?
-         - Mid Range (Calidad/Precio) -> The sweet spot.
-         - High End (Flagship/Premium) -> For enthusiasts.
-         *Suggest placeholders for internal links like: /${productName.toLowerCase().replace(/ /g, '-')}/baratos*
+      2. **STEP 1: BUDGET (The Truth about Money)**: 
+         - Don't just list prices. Explain what you LOSE if you pay less, and what you GAIN if you pay more.
+         - Define the "Sweet Spot" (Calidad/Precio) for this specific niche.
       
-      3. **STEP 2: USE CASES**: "Elige según el uso". Create 4-5 profiles.
-         - Example: "Just for basics", "For Pros/Work", "For Kids/Seniors", "For Specific Feature X (e.g. Gaming/Photos)".
-         *Suggest placeholders for internal links.*
+      3. **STEP 2: USE CASES (User Personas)**: 
+         - "Tell me who you are and I'll tell you what to buy".
+         - Create 4-5 vivid profiles (e.g., "The Power User", "The Student", "The Casual").
+         - Be specific.
+      
+      4. **STEP 3: THE GREAT DEBATE (Dichotomy)**: 
+         - Android vs iPhone / OLED vs QLED / Silla de Malla vs Piel.
+         - Analyze the pros/cons deeply. Who wins in 2026?
 
-      4. **STEP 3: MAIN DICHOTOMY**: "The Eternal Fight" (e.g., Android vs iPhone, Gas vs Electric, Wood vs Metal).
-         - When to choose Option A.
-         - When to choose Option B.
+      5. **STEP 4: TECHNICAL SPECS (Decoded)**: 
+         - "How to read the specs sheet without getting scammed".
+         - Pick the 3 most important specs. Explain them like you are talking to a smart friend.
+         - Ignore the vanity metrics.
 
-      5. **STEP 4: TECHNICAL SPECS**: "Cómo leer la ficha técnica sin que te tomen el pelo".
-         - Explain 3-4 key technical specs for THIS niche (e.g., for Coffee: Bar Pressure, Grinder Type; for Laptops: CPU, RAM).
-         - Use bullet points. tell the truth about "marketing myths".
+      6. **STEP 5: ROOKIE MISTAKES**: 
+         - "How to throw your money away".
+         - List specific, common errors people make in this niche.
 
-      6. **STEP 5: COMMON MISTAKES**: "Errores típicos al comprar ${productName} en 2026".
-         - List 4-5 mistakes users make (e.g., buying for the brand, ignoring size, overspending).
+      7. **STEP 6: FAQ (Real Answers)**: 
+         - Answer the real questions people type into Google. Give direct answers.
 
-      7. **STEP 6: FAQ**: 3-4 Quick Questions & Answers.
-
-      8. **STEP 7: NEXT STEPS**: "Y ahora... ¿qué hago?".
-         - A final summary guiding them to specific sub-hubs (Best Cheap, Best Premium, Best for X).
+      8. **VERDICT (The Editor's Note)**: 
+         - A final, high-level summary of the market state in 2026.
 
       OUTPUT FORMAT (JSON):
       {
         "title": "The Definitive Guide to ${productName} in 2026: What you really need",
         "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
-        "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with the hook. Si estás aquí es porque necesitas un cambio...</p> (Write a compelling, deep introduction of 200+ words)",
+        "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with a powerful hook. Ex: 'Buying a ${productName} used to be simple. Now it's a minefield...' (Write 300+ words of context & authority).</p>",
         "features": [
-           // CRITICAL: GENERATE MINIMUM 5-7 DETAILED SECTIONS.
-           // CONTENT MUST BE EXTENSIVE (400-500 WORDS PER SECTION). PURE VALUE. NO FLUFF.
-           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías... (Write 500 words of deep analysis)</p>",
-           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas... (Write 500 words with specific profiles)</p>",
-           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal... (Write 500 words comparison)</p>",
-           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde... (Explain key specs in depth)</p>",
-           "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero... (Detail 4-5 common mistakes)</p>",
-           "<h2>6. Preguntas Frecuentes</h2><p><strong>¿Pregunta 1?</strong><br>Respuesta detallada aquí...</p><p><strong>¿Pregunta 2?</strong><br>Respuesta detallada aquí...</p> (GENERATE 3-4 PAIRS OF Q&A. DO NOT JUST LIST QUESTIONS. PROVIDE ANSWERS.)",
-           "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. (Summary)</p>"
+           // CRITICAL: GENERATE MINIMUM 6 SECTIONS. 
+           // LENGTH: 400-600 WORDS PER SECTION. 
+           // STYLE: Use bolding for emphasis. Use short paragraphs for readability.
+           "<h2>1. Define tu presupuesto: La cruda realidad</h2><p>Hablemos claro de dinero... (Explain Entry vs Mid vs High range with brutal honesty. 500 words)</p>",
+           "<h2>2. Dime para qué lo usas (Perfiles)</h2><p>No existe el 'mejor' ${productName}, existe el mejor para TI... (Create 4 distinct profiles. 500 words)</p>",
+           "<h2>3. La Gran Batalla: Opción A vs Opción B</h2><p>La eterna duda... (Analyze the main technology split in this niche. 500 words)</p>",
+           "<h2>4. Specs que importan (y cuáles ignorar)</h2><p>Los fabricantes quieren confundirte con números... (Deep dive into technical specs. 500 words)</p>",
+           "<h2>5. Errores de novato que te costarán caros</h2><p>He visto a mucha gente equivocarse en esto... (List 5 critical mistakes. 400 words)</p>",
+           "<h2>6. Preguntas Frecuentes (FAQ)</h2><p><strong>¿Pregunta Real 1?</strong><br>Respuesta directa y experta...</p><p><strong>¿Pregunta Real 2?</strong><br>Respuesta directa y experta...</p> (3-4 Q&A pairs)."
         ],
-        "verdict": "<p><strong>La Regla de Oro 2026:</strong> En resumen, no te obsesiones con [Feature X]. Lo que realmente importa es [Feature Y]. Si vienes de [Context A], tu mejor opción es [Model 1]. (Write a powerful, decisive conclusion summarizing the buying philosophy. NO GENERIC 'GOOD LUCK' MESSAGES. Act as a Chief Editor giving the final word).</p>",
+        "verdict": "<p><strong>Veredicto del Editor (2026):</strong> Después de analizar el mercado, mi conclusión es clara. Si priorizas A, ve a por X. No gastes de más en Y. (Write a 200-word strategic closing summary. Make a stand).</p>",
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
         "internalLinks": [
           { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
