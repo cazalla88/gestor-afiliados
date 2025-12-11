@@ -269,13 +269,14 @@ export async function generateSeoContent(
         "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
         "introduction": "<h3>La guía definitiva de ${productName} en 2026: qué necesitas de verdad</h3><p>Si estás aquí es porque necesitas un cambio...</p> (Write a compelling hook HTML)",
         "features": [
-           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías...</p> (Detailed content for Step 1)",
-           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas...</p> (Detailed content for Step 2 with Profiles)",
-           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal...</p> (The Main Dichotomy)",
-           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde...</p> (Explain key specs)",
+           // CRITICAL: GENERATE MINIMUM 5-7 DETAILED SECTIONS. DO NOT LEAVE EMPTY.
+           "<h2>1. Paso 1: Define tu presupuesto</h2><p>Primero el dinero, luego las tonterías... (Write 300 words)</p>",
+           "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas... (Write 300 words)</p>",
+           "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal... (Write 300 words)</p>",
+           "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde... (Explain key specs)</p>",
            "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero...</p>",
            "<h2>6. Preguntas Frecuentes</h2><p>Respuestas rápidas...</p>",
-           "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. Ahora elige tu camino: (List potential Sub-Hub links)</p>"
+           "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. (Summary)</p>"
         ],
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
         "internalLinks": [

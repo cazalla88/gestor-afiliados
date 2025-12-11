@@ -313,7 +313,14 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     <section id="features" className={styles.features}>
                         {!isHub && <h2>{t.features}</h2>}
                         {/* RENDER PARSED FEATURES HTML */}
-                        <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>Features to be added.</p>" }} />
+                        {featuresHtml ? (
+                            <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />
+                        ) : (
+                            <div style={{ padding: '2rem', textAlign: 'center', background: '#fef2f2', border: '1px dashed #ef4444', borderRadius: '8px', color: '#b91c1c' }}>
+                                <p>⚠️ <strong>Contenido no generado.</strong></p>
+                                <p style={{ fontSize: '0.9rem' }}>La IA no ha devuelto las secciones del artículo. Por favor, intenta regenerarlo con el botón mágico ✨.</p>
+                            </div>
+                        )}
                     </section>
 
                     {!isHub && (
