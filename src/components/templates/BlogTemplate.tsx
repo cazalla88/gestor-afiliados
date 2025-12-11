@@ -366,9 +366,15 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: '1.5', marginBottom: '0.5rem', maxWidth: '800px', margin: '0 auto 0.5rem auto' }}>
                         {t.disclaimer}
                     </p>
-                    <p style={{ fontSize: '0.8rem', color: '#999' }}>
-                        &copy; {new Date().getFullYear()} {t.rights}
-                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#999', margin: 0 }}>
+                            &copy; {new Date().getFullYear()} {t.rights}
+                        </p>
+                        <span style={{ color: '#ddd' }}>|</span>
+                        <Link href="/privacy-policy" style={{ fontSize: '0.8rem', color: '#999', textDecoration: 'underline' }}>
+                            {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+                        </Link>
+                    </div>
                 </div>
             </footer>
 

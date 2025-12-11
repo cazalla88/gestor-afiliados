@@ -138,7 +138,13 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
 
             <footer className={styles.lpFooter} style={{ textAlign: 'center', padding: '2rem 1rem', borderTop: '1px solid #eee', marginTop: '2rem' }}>
                 <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>{t.disclaimer}</p>
-                <p style={{ fontSize: '0.85rem', color: '#888' }}>&copy; {new Date().getFullYear()} {t.rights}</p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <p style={{ fontSize: '0.85rem', color: '#888', margin: 0 }}>&copy; {new Date().getFullYear()} {t.rights}</p>
+                    <span style={{ color: '#ccc' }}>|</span>
+                    <Link href="/privacy-policy" style={{ fontSize: '0.85rem', color: '#888', textDecoration: 'underline' }}>
+                        {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+                    </Link>
+                </div>
             </footer>
         </div>
     );
