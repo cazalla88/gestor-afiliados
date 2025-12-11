@@ -344,7 +344,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
             <div className={`container ${styles.contentGrid}`}>
                 <div className={styles.mainContent}>
                     {/* Intro Section - Only show if different from hero description */}
-                    {content.introduction && content.introduction.trim() !== (campaign.description || "").trim() && (
+                    {content.introduction && typeof content.introduction === 'string' && content.introduction.trim() !== (campaign.description || "").trim() && (
                         <section id="intro" className={styles.intro}>
                             <div dangerouslySetInnerHTML={{ __html: content.introduction.replace(/\n/g, '<br/>') }} />
                         </section>
