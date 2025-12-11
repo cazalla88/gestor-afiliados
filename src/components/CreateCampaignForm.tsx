@@ -587,7 +587,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '100%' }}>
 
                     {/* Action Toolbar */}
-                    {/* Action Toolbar */}
+                    <div className={styles.toolbar}>
                         <div className={styles.sectionTitle}>
                             <span style={{ fontSize: '1.2em', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))' }}>
                                 {formData.type === 'blog' ? '📝' : (formData.type.includes('hub') ? '📚' : '📄')}
@@ -615,7 +615,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
                     <div className={styles.inputGroup} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                         <RichTextEditor
-                            label="" 
+                            label=""
                             content={formData.description}
                             onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
                         />
@@ -625,10 +625,10 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
-                    className={`btn-primary ${styles.submitBtn}`} 
-                    disabled={isSubmitting} 
+                <button
+                    type="submit"
+                    className={`btn-primary ${styles.submitBtn}`}
+                    disabled={isSubmitting}
                     style={{ gridColumn: '1 / -1', marginTop: '1rem', fontSize: '1.2rem', padding: '1rem' }}
                 >
                     {isSubmitting ? (
