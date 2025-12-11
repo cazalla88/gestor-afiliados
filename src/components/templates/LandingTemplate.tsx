@@ -83,14 +83,16 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
                 <div className="container">
                     <div className={styles.heroGrid}>
                         <div className={`${styles.imageWrapper} animate-fade-in`}>
-                            <Image
-                                src={product.imageUrl || "https://placehold.co/600x400/121212/FFF?text=Product+Image"}
-                                alt={product.productName}
-                                width={600}
-                                height={400}
-                                className={styles.productImage}
-                                priority
-                            />
+                            <a href={product.affiliateLink} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-pointer hover:opacity-95 transition-opacity">
+                                <Image
+                                    src={product.imageUrl || "https://placehold.co/600x400/121212/FFF?text=Product+Image"}
+                                    alt={product.productName}
+                                    width={600}
+                                    height={400}
+                                    className={styles.productImage}
+                                    priority
+                                />
+                            </a>
                         </div>
                         <div className={styles.contentWrapper}>
                             <h1 className={`${styles.productTitle} animate-slide-up delay-100`}>{product.title}</h1>

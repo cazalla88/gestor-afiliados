@@ -149,6 +149,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                 galleryImages={(campaign.galleryImages && campaign.galleryImages.length > 0) ? campaign.galleryImages : (content.galleryImagesBackup || [])}
                                 isEditable={isEditable}
                                 onImageUpdate={onImageUpdate}
+                                affiliateLink={campaign.affiliateLink}
                             />
                         </div>
 

@@ -12,6 +12,7 @@ interface ProductGalleryProps {
     galleryImages?: string[];
     isEditable?: boolean;
     onImageUpdate?: (index: number, newUrl: string) => void;
+    affiliateLink?: string;
 }
 
 export default function ProductGallery({
@@ -21,7 +22,8 @@ export default function ProductGallery({
     badgeLabel = "EXCELENTE",
     galleryImages = [],
     isEditable = false,
-    onImageUpdate
+    onImageUpdate,
+    affiliateLink
 }: ProductGalleryProps) {
     // DEBUG: Only use real images. Stop duplicating for now to diagnose.
     // SAFETY CHECK: Ensure we deal with valid URLs only
@@ -211,31 +213,45 @@ export default function ProductGallery({
             {/* Main Image Stage */}
             <div
                 ref={mainStageRef}
-                className={styles.mainStage}
+                className={`${styles.mainStage} ${!isEditable && affiliateLink ? 'cursor-pointer hover:opacity-95 transition-opacity' : ''}`}
                 onClick={focusMain}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onDragOver={(e) => { handleDragOver(e); focusMain(); }}
                 onDrop={(e) => handleDrop(e, selectedIndex)}
                 onPaste={(e) => handlePasteEvent(e, selectedIndex)}
-                tabIndex={0} // Make focusable for paste
+                tabIndex={0}
                 style={isEditable ? {
-                    outline: isFocused ? '3px solid #3b82f6' : '2px dashed rgba(255,255,255,0.2)', // Blue when focused
+                    outline: isFocused ? '3px solid #3b82f6' : '2px dashed rgba(255,255,255,0.2)',
                     outlineOffset: isFocused ? '0px' : '-10px',
                     position: 'relative',
                     cursor: 'text',
                     transition: 'outline 0.1s ease'
-                } : {}}
+                } : { cursor: affiliateLink ? 'pointer' : 'default' }}
             >
-                <Image
-                    src={images[selectedIndex] || safeMainImage}
-                    alt={productName}
-                    fill
-                    className={styles.mainImage}
-                    style={{ objectFit: "contain" }}
-                    priority
-                    unoptimized
-                />
+                {(!isEditable && affiliateLink) ? (
+                    <a href={affiliateLink} target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: '100%', height: '100%' }}>
+                        <Image
+                            src={images[selectedIndex] || safeMainImage}
+                            alt={productName}
+                            fill
+                            className={styles.mainImage}
+                            style={{ objectFit: "contain" }}
+                            priority
+                            unoptimized
+                        />
+                    </a>
+                ) : (
+                    <Image
+                        src={images[selectedIndex] || safeMainImage}
+                        alt={productName}
+                        fill
+                        className={styles.mainImage}
+                        style={{ objectFit: "contain" }}
+                        priority
+                        unoptimized
+                    />
+                )}
 
                 {/* Score Badge Overlay */}
                 <div className={styles.heroBadge}>
