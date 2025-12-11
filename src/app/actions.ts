@@ -178,8 +178,10 @@ export async function generateSeoContent(
     }
   }
 
-  CONTEXT - EXISTING CONTENT ON SITE(For Internal Linking):
-    ${ JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug }))) }
+  const campaignsContext = existingCampaigns.length > 0
+    ? `
+    CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
+    ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
     MANDATORY SEO INSTRUCTION:
     If relevant, include them in "internalLinks" array.
     `
@@ -231,12 +233,12 @@ export async function generateSeoContent(
     INPUT DATA:
   Product: "${productName}"
             Raw Details: "${basicDescription}"
-  Tone: ${ tone }
-  Language: ${ langName }
+  Tone: ${tone}
+  Language: ${langName}
 
-            ${ campaignsContext }
-            ${ redditContext }
-            ${ COPYWRITING_MASTER_INSTRUCTIONS }
+            ${campaignsContext}
+            ${redditContext}
+            ${COPYWRITING_MASTER_INSTRUCTIONS}
 
             CRITICAL STRUCTURE INSTRUCTIONS(HIT 2000 WORDS):
   1. ** INTRODUCTION(Use P.A.S.T.O.R.Framework):** Hook them immediately. 
@@ -275,12 +277,12 @@ export async function generateSeoContent(
     INPUT DATA:
   Product: "${productName}"
             Raw Details: "${basicDescription}"
-  Tone: ${ tone }
-  Language: ${ langName }
+  Tone: ${tone}
+  Language: ${langName}
 
-            ${ campaignsContext }
-            ${ redditContext }
-            ${ COPYWRITING_MASTER_INSTRUCTIONS }
+            ${campaignsContext}
+            ${redditContext}
+            ${COPYWRITING_MASTER_INSTRUCTIONS}
 
             Generate strict JSON:
   {
@@ -305,7 +307,7 @@ export async function generateSeoContent(
         `;
     }
   } else {
-    prompt = `Act as Copywriter.Product: "${productName}".Details: "${basicDescription}".Lang: ${ langName }. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." } `;
+    prompt = `Act as Copywriter.Product: "${productName}".Details: "${basicDescription}".Lang: ${langName}. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." } `;
   }
 
   let lastError: string = "";
@@ -321,7 +323,7 @@ export async function generateSeoContent(
 
     for (const modelName of googleModels) {
       try {
-        console.log(`🤖 Trying Google Model: ${ modelName } `);
+        console.log(`🤖 Trying Google Model: ${modelName} `);
         const genAI = new GoogleGenerativeAI(googleKey);
         const model = genAI.getGenerativeModel({
           model: modelName,
@@ -334,46 +336,46 @@ export async function generateSeoContent(
 
         // Clean and Parse
         text = text.replace(/```json / g, '').replace(/```/g, '').trim();
-  return JSON.parse(text); // SUCCESS! Return result.
+        return JSON.parse(text); // SUCCESS! Return result.
 
-} catch (error: any) {
-  console.warn(`❌ Google ${modelName} failed: ${error.message}`);
-  lastError = `Google Error: ${error.message}`;
-  // Continue to next Google model...
-}
+      } catch (error: any) {
+        console.warn(`❌ Google ${modelName} failed: ${error.message}`);
+        lastError = `Google Error: ${error.message}`;
+        // Continue to next Google model...
+      }
     }
   } else {
-  console.log("ℹ️ No Google API Key found. Skipping to Groq...");
-}
-
-// --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
-if (groqKey) {
-  console.log("🚀 Switching to Groq (Llama 3.3) Fallback...");
-  try {
-    const groq = new Groq({ apiKey: groqKey });
-    const completion = await groq.chat.completions.create({
-      messages: [
-        { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks. Escape all double quotes inside strings." },
-        { role: "user", content: prompt }
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      // response_format: { type: "json_object" } // <--- DISABLED due to strict 400 errors
-    });
-
-    const content = completion.choices[0]?.message?.content || "{}";
-    return safeJsonParse(content, productName, language); // Use robust parser with locale
-
-  } catch (groqError: any) {
-    console.error("❌ Groq Failed:", groqError);
-    lastError += ` | Groq Error: ${groqError.message}`;
+    console.log("ℹ️ No Google API Key found. Skipping to Groq...");
   }
-} else {
-  console.log("ℹ️ No Groq API Key found.");
-}
 
-// --- PHASE 3: TOTAL FAILURE ---
-return { error: `ALL AI Models Failed. Last text received might be malformed. Details: ${lastError}` };
+  // --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
+  if (groqKey) {
+    console.log("🚀 Switching to Groq (Llama 3.3) Fallback...");
+    try {
+      const groq = new Groq({ apiKey: groqKey });
+      const completion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks. Escape all double quotes inside strings." },
+          { role: "user", content: prompt }
+        ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        // response_format: { type: "json_object" } // <--- DISABLED due to strict 400 errors
+      });
+
+      const content = completion.choices[0]?.message?.content || "{}";
+      return safeJsonParse(content, productName, language); // Use robust parser with locale
+
+    } catch (groqError: any) {
+      console.error("❌ Groq Failed:", groqError);
+      lastError += ` | Groq Error: ${groqError.message}`;
+    }
+  } else {
+    console.log("ℹ️ No Groq API Key found.");
+  }
+
+  // --- PHASE 3: TOTAL FAILURE ---
+  return { error: `ALL AI Models Failed. Last text received might be malformed. Details: ${lastError}` };
 }
 
 // HELPER: ROBUST PARSER (The "Tank")
