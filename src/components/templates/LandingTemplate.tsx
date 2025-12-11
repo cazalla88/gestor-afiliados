@@ -17,10 +17,10 @@ const LABELS = {
         reviews: "Reviews",
         guarantee: "🔒 30-Day Money-Back Guarantee",
         whyChoose: "Why Choose",
-        disclaimer: "As an Amazon Associate we earn from qualifying purchases.",
+        disclaimer: "As an Amazon Associate I earn from qualifying purchases.",
         featureTitle: "Premium Feature",
         featureDesc: "This product comes with outstanding capabilities that outperform the competition in every way.",
-        rights: "Promotions. All rights reserved."
+        rights: "AffiliateNexus. All rights reserved."
     },
     es: {
         buyNow: "Comprar Ahora",
@@ -28,10 +28,10 @@ const LABELS = {
         reviews: "Opiniones",
         guarantee: "🔒 Garantía de Devolución de 30 Días",
         whyChoose: "¿Por qué elegir",
-        disclaimer: "Como Afiliado de Amazon ganamos por compras adscritas.",
+        disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",
         featureTitle: "Característica Premium",
         featureDesc: "Este producto incluye capacidades excepcionales que superan a la competencia en todos los sentidos.",
-        rights: "Promociones. Todos los derechos reservados."
+        rights: "AffiliateNexus. Todos los derechos reservados."
     }
 };
 
@@ -136,9 +136,9 @@ export default function LandingTemplate({ product, currentSlug, relatedProducts 
                 products={relatedProducts}
             />
 
-            <footer className={styles.lpFooter}>
-                <p>&copy; {new Date().getFullYear()} {product.productName} {t.rights}</p>
-                <p className={styles.disclaimer}>{t.disclaimer}</p>
+            <footer className={styles.lpFooter} style={{ textAlign: 'center', padding: '2rem 1rem', borderTop: '1px solid #eee', marginTop: '2rem' }}>
+                <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '0.5rem' }}>{t.disclaimer}</p>
+                <p style={{ fontSize: '0.85rem', color: '#888' }}>&copy; {new Date().getFullYear()} {t.rights}</p>
             </footer>
         </div>
     );

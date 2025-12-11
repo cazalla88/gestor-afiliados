@@ -29,7 +29,9 @@ const LABELS = {
         product: "Product",
         price: "Price",
         rating: "Rating",
-        mainFeature: "Main Feature"
+        mainFeature: "Main Feature",
+        disclaimer: "As an Amazon Associate I earn from qualifying purchases.",
+        rights: "AffiliateNexus. All rights reserved."
     },
     es: {
         review: "Análisis",
@@ -46,7 +48,9 @@ const LABELS = {
         product: "Producto",
         price: "Precio",
         rating: "Valoración",
-        mainFeature: "Característica"
+        mainFeature: "Característica",
+        disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",
+        rights: "AffiliateNexus. Todos los derechos reservados."
     }
 };
 
@@ -356,6 +360,17 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 category={campaign.category || 'general'}
                 products={relatedProducts}
             />
+
+            <footer style={{ textAlign: 'center', padding: '3rem 1rem 6rem 1rem', borderTop: '1px solid #eee', marginTop: '3rem', backgroundColor: '#fdfdfd' }}>
+                <div className="container">
+                    <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: '1.5', marginBottom: '0.5rem', maxWidth: '800px', margin: '0 auto 0.5rem auto' }}>
+                        {t.disclaimer}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: '#999' }}>
+                        &copy; {new Date().getFullYear()} {t.rights}
+                    </p>
+                </div>
+            </footer>
 
             <StickyBar
                 title={campaign.title}
