@@ -116,27 +116,44 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     const titleMatch = feat.match(/<h[23][^>]*>(.*?)<\/h[23]>/);
                     let rawTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : `Section ${count}`;
 
-                    // CLEANER: Strip "1. ", "Paso 1: ", "Step 1: " to avoid redundancy in TOC
-                    const title = rawTitle
-                        .replace(/^\d+\.\s*/, '')              // Remove "1. "
-                        .replace(/^(Paso|Step)\s+\d+[:.]?\s*/i, ''); // Remove "Paso 1: "
+                    // CLEANER: Detect "Paragraph inside Heading" hallucination
+                    let cleanTitle = rawTitle;
+                    let overflowContent = "";
 
-                    headers.push({ id, text: title });
+                    if (rawTitle.length > 80) {
+                        // AI screwed up and put text in H2. Split at first ':' or '.'
+                        const splitIndex = rawTitle.search(/[:.]/);
+                        if (splitIndex > 3 && splitIndex < 100) {
+                            cleanTitle = rawTitle.substring(0, splitIndex).trim(); // Keep meaningful title
+                            overflowContent = "<p>" + rawTitle.substring(splitIndex + 1).trim() + "</p>"; // Recovery
+                        } else {
+                            // Force truncate if no separator found but barely plausible
+                            cleanTitle = rawTitle.substring(0, 80) + "...";
+                            overflowContent = "<p>" + rawTitle + "</p>";
+                        }
+                    }
 
-                    // Inject ID into the first heading tag found in the string
+                    // CLEANER: Strip prefixes
+                    const finalTitle = cleanTitle
+                        .replace(/^\d+\.\s*/, '')
+                        .replace(/^(Paso|Step)\s+\d+[:.]?\s*/i, '');
+
+                    headers.push({ id, text: finalTitle });
+
+                    // Inject ID
                     let processedHtml = feat;
 
-                    // CLEANER: Fix Markdown bolding (**text**) that AI generates -> Convert to <b>
+                    // Markdown fix
                     processedHtml = processedHtml
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-                        .replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>');
 
                     if (titleMatch) {
-                        // Replace the original H2/H3 with a clean H3 containing the ID and clean Title
-                        processedHtml = processedHtml.replace(titleMatch[0], `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${title}</h3>`);
+                        // Replace original huge H2 with clean H3 + Overflow content
+                        const newHeader = `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${finalTitle}</h3>${overflowContent}`;
+                        processedHtml = processedHtml.replace(titleMatch[0], newHeader);
                     } else {
-                        // If no heading found, prepend one (fallback)
-                        processedHtml = `<h3 id="${id}">${title}</h3>` + processedHtml;
+                        processedHtml = `<h3 id="${id}">${finalTitle}</h3>` + processedHtml;
                     }
                     htmlChunks.push(`<div class="hub-section">${processedHtml}</div>`);
                 }
