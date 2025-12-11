@@ -107,6 +107,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
         if (Array.isArray(rawFeatures)) {
             let htmlChunks: string[] = [];
             rawFeatures.forEach((feat: any) => {
+                if (!feat) return; // SKIP NULLS to prevent 500 Error
                 const id = `feat-${count++}`;
 
                 // SUB-CASE A1: String HTML (New Prompt Format)
