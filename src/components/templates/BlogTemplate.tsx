@@ -218,22 +218,62 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         <div className="hub-hero-container" style={{ maxWidth: '900px', margin: '2rem auto 4rem auto' }}>
 
                             {/* 1. Full Width Banner Image (Editable via pasted URL in DB, but rendered simply here) */}
-                            <div style={{
-                                width: '100%',
-                                height: 'auto',
-                                minHeight: '300px',
-                                maxHeight: '500px',
-                                overflow: 'hidden',
-                                borderRadius: '12px',
-                                marginBottom: '2.5rem',
-                                boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-                                position: 'relative'
-                            }}>
+                            {/* 1. Full Width Banner Image (Editable via pasted URL) */}
+                            <div
+                                style={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    minHeight: '300px',
+                                    maxHeight: '500px',
+                                    overflow: 'hidden',
+                                    borderRadius: '12px',
+                                    marginBottom: '2.5rem',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                                    position: 'relative',
+                                    cursor: isEditable ? 'pointer' : 'default',
+                                    border: isEditable ? '2px dashed #ccc' : 'none'
+                                }}
+                                tabIndex={0}
+                                onPaste={(e) => {
+                                    if (!isEditable || !onImageUpdate) return;
+                                    const pastedData = e.clipboardData.getData('Text');
+                                    if (pastedData && (pastedData.startsWith('http') || pastedData.startsWith('data:image'))) {
+                                        e.preventDefault();
+                                        if (confirm("¿Cambiar imagen de portada?")) {
+                                            onImageUpdate(pastedData);
+                                        }
+                                    }
+                                }}
+                            >
                                 <img
                                     src={campaign.imageUrl || "https://placehold.co/1200x600/222/FFF?text=Master+Hub+Cover"}
                                     alt={campaign.title}
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
+
+                                {isEditable && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'rgba(0,0,0,0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'white',
+                                        fontSize: '1.2rem',
+                                        fontWeight: 'bold',
+                                        opacity: 0,
+                                        transition: 'opacity 0.2s',
+                                    }}
+                                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                                    >
+                                        🖱️ Haz Clic y Pega (Ctrl+V) URL aquí
+                                    </div>
+                                )}
                             </div>
 
                             {/* 2. Centered Introduction Text (No Sidebar distraction here) */}
