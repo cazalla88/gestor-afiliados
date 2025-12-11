@@ -2,6 +2,7 @@
 
 import { deleteCampaign, duplicateCampaign, analyzeTrends, createCampaign } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import CreateCampaignForm from "@/components/CreateCampaignForm";
 import styles from "./dashboard.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,6 +26,9 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
     const [showBattleModal, setShowBattleModal] = useState(false);
     const [battleSelection, setBattleSelection] = useState<string[]>([]);
     const [isBattleLoading, setIsBattleLoading] = useState(false);
+
+    // Create Modal State
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const toggleBattleSelection = (slug: string) => {
         if (battleSelection.includes(slug)) {
@@ -200,9 +204,44 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                     >
                         ⚔️ Battle Mode
                     </button>
-                    <Link href="/" className={styles.createBtn}>{t.dashboard.create}</Link>
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className={styles.createBtn}
+                    >
+                        {t.dashboard.create}
+                    </button>
                 </div>
             </header>
+
+            {/* Create Campaign Modal */}
+            {showCreateModal && (
+                <div style={{
+                    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
+                    zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem'
+                }}>
+                    <div style={{
+                        background: '#111', width: '100%', maxWidth: '1000px', maxHeight: '95vh', overflowY: 'auto',
+                        borderRadius: '24px', border: '1px solid #333', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                        position: 'relative', display: 'flex', flexDirection: 'column'
+                    }}>
+                        <button
+                            onClick={() => setShowCreateModal(false)}
+                            style={{
+                                position: 'absolute', top: '1.5rem', right: '1.5rem',
+                                background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+                                width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer',
+                                fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                zIndex: 10
+                            }}
+                        >
+                            ✕
+                        </button>
+                        <div style={{ padding: '2rem' }}>
+                            <CreateCampaignForm />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Trend Hunter Modal */}
             {showTrendModal && (
