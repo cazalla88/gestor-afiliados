@@ -287,31 +287,69 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 <p>{t.form.subtitle}</p>
             </div>
 
-            <div className={styles.typeSelector} style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '2rem' }}>
+                <label style={{ color: '#ccc', marginBottom: '0.2rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Fase 1: Define la Estructura</label>
 
+                {/* OPCIÓN 1: HUB PADRE */}
                 <button
                     type="button"
-                    className={`${styles.typeBtn} ${formData.type === 'blog' ? styles.activeType : ''}`}
-                    onClick={() => setFormData(prev => ({ ...prev, type: 'blog' }))}
-                    style={{ flex: '1 1 45%' }}
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'hub_principal', parentId: '' }))}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                        background: formData.type === 'hub_principal' ? 'linear-gradient(90deg, #7c3aed 0%, #5b21b6 100%)' : '#1e1e24',
+                        border: formData.type === 'hub_principal' ? '1px solid #a78bfa' : '1px solid #333',
+                        borderRadius: '12px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                        opacity: formData.type === 'hub_principal' ? 1 : 0.6,
+                        boxShadow: formData.type === 'hub_principal' ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
+                    }}
                 >
-                    📝 Product Review
+                    <div style={{ background: '#fff', color: '#7c3aed', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0, fontSize: '1.2rem' }}>1</div>
+                    <div>
+                        <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem' }}>MASTER HUB (Gran Categoría)</div>
+                        <div style={{ color: '#ccc', fontSize: '0.85rem' }}>Crea esto <strong>PRIMERO</strong>. Ej: "Todo sobre Cafeteras". <span style={{ color: '#f87171' }}>No selecciones ningún padre abajo.</span></div>
+                    </div>
                 </button>
+
+                {/* OPCIÓN 2: SUB-HUB */}
                 <button
                     type="button"
-                    className={`${styles.typeBtn} ${formData.type === 'hub_principal' ? styles.activeType : ''}`}
-                    onClick={() => setFormData(prev => ({ ...prev, type: 'hub_principal' }))}
-                    style={{ flex: '1 1 45%', background: formData.type === 'hub_principal' ? '#7c3aed' : undefined }}
-                >
-                    🌐 Hub Cluster (Padre)
-                </button>
-                <button
-                    type="button"
-                    className={`${styles.typeBtn} ${formData.type === 'subhub' ? styles.activeType : ''}`}
                     onClick={() => setFormData(prev => ({ ...prev, type: 'subhub' }))}
-                    style={{ flex: '1 1 45%', background: formData.type === 'subhub' ? '#db2777' : undefined }}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                        background: formData.type === 'subhub' ? 'linear-gradient(90deg, #db2777 0%, #9d174d 100%)' : '#1e1e24',
+                        border: formData.type === 'subhub' ? '1px solid #f472b6' : '1px solid #333',
+                        borderRadius: '12px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                        opacity: formData.type === 'subhub' ? 1 : 0.6,
+                        boxShadow: formData.type === 'subhub' ? '0 4px 12px rgba(219, 39, 119, 0.3)' : 'none'
+                    }}
                 >
-                    🔗 Sub-Hub (Hijo)
+                    <div style={{ background: '#fff', color: '#db2777', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0, fontSize: '1.2rem' }}>2</div>
+                    <div>
+                        <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem' }}>SUB-HUB (Categoría Hija) <span style={{ fontSize: '0.7rem', background: '#333', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px', border: '1px solid #555' }}>OPCIONAL</span></div>
+                        <div style={{ color: '#ccc', fontSize: '0.85rem' }}>Para dividir temas grandes. Ej: "Cafeteras Express". <strong>Requiere seleccionar un Hub Padre abajo.</strong></div>
+                    </div>
+                </button>
+
+                <label style={{ color: '#ccc', margin: '1rem 0 0.2rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Fase 2: Crea el Artículo</label>
+
+                {/* OPCIÓN 3: REVIEW */}
+                <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, type: 'blog' }))}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                        background: formData.type === 'blog' ? 'linear-gradient(90deg, #10b981 0%, #047857 100%)' : '#1e1e24',
+                        border: formData.type === 'blog' ? '1px solid #34d399' : '1px solid #333',
+                        borderRadius: '12px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                        opacity: formData.type === 'blog' ? 1 : 0.6,
+                        boxShadow: formData.type === 'blog' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : 'none'
+                    }}
+                >
+                    <div style={{ background: '#fff', color: '#10b981', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0, fontSize: '1.2rem' }}>3</div>
+                    <div>
+                        <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '1rem' }}>PRODUCT REVIEW (Artículo Final)</div>
+                        <div style={{ color: '#ccc', fontSize: '0.85rem' }}>El artículo que vende. Ej: "Análisis Cafetera X". <strong>Selecciona su Hub o Sub-hub abajo.</strong></div>
+                    </div>
                 </button>
             </div>
 
