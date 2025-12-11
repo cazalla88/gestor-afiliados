@@ -792,7 +792,11 @@ export async function getAllCampaigns() {
         imageUrl: true,
         createdAt: true,
         category: true,
-        affiliateLink: true
+        affiliateLink: true,
+        parentId: true,
+        parent: {
+          select: { title: true }
+        }
       }
     });
   } catch (error) {

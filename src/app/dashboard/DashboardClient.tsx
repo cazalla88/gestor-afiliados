@@ -531,8 +531,14 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                                     style={{ objectFit: 'cover' }}
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
-                                <span className={`${styles.badge} ${camp.type === 'blog' ? styles.blogBadge : styles.landingBadge}`}>
-                                    {camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
+                                <span className={`${styles.badge}`} style={{
+                                    backgroundColor: camp.type === 'hub_principal' ? '#7c3aed' :
+                                        camp.type === 'subhub' ? '#db2777' :
+                                            camp.type === 'landing' ? '#3b82f6' : '#10b981'
+                                }}>
+                                    {camp.type === 'hub_principal' ? '🌐 HUB' :
+                                        camp.type === 'subhub' ? '🔗 SUB-HUB' :
+                                            camp.type === 'landing' ? t.dashboard.landingBadge : t.dashboard.blogBadge}
                                 </span>
                                 <a href={`/${camp.category}/${camp.slug}`} target="_blank" className={styles.viewLink} style={{ opacity: 0 }}>
                                     {/* Invisble link for SEO/Structure, real click handled by actions */}
@@ -540,6 +546,11 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                             </div>
                             <div className={styles.cardContent}>
                                 <h3>{camp.productName}</h3>
+                                {camp.parent && (
+                                    <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '-0.2rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span style={{ color: '#db2777' }}>↳</span> Child of: <strong>{camp.parent.title}</strong>
+                                    </div>
+                                )}
                                 <div className={styles.date}>
                                     <span>{new Date(camp.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                     <span className={styles.viewCount}>👁️ {getFakeViews(camp.createdAt).toLocaleString()} {t.dashboard.views}</span>
