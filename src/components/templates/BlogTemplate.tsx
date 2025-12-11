@@ -56,7 +56,6 @@ const LABELS = {
 
 export default function BlogTemplate({ campaign, currentSlug, relatedProducts, isEditable, onImageUpdate }: BlogTemplateProps) {
     const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
-    const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
     const t = LABELS[lang];
 
     const isHub = campaign.type === 'hub_principal' || campaign.type === 'subhub';

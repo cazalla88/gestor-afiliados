@@ -615,7 +615,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
                     <div className={styles.inputGroup} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                         <RichTextEditor
-                            label="" // Label handled by Toolbar above
+                            label="" 
                             content={formData.description}
                             onChange={(html) => setFormData(prev => ({ ...prev, description: html }))}
                         />
@@ -625,7 +625,12 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                     </div>
                 </div>
 
-                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{ gridColumn: '1 / -1', marginTop: '1rem', fontSize: '1.2rem', padding: '1rem' }}>
+                <button 
+                    type="submit" 
+                    className={`btn-primary ${styles.submitBtn}`} 
+                    disabled={isSubmitting} 
+                    style={{ gridColumn: '1 / -1', marginTop: '1rem', fontSize: '1.2rem', padding: '1rem' }}
+                >
                     {isSubmitting ? (
                         <span className={styles.loadingSpinner}>⏳ Guardando...</span>
                     ) : (
