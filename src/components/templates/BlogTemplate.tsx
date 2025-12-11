@@ -113,13 +113,19 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 if (typeof feat === 'string') {
                     // Extract Title from <h2> or <h3> tags for TOC
                     const titleMatch = feat.match(/<h[23][^>]*>(.*?)<\/h[23]>/);
-                    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : `Section ${count}`;
+                    let rawTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '') : `Section ${count}`;
+
+                    // CLEANER: Strip "1. ", "Paso 1: ", "Step 1: " to avoid redundancy in TOC
+                    const title = rawTitle
+                        .replace(/^\d+\.\s*/, '')              // Remove "1. "
+                        .replace(/^(Paso|Step)\s+\d+[:.]?\s*/i, ''); // Remove "Paso 1: "
 
                     headers.push({ id, text: title });
 
                     // Inject ID into the first heading tag found in the string
                     let processedHtml = feat;
                     if (titleMatch) {
+                        // Replace the original H2/H3 with a clean H3 containing the ID and clean Title
                         processedHtml = feat.replace(titleMatch[0], `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${title}</h3>`);
                     } else {
                         // If no heading found, prepend one (fallback)
