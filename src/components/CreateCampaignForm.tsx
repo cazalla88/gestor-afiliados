@@ -93,8 +93,11 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             .replace(/(^-|-$)+/g, "");
 
         const campaignData = {
+            // SPREAD FIRST so explicit fields below overwrite accidental AI hallucinations
+            ...generatedBlogData,
+
             id: slug,
-            type: formData.type,
+            type: formData.type, // FORCE TYPE from selector
             productName: formData.productName,
             affiliateLink: formData.affiliateLink,
             imageUrl: formData.imageUrl,
@@ -104,7 +107,6 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             category: formData.category,
             language: language,
             parentId: formData.parentId, // Send to backend
-            ...generatedBlogData
         };
 
         // Update or Create

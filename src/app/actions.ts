@@ -730,22 +730,47 @@ export async function createCampaign(data: any) {
       galleryImagesBackup: galleryImages // <--- Backup here
     };
 
-    const campaign = await prisma.campaign.create({
-      data: {
-        slug: data.id,
-        type: data.type,
-        category: data.category || 'general',
-        language: data.language || 'en',
-        productName: data.productName,
-        title: data.title || data.productName,
-        description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
-        affiliateLink: data.affiliateLink,
-        imageUrl: mainImage,
-        // galleryImages: galleryImages, // <--- COMENTADO para evitar error si la columna no existe en Prod
-        content: JSON.stringify(contentData),
-        parentId: data.parentId && data.parentId.trim() !== "" ? data.parentId : null, // Link to Parent Hub
+    let campaign;
+    try {
+      campaign = await prisma.campaign.create({
+        data: {
+          slug: data.id,
+          type: data.type,
+          category: data.category || 'general',
+          language: data.language || 'en',
+          productName: data.productName,
+          title: data.title || data.productName,
+          description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
+          affiliateLink: data.affiliateLink,
+          imageUrl: mainImage,
+          content: JSON.stringify(contentData),
+          parentId: data.parentId && data.parentId.trim() !== "" ? data.parentId : null,
+        }
+      });
+    } catch (e: any) {
+      // HANDLE DUPLICATE SLUG (P2002)
+      if (e.code === 'P2002') {
+        console.warn("⚠️ Slug collision detected. Retrying with suffix...");
+        const newSlug = `${data.id}-${Date.now().toString().slice(-4)}`;
+        campaign = await prisma.campaign.create({
+          data: {
+            slug: newSlug,
+            type: data.type,
+            category: data.category || 'general',
+            language: data.language || 'en',
+            productName: data.productName,
+            title: data.title || data.productName,
+            description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
+            affiliateLink: data.affiliateLink,
+            imageUrl: mainImage,
+            content: JSON.stringify(contentData),
+            parentId: data.parentId && data.parentId.trim() !== "" ? data.parentId : null,
+          }
+        });
+      } else {
+        throw e; // Rethrow other errors
       }
-    });
+    }
     // --- AUTO-INDEXING SIGNAL ---
     const baseUrl = 'https://gestor-afiliados-web.vercel.app';
     const finalUrl = `${baseUrl}/${campaign.category}/${campaign.slug}`;
