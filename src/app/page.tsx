@@ -77,9 +77,9 @@ export default async function Home() {
                 justifyContent: 'space-between',
                 minHeight: '130px'
               }}>
-                <span style={{ fontSize: '1.8rem', marginBottom: '0.8rem' }}>{cat.icon}</span>
+                <span style={{ fontSize: '1.8rem', marginBottom: '0.8rem' }}>{(cat as any).icon}</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>{cat.name.es || cat.name.en}</h3>
+                  <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>{(cat as any).name.es || (cat as any).name.en}</h3>
                   <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: '#666' }}>Guías y Análisis</p>
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default async function Home() {
                   )}
                 </div>
                 <span style={{ color: '#db2777', fontWeight: 'bold', fontSize: '0.75rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                  {CATEGORIES[post.category as keyof typeof CATEGORIES]?.name.es || CATEGORIES[post.category as keyof typeof CATEGORIES]?.name.en || post.category}
+                  {(CATEGORIES[post.category as keyof typeof CATEGORIES] as any)?.name?.es || (CATEGORIES[post.category as keyof typeof CATEGORIES] as any)?.name?.en || post.category}
                 </span>
                 <h3 style={{ fontSize: '1.25rem', color: 'white', margin: '0 0 0.5rem 0', fontWeight: '700', lineHeight: '1.3' }}>
                   {post.title || post.productName}
