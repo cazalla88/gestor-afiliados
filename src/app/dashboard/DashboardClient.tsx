@@ -100,7 +100,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
             setList(prev => prev.filter(c => c.slug !== slug));
             router.refresh();
         } else {
-            alert(t.dashboard.errorDelete);
+            alert(`Error: ${res.error}`);
         }
     };
 

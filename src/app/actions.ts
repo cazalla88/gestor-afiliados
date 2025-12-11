@@ -750,8 +750,9 @@ export async function deleteCampaign(slug: string) {
       where: { slug }
     });
     return { success: true };
-  } catch (error) {
-    return { error: "Failed to delete" };
+  } catch (error: any) {
+    console.error("Delete Error:", error);
+    return { error: error.message || "Failed to delete" };
   }
 }
 
