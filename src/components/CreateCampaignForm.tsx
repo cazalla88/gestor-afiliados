@@ -23,7 +23,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
         affiliateLink: "",
         imageUrl: "",
         apiKey: "",
-        type: "landing" as "landing" | "blog" | "hub_principal" | "subhub", // Added Hub types
+        type: "blog" as "landing" | "blog" | "hub_principal" | "subhub", // Default is now Blog/Review
         category: "general" as CategorySlug,
         tone: "Professional",
         manualGallery: "",
@@ -288,14 +288,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             </div>
 
             <div className={styles.typeSelector} style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-                <button
-                    type="button"
-                    className={`${styles.typeBtn} ${formData.type === 'landing' ? styles.activeType : ''}`}
-                    onClick={() => setFormData(prev => ({ ...prev, type: 'landing' }))}
-                    style={{ flex: '1 1 45%' }}
-                >
-                    🛒 Landing Page
-                </button>
+
                 <button
                     type="button"
                     className={`${styles.typeBtn} ${formData.type === 'blog' ? styles.activeType : ''}`}
