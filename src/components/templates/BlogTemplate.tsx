@@ -418,7 +418,14 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
                     <section id="verdict" className={styles.verdict}>
                         <h2>{isHub ? (lang === 'es' ? 'Conclusión' : 'Summary') : t.verdict}</h2>
-                        <p>{content.verdict || "Highly Recommended."}</p>
+
+                        {/* Fix: Render Verdict as HTML to interpret embedded <p> tags */}
+                        {content.verdict ? (
+                            <div className={styles.verdictText} dangerouslySetInnerHTML={{ __html: content.verdict }} />
+                        ) : (
+                            <p>Highly Recommended.</p>
+                        )}
+
                         {!isHub && (
                             <div className={styles.verdictCta}>
                                 <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.pulseCtaButton}>

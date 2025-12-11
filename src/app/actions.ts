@@ -279,7 +279,7 @@ export async function generateSeoContent(
            "<h2>6. Preguntas Frecuentes</h2><p><strong>¿Pregunta 1?</strong><br>Respuesta detallada aquí...</p><p><strong>¿Pregunta 2?</strong><br>Respuesta detallada aquí...</p> (GENERATE 3-4 PAIRS OF Q&A. DO NOT JUST LIST QUESTIONS. PROVIDE ANSWERS.)",
            "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. (Summary)</p>"
         ],
-        "verdict": "<p>En conclusión: si has llegado hasta aquí, ya sabes más que el 90% de los compradores. No te agobies. Si tu presupuesto es X, ve a por el modelo A. Si buscas Y, el modelo B es para ti. (Write a 150-word encouraging final summary).</p>",
+        "verdict": "<p><strong>La Regla de Oro 2026:</strong> En resumen, no te obsesiones con [Feature X]. Lo que realmente importa es [Feature Y]. Si vienes de [Context A], tu mejor opción es [Model 1]. (Write a powerful, decisive conclusion summarizing the buying philosophy. NO GENERIC 'GOOD LUCK' MESSAGES. Act as a Chief Editor giving the final word).</p>",
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
         "internalLinks": [
           { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
