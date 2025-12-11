@@ -240,7 +240,8 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                     if (pastedData && (pastedData.startsWith('http') || pastedData.startsWith('data:image'))) {
                                         e.preventDefault();
                                         if (confirm("¿Cambiar imagen de portada?")) {
-                                            onImageUpdate(pastedData);
+                                            // Pass index -1 to indicate Main Image update
+                                            onImageUpdate(-1, pastedData);
                                         }
                                     }
                                 }}
