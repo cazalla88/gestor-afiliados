@@ -124,17 +124,26 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
                     // Inject ID into the first heading tag found in the string
                     let processedHtml = feat;
+
+                    // CLEANER: Fix Markdown bolding (**text**) that AI generates -> Convert to <b>
+                    processedHtml = processedHtml
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
+
                     if (titleMatch) {
                         // Replace the original H2/H3 with a clean H3 containing the ID and clean Title
-                        processedHtml = feat.replace(titleMatch[0], `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${title}</h3>`);
+                        processedHtml = processedHtml.replace(titleMatch[0], `<h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">${title}</h3>`);
                     } else {
                         // If no heading found, prepend one (fallback)
-                        processedHtml = `<h3 id="${id}">${title}</h3>` + feat;
+                        processedHtml = `<h3 id="${id}">${title}</h3>` + processedHtml;
                     }
                     htmlChunks.push(`<div class="hub-section">${processedHtml}</div>`);
                 }
                 // SUB-CASE A2: Object Format (Legacy / Fallback)
                 else if (typeof feat === 'object' && feat.title) {
+                    let desc = (feat.description || "")
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
                     headers.push({ id, text: feat.title });
                     htmlChunks.push(`
                         <div class="hub-section">
@@ -142,7 +151,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                 ${feat.title}
                             </h3>
                             <div style="font-size: 1.05rem; line-height: 1.8; color: #374151;">
-                                ${feat.description || ""}
+                                ${desc}
                             </div>
                         </div>
                     `);

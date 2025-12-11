@@ -493,7 +493,7 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                                 placeholder={t.form.linkPlaceholder}
                                 value={formData.affiliateLink}
                                 onChange={handleChange}
-                                required
+                                required={!formData.type.includes('hub')}
                             />
                             <button
                                 type="button"
