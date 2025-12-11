@@ -275,8 +275,8 @@ export async function generateSeoContent(
            "<h2>2. Paso 2: Elige según el uso</h2><p>El mismo dinero sirve para cosas distintas... (Write 500 words with specific profiles)</p>",
            "<h2>3. Paso 3: ${productName} Tipo A vs Tipo B</h2><p>No hay respuesta universal... (Write 500 words comparison)</p>",
            "<h2>4. Cómo leer la ficha técnica (Specs)</h2><p>Aquí es donde la mayoría se pierde... (Explain key specs in depth)</p>",
-           "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero...</p>",
-           "<h2>6. Preguntas Frecuentes</h2><p>Respuestas rápidas...</p>",
+           "<h2>5. Errores típicos al comprar</h2><p>Para que no tires el dinero... (Detail 4-5 common mistakes)</p>",
+           "<h2>6. Preguntas Frecuentes</h2><p><strong>¿Pregunta 1?</strong><br>Respuesta detallada aquí...</p><p><strong>¿Pregunta 2?</strong><br>Respuesta detallada aquí...</p> (GENERATE 3-4 PAIRS OF Q&A. DO NOT JUST LIST QUESTIONS. PROVIDE ANSWERS.)",
            "<h2>7. Y ahora... ¿qué hago?</h2><p>Este es el mapa general. (Summary)</p>"
         ],
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
