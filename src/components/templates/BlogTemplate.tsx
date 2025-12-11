@@ -89,6 +89,30 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
         "datePublished": campaign.createdAt
     };
 
+
+    // --- MARKDOWN PARSER & TOC EXTRACTION ---
+    const { html: featuresHtml, headers: featureHeaders } = (() => {
+        const text = content.features || "";
+        const headers: { id: string, text: string }[] = [];
+        let count = 0;
+
+        let html = text
+            // 1. Headers ### (Create IDs for TOC)
+            .replace(/###\s+(.+)/g, (match: string, title: string) => {
+                const id = `feat-${count++}`;
+                headers.push({ id, text: title });
+                return `<h3 id="${id}" style="margin-top: 2rem; font-size: 1.4rem; color: #111;">${title}</h3>`;
+            })
+            // 2. Bold **text**
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // 3. Bullet points - 
+            .replace(/-\s+(.+)/g, '<li>$1</li>')
+            // 4. Line breaks (preserve paragraphs)
+            .replace(/\n\n/g, '<br/><br/>');
+
+        return { html, headers };
+    })();
+
     return (
         <article className={styles.articleContainer}>
             <script
@@ -144,14 +168,12 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
             <div className={`container ${styles.contentGrid}`}>
                 <div className={styles.mainContent}>
-                    {/* Intro Section - Hide if identical to Hero Description to avoid duplication */}
+                    {/* Intro Section */}
                     {content.introduction && content.introduction.trim() !== (campaign.description || "").trim() && (
-                        <section className={styles.intro}>
-                            <div dangerouslySetInnerHTML={{ __html: content.introduction }} />
+                        <section id="intro" className={styles.intro}>
+                            <div dangerouslySetInnerHTML={{ __html: content.introduction.replace(/\n/g, '<br/>') }} />
                         </section>
                     )}
-
-
 
                     {/* NEW: QUICK VERDICT / KEY HIGHLIGHTS BOX */}
                     {content.pros && content.pros.length > 0 && (
@@ -178,7 +200,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                                         border: '1px solid #fbcfe8',
                                         fontWeight: 500,
-                                        display: 'inline-block' // Ensure layout stability
+                                        display: 'inline-block'
                                     }}>
                                         ✅ {pro}
                                     </span>
@@ -213,12 +235,13 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         </section>
                     )}
 
-                    <section className={styles.features}>
+                    <section id="features" className={styles.features}>
                         <h2>{t.features}</h2>
-                        <p>{content.features || "Features to be added."}</p>
+                        {/* RENDER PARSED FEATURES HTML */}
+                        <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>Features to be added.</p>" }} />
                     </section>
 
-                    <section className={styles.prosCons}>
+                    <section id="pros-cons" className={styles.prosCons}>
                         <div className={styles.pros}>
                             <h3>{t.pros}</h3>
                             <ul>
@@ -234,7 +257,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     </section>
 
                     {content.comparisonTable && (
-                        <section className={styles.comparison}>
+                        <section id="comparison" className={styles.comparison}>
                             <h2>{t.comparison}</h2>
                             <div className={styles.tableWrapper}>
                                 <table className={styles.table}>
@@ -277,7 +300,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         </section>
                     )}
 
-                    <section className={styles.verdict}>
+                    <section id="verdict" className={styles.verdict}>
                         <h2>{t.verdict}</h2>
                         <p>{content.verdict || "Highly Recommended."}</p>
                         <div className={styles.verdictCta}>
@@ -289,9 +312,35 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </div>
 
                 <aside className={styles.sidebar}>
+                    {/* NEW TABLE OF CONTENTS */}
+                    <div className={styles.stickyCard} style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
+                        <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
+                            {lang === 'es' ? 'Índice de Contenidos' : 'Table of Contents'}
+                        </h4>
+                        <nav>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                <li><a href="#intro" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>1. {lang === 'es' ? 'Introducción' : 'Introduction'}</a></li>
+                                <li>
+                                    <a href="#features" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>2. {t.features}</a>
+                                    {featureHeaders.length > 0 && (
+                                        <ul style={{ listStyle: 'none', paddingLeft: '1rem', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                            {featureHeaders.map((h, i) => (
+                                                <li key={i}>
+                                                    <a href={`#feat-${i}`} style={{ color: '#888', textDecoration: 'none', fontSize: '0.85rem' }}>• {h.text}</a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </li>
+                                <li><a href="#pros-cons" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>3. {t.pros} & {t.cons}</a></li>
+                                <li><a href="#comparison" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>4. {t.comparison}</a></li>
+                                <li><a href="#verdict" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>5. {t.verdict}</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+
                     <div className={styles.stickyCard}>
                         <h3>{campaign.productName}</h3>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
                         <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
                             {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
@@ -299,6 +348,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     </div>
                 </aside>
             </div>
+
 
             <RelatedProducts
                 currentSlug={currentSlug}
