@@ -56,7 +56,10 @@ const LABELS = {
 
 export default function BlogTemplate({ campaign, currentSlug, relatedProducts, isEditable, onImageUpdate }: BlogTemplateProps) {
     const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
+    const lang = (campaign.language === 'es' ? 'es' : 'en') as keyof typeof LABELS;
     const t = LABELS[lang];
+
+    const isHub = campaign.type === 'hub_principal' || campaign.type === 'subhub';
 
     // Parse structured content JSON
     let content: any = {};
@@ -95,10 +98,35 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
 
     // --- MARKDOWN PARSER & TOC EXTRACTION ---
+    // --- MARKDOWN PARSER & TOC EXTRACTION ---
     const { html: featuresHtml, headers: featureHeaders } = (() => {
-        const text = content.features || "";
+        const rawFeatures = content.features;
         const headers: { id: string, text: string }[] = [];
         let count = 0;
+
+        // CASE A: NEW MASTER HUB FORMAT (Array of Objects)
+        if (Array.isArray(rawFeatures)) {
+            let htmlChunks: string[] = [];
+            rawFeatures.forEach((feat: any) => {
+                const id = `feat-${count++}`;
+                headers.push({ id, text: feat.title });
+
+                htmlChunks.push(`
+                    <div class="hub-section">
+                        <h3 id="${id}" style="margin-top: 2.5rem; margin-bottom: 1rem; font-size: 1.6rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 0.5rem;">
+                            ${feat.title}
+                        </h3>
+                        <div style="font-size: 1.05rem; line-height: 1.8; color: #374151;">
+                            ${feat.description}
+                        </div>
+                    </div>
+                `);
+            });
+            return { html: htmlChunks.join(""), headers };
+        }
+
+        // CASE B: LEGACY REVIEW FORMAT (Markdown String)
+        const text = typeof rawFeatures === 'string' ? rawFeatures : "";
 
         let html = text
             // 1. Headers ### (Create IDs for TOC)
@@ -179,9 +207,11 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                 {campaign.description}
                             </p>
 
-                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
-                                {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
-                            </a>
+                            {!isHub && (
+                                <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.heroCta}>
+                                    {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -196,8 +226,8 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         </section>
                     )}
 
-                    {/* NEW: QUICK VERDICT / KEY HIGHLIGHTS BOX */}
-                    {content.pros && content.pros.length > 0 && (
+                    {/* NEW: QUICK VERDICT / KEY HIGHLIGHTS BOX - ONLY FOR REVIEWS */}
+                    {!isHub && content.pros && content.pros.length > 0 && (
                         <div style={{
                             background: '#fdf2f8',
                             borderLeft: '4px solid #db2777',
@@ -262,22 +292,24 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                         <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>Features to be added.</p>" }} />
                     </section>
 
-                    <section id="pros-cons" className={styles.prosCons}>
-                        <div className={styles.pros}>
-                            <h3>{t.pros}</h3>
-                            <ul>
-                                {content.pros?.map((p: string, i: number) => <li key={i}>{p}</li>) || <li>Great Product</li>}
-                            </ul>
-                        </div>
-                        <div className={styles.cons}>
-                            <h3>{t.cons}</h3>
-                            <ul>
-                                {content.cons?.map((c: string, i: number) => <li key={i}>{c}</li>) || <li>None observed</li>}
-                            </ul>
-                        </div>
-                    </section>
+                    {!isHub && (
+                        <section id="pros-cons" className={styles.prosCons}>
+                            <div className={styles.pros}>
+                                <h3>{t.pros}</h3>
+                                <ul>
+                                    {content.pros?.map((p: string, i: number) => <li key={i}>{p}</li>) || <li>Great Product</li>}
+                                </ul>
+                            </div>
+                            <div className={styles.cons}>
+                                <h3>{t.cons}</h3>
+                                <ul>
+                                    {content.cons?.map((c: string, i: number) => <li key={i}>{c}</li>) || <li>None observed</li>}
+                                </ul>
+                            </div>
+                        </section>
+                    )}
 
-                    {content.comparisonTable && (
+                    {!isHub && content.comparisonTable && (
                         <section id="comparison" className={styles.comparison}>
                             <h2>{t.comparison}</h2>
                             <div className={styles.tableWrapper}>
@@ -322,13 +354,15 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     )}
 
                     <section id="verdict" className={styles.verdict}>
-                        <h2>{t.verdict}</h2>
+                        <h2>{isHub ? (lang === 'es' ? 'Conclusión' : 'Summary') : t.verdict}</h2>
                         <p>{content.verdict || "Highly Recommended."}</p>
-                        <div className={styles.verdictCta}>
-                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.pulseCtaButton}>
-                                {lang === 'es' ? 'Ver Mejor Precio Ahora' : 'Check Best Price Now'}
-                            </a>
-                        </div>
+                        {!isHub && (
+                            <div className={styles.verdictCta}>
+                                <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.pulseCtaButton}>
+                                    {lang === 'es' ? 'Ver Mejor Precio Ahora' : 'Check Best Price Now'}
+                                </a>
+                            </div>
+                        )}
                     </section>
                 </div>
 
@@ -353,9 +387,9 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                         </ul>
                                     )}
                                 </li>
-                                <li><a href="#pros-cons" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>3. {t.pros} & {t.cons}</a></li>
-                                <li><a href="#comparison" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>4. {t.comparison}</a></li>
-                                <li><a href="#verdict" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>5. {t.verdict}</a></li>
+                                {!isHub && <li><a href="#pros-cons" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>3. {t.pros} & {t.cons}</a></li>}
+                                {!isHub && <li><a href="#comparison" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem' }}>4. {t.comparison}</a></li>}
+                                <li><a href="#verdict" style={{ color: '#555', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>{isHub ? '3.' : '5.'} {isHub ? (lang === 'es' ? 'Conclusión' : 'Summary') : t.verdict}</a></li>
                             </ul>
                         </nav>
                     </div>
@@ -363,9 +397,11 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                     <div className={styles.stickyCard}>
                         <h3>{campaign.productName}</h3>
                         <img src={campaign.imageUrl || "https://placehold.co/100x100"} alt="mini" className={styles.miniImg} />
-                        <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
-                            {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
-                        </a>
+                        {!isHub && (
+                            <a href={campaign.affiliateLink} target="_blank" rel="noopener noreferrer" className={styles.nexusSidebarBtn}>
+                                {lang === 'es' ? 'Ver Oferta en Amazon 🛒' : 'Check Price on Amazon 🛒'}
+                            </a>
+                        )}
                     </div>
                 </aside>
             </div>
@@ -427,14 +463,16 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </div>
             </footer>
 
-            <StickyBar
-                title={campaign.title}
-                price={content.comparisonTable?.[0]?.price || "€€€"}
-                rating={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
-                affiliateLink={campaign.affiliateLink}
-                imageUrl={campaign.imageUrl}
-                lang={lang}
-            />
+            {!isHub && (
+                <StickyBar
+                    title={campaign.title}
+                    price={content.comparisonTable?.[0]?.price || "€€€"}
+                    rating={content.quantitativeAnalysis?.match(/(\d+(\.\d+)?)\/10/)?.[1] || "9.5"}
+                    affiliateLink={campaign.affiliateLink}
+                    imageUrl={campaign.imageUrl}
+                    lang={lang}
+                />
+            )}
 
         </article>
     );

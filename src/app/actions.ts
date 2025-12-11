@@ -1,5 +1,6 @@
 "use server";
 // Force Vercel Deploy - Updated Groq Model 3.3
+// DEPLOY TIMESTAMP: 2025-12-11 T 14:32 - FIX HUB SAVING & AMAZON BUTTONS
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -222,7 +223,88 @@ export async function generateSeoContent(
       `;
 
   let prompt = "";
-  if (type === 'blog') {
+
+  // --- NEW: MASTER HUB & SUB-HUB LOGIC (Universal Expert Authority) ---
+  if (type === 'hub_principal' || type === 'subhub') {
+    prompt = `
+      ACT AS: The World's Leading Editorial Authority for the specific industry of the topic: "${productName}".
+      - If Tech: Act as a Senior Engineer at Wirecutter/RTings.
+      - If Fashion: Act as a Senior Editor at Vogue/GQ.
+      - If Home/Decor: Act as a Lead Designer at Architectural Digest.
+      - If Fitness: Act as a Head Coach at Men's Health.
+
+      TASK: Write a COMPREHENSIVE MASTER GUIDE (Hub Page) about: "${productName}".
+      GOAL: To be the absolute #1 evergreen resource on the internet for this topic. Educate, establish authority, and define the category.
+      LENGTH: Target 2500+ Words of high-value, deep-dive content.
+
+      INPUT DATA:
+      Topic: "${productName}"
+      Brief: "${basicDescription}"
+      Tone: authoritative, educational, objective, yet accessible.
+      Language: ${langName}
+      CRITICAL INSTRUCTION: ALL OUTPUT MUST BE WRITTEN IN ${langName.toUpperCase()}. DO NOT Use English if language is Spanish.
+
+      ${campaignsContext}
+
+      STRUCTURE & CONTENT GUIDELINES (ADAPT TO INDUSTRY):
+
+      1. **H1 TITLE:** Must be definitive (e.g., "The Ultimate Guide to [Topic] in 2026", "Everything You Need to Know About [Topic]").
+      2. **INTRODUCTION (The Hook & Definition):** 
+         - Start with a clear, concise definition. "What is [Topic] (and what is it NOT)?"
+         - Context: Why is this relevant today? (Trends, Seasonality, Innovation).
+      
+      3. **CORE CONCEPTS ("The Science/Art Behind It"):**
+         - Break down industry terminology.
+         - For Tech: Explain the hardware (Sensors, Panels, Chips).
+         - For Fashion: Explain the materials (Fabrics, Cuts, Stitching).
+         - For Beauty: Explain the ingredients (Actives, Skin types).
+      
+      4. **THE BUYING GUIDE (Critical Decision Factors):**
+         - Identify the 3-5 non-negotiable factors when choosing in this category.
+         - DEEP DIVE COMPARISONS (The "Versus"):
+           - Tech: "OLED vs QLED"
+           - Fashion: "Cotton vs Linen", "Slim vs Regular Fit"
+           - Home: "Solid Wood vs MDF"
+      
+      5. **TYPES / CLASSIFICATIONS:**
+         - Segment the market clearly. (e.g., "Budget vs Luxury", "Professional vs Casual").
+         - *SEO NOTE*: This helps create natural sub-hub interlinking opportunities.
+
+      6. **FAQ (Voice Search):**
+         - 7-10 questions that real beginners ask. Answer with absolute precision.
+
+      FORMATTING RULES:
+      - Use H2/H3 hierarchy strictly.
+      - Use "Pro Tips" boxes (simulated with > blockquotes).
+      - ❌ NO Generic Fluff. Don't say "It depends". Give a stance.
+      - ✅ YES Specifics. Name specific materials, specs, or standards.
+
+      GENERATE STRICT JSON:
+      {
+        "title": "The definitive H1 Title",
+        "introduction": "Complete Intro + Definition (HTML)",
+        "features": [
+           { 
+             "title": "Core Concept / Buying Factor", 
+             "description": "Deep educational content (300+ words). Use HTML." 
+           }
+           // Generate 4-6 of these detailed sections
+        ],
+        "pros": ["Key Advantage 1 (Industry specific)", "Key Advantage 2"], 
+        "cons": ["Key Downside 1", "Key Downside 2"],
+        "techSpecs": { 
+            "Key Spec/Material 1": "Value", 
+            "Key Spec/Material 2": "Value" 
+            // Map this to: "Fabric", "Dimensions", "Warranty", "Ingredients", etc. depending on industry
+        }, 
+        "faq": [{ "question": "...", "answer": "..." }],
+        "verdict": "A powerful summary of the category landscape.",
+        "seoMetaDescription": "Click-worthy meta summary.",
+        "internalLinks": ["slug1", "slug2"] 
+      }
+      `;
+  }
+  else if (type === 'blog') {
     if (contentDepth === 'deep') {
       // --- OPTION A: PILLAR PAGE (2000+ Words) ---
       prompt = `
@@ -311,6 +393,10 @@ export async function generateSeoContent(
   }
 
   let lastError: string = "";
+
+  console.log("🚀 DEBUG: Type received:", type);
+  console.log("📝 DEBUG: Prompt Preview:", prompt.substring(0, 500) + "...");
+  console.log("🔐 DEBUG: Using Google Key:", googleKey ? "YES" : "NO", "Groq Key:", groqKey ? "YES" : "NO");
 
   // --- PHASE 1: TRY GOOGLE GEMINI (Priority) ---
   if (googleKey) {
@@ -690,6 +776,7 @@ export async function updateCampaign(slug: string, data: any) {
     const campaign = await prisma.campaign.update({
       where: { slug },
       data: {
+        type: data.type, // <-- CRITICAL FIX: Allow changing types (e.g. converting to Hub)
         category: data.category || 'general',
         language: data.language || 'en',
         productName: data.productName,

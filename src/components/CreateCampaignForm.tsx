@@ -99,8 +99,8 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             affiliateLink: formData.affiliateLink,
             imageUrl: formData.imageUrl,
             manualGallery: formData.manualGallery,
-            title: (formData.type === 'landing' || formData.type.includes('hub')) ? formData.productName : generatedBlogData?.title,
-            description: (formData.type === 'landing' || formData.type.includes('hub')) ? formData.description : generatedBlogData?.introduction,
+            title: generatedBlogData?.title || formData.productName,
+            description: generatedBlogData?.introduction || generatedBlogData?.seoMetaDescription || formData.description,
             category: formData.category,
             language: language,
             parentId: formData.parentId, // Send to backend
@@ -282,9 +282,35 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
     return (
         <div className={styles.formContainer}>
-            <div className={styles.header}>
-                <h2>{t.form.title}</h2>
-                <p>{t.form.subtitle}</p>
+            <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h2>{t.form.title}</h2>
+                    <p>{t.form.subtitle}</p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => {
+                        const form = document.querySelector(`.${styles.form}`) as HTMLFormElement;
+                        if (form) form.requestSubmit();
+                    }}
+                    className="btn-primary"
+                    disabled={isSubmitting}
+                    style={{
+                        padding: '0.6rem 1.5rem',
+                        fontSize: '0.95rem',
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                        border: '1px solid #34d399',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    {isSubmitting ? '⏳ Guardando...' : (editSlug ? '💾 GUARDAR CAMBIOS' : '🚀 CREAR AHORA')}
+                </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '2rem' }}>
@@ -562,12 +588,11 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
 
                     {/* Action Toolbar */}
                     {/* Action Toolbar */}
-                    <div className={styles.toolbar}>
                         <div className={styles.sectionTitle}>
                             <span style={{ fontSize: '1.2em', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))' }}>
-                                {formData.type === 'blog' ? '📝' : '📄'}
+                                {formData.type === 'blog' ? '📝' : (formData.type.includes('hub') ? '📚' : '📄')}
                             </span>
-                            {formData.type === 'blog' ? "Editor de Review & Deep Dive" : "Editor de Landing Page"}
+                            {formData.type === 'blog' ? "Editor de Review" : (formData.type.includes('hub') ? "Editor de Master Hub" : "Editor de Landing Page")}
                         </div>
                         <div className={styles.actionButtons}>
                             <button
@@ -600,14 +625,14 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                     </div>
                 </div>
 
-                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{ gridColumn: '1 / -1', marginTop: '1rem', fontSize: '1.2rem', padding: '1rem' }}>
                     {isSubmitting ? (
-                        <span className={styles.loadingSpinner}>{t.form.buttonLoading}</span>
+                        <span className={styles.loadingSpinner}>⏳ Guardando...</span>
                     ) : (
-                        formData.type === 'blog' ? "🚀 Publish SEO Pillar Page" : t.form.button
+                        "💾 GUARDAR Y PUBLICAR"
                     )}
                 </button>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
