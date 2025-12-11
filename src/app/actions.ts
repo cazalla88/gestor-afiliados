@@ -714,6 +714,7 @@ export async function getCampaignsByCategory(category: string, limit: number = 1
         imageUrl: true,
         category: true,
         type: true,
+        content: true, // Fetch content to determine Pillar/Standard status via length
       },
       orderBy: { createdAt: 'desc' },
       take: limit

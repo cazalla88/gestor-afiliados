@@ -80,9 +80,21 @@ export default async function CategoryPage({ params }: { params: any }) {
                                         No Image
                                     </div>
                                 )}
-                                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white border border-white/10">
-                                    {product.type === 'blog' ? '📝 Review' : '🛒 Product'}
-                                </div>
+                                {product.type === 'blog' ? (
+                                    (product.content?.length || 0) > 4000 ? (
+                                        <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg shadow-purple-900/40 flex items-center gap-1">
+                                            ⚡ DEEP DIVE
+                                        </div>
+                                    ) : (
+                                        <div className="absolute top-3 right-3 bg-blue-600/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white border border-white/10 flex items-center gap-1">
+                                            📝 REVIEW
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="absolute top-3 right-3 bg-gray-600/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white border border-white/10">
+                                        🛒 PRODUCT
+                                    </div>
+                                )}
                             </div>
 
                             {/* TEXT CONTENT */}
