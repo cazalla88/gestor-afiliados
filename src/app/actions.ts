@@ -1136,3 +1136,30 @@ export async function analyzeTrends(category: string, language: 'en' | 'es', api
     return { error: `AI Error (${e.message}). Try checking your API Key or Quota.` };
   }
 }
+
+// NEW: Efficient Data Fetching for Homepage
+export async function getHomePageData() {
+  try {
+    const hubs = await prisma.campaign.findMany({
+      where: {
+        OR: [{ type: 'hub_principal' }, { type: 'subhub' }]
+      },
+      take: 4,
+      orderBy: { createdAt: 'desc' },
+      select: { title: true, slug: true, category: true, imageUrl: true, description: true }
+    });
+
+    const latest = await prisma.campaign.findMany({
+      where: {
+        type: { notIn: ['hub_principal'] } // Exclude main hubs from latest feed logic usually
+      },
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      select: { title: true, slug: true, category: true, imageUrl: true, type: true, createdAt: true, productName: true }
+    });
+
+    return { hubs, latest };
+  } catch (e) {
+    return { hubs: [], latest: [] };
+  }
+}
