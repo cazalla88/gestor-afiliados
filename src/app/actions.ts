@@ -178,109 +178,132 @@ export async function generateSeoContent(
     }
   }
 
-  const campaignsContext = existingCampaigns.length > 0
-    ? `
-    CONTEXT - EXISTING CONTENT ON SITE (For Internal Linking):
-    ${JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug })))}
+  CONTEXT - EXISTING CONTENT ON SITE(For Internal Linking):
+    ${ JSON.stringify(existingCampaigns.map(c => ({ title: c.productName, category: c.category, slug: c.slug }))) }
     MANDATORY SEO INSTRUCTION:
     If relevant, include them in "internalLinks" array.
     `
     : "";
 
-  const SALES_STORYTELLING_FRAMEWORK = `
-    ADVANCED SALES STORYTELLING & PSYCHOLOGY GUIDELINES:
-    1. THE HERO'S JOURNEY: Customer is Hero.
-    2. CHALLENGER INSIGHT: Teach something new.
-    3. SOCIAL PROOF: Weave in stories.
+  const COPYWRITING_MASTER_INSTRUCTIONS = `
+    MASTER COPYWRITING FRAMEWORKS & INSTRUCTIONS(AUTHORITY MODE):
+
+  1. ** THE "SLIPPERY SLIDE"(Joseph Sugarman):**
+    - The sole purpose of the first sentence is to get you to read the second sentence.
+       - Use short, punchy sentences.Create curiosity gaps.
+    
+    2. ** P.A.S.T.O.R.FRAMEWORK(Ray Edwards) - APPLY THIS TO THE INTRODUCTION:**
+       - ** P ** roblem: Identify the pain point the user faces.
+       - ** A ** gitate: Make it visceral.What happens if they don't solve it?
+    - ** S ** olution: Introduce the product as the hero.
+       - ** T ** ransformation: Describe the "After" state(emotional relief).
+       - ** O ** ffer: What they get.
+       - ** R ** esponse: Call to action.
+
+    3. ** SCIENTIFIC ADVERTISING(Claude Hopkins):**
+    - BE SPECIFIC.Never say "best quality," say "made with aerospace-grade aluminum."
+      - Avoid hype.Use facts to sell.
+
+    4. ** CIALDINI'S PERSUASION TRIGGERS:**
+    - ** Social Proof:** Mention "thousands of happy users" or Reddit consensus.
+       - ** Scarcity / Urgency:** "Often out of stock due to demand."
+    - ** Authority:** Speak with absolute confidence, like an expert engineer.
+
+    5. ** TONE GUIDELINES:**
+    - Write to ONE person(Use "You").
+       - Benefits OVER Features(Don't sell the drill, sell the hole).
+      - Emotional Connection: How does this product make them FEEL ? (Confident, Secure, Smart).
   `;
+
+  const SALES_STORYTELLING_FRAMEWORK = `
+      [DEPRECATED - REPLACED BY MASTER COPYWRITING INSTRUCTIONS ABOVE]
+      `;
 
   let prompt = "";
   if (type === 'blog') {
     if (contentDepth === 'deep') {
       // --- OPTION A: PILLAR PAGE (2000+ Words) ---
       prompt = `
-            Act as a Senior Tech Editor for a major publication (like The Verge or XDA).
-            Your goal is to write a **PILLAR PAGE REVIEW (10,000 - 12,000 characters)**.
-            **ABSOLUTE PRIORITY: DEPTH, NUANCE, AND COMPLETENESS.**
+            Act as a World - Class Direct Response Copywriter(Level of Dan Kennedy / Gary Halbert).
+            Your goal is to write a ** PILLAR PAGE REVIEW(10,000 - 12,000 characters) ** that converts cold traffic into buyers.
             
             INPUT DATA:
-            Product: "${productName}"
+      Product: "${productName}"
             Raw Details: "${basicDescription}"
-            Tone: ${tone}
-            Language: ${langName}
+            Tone: ${ tone }
+            Language: ${ langName }
 
-            ${campaignsContext}
-            ${redditContext}
-            ${SALES_STORYTELLING_FRAMEWORK}
+            ${ campaignsContext }
+            ${ redditContext }
+            ${ COPYWRITING_MASTER_INSTRUCTIONS }
 
-            CRITICAL STRUCTURE INSTRUCTIONS (HIT 2000 WORDS):
-            1. **INTRODUCTION (500 words):** Don't just greet. Discuss the brand's history, the predecessor of this model, the current state of the market, and the unboxing experience.
-            2. **DEEP DIVES (1000 words):** Break down the product into 5 distinct sections (e.g. Design, Display, Performance, Battery, Camera/Features). Write a full paragraph for EACH.
-            3. **COMPARISON:** Don't just list rivals; explain the trade-offs in detail.
-            4. **FAQ SECTION:** Generate 5 common questions and answer them in detail.
+            CRITICAL STRUCTURE INSTRUCTIONS(HIT 2000 WORDS):
+      1. ** INTRODUCTION(Use P.A.S.T.O.R.Framework):** Hook them immediately. 
+            2. ** DEEP DIVES:** Break down the product into 5 distinct sections.Use "Slippery Slide" narrative flow.
+            3. ** COMPARISON:** position this product as the * smart * choice.
+            4. ** FAQ SECTION:** Answer objections before they arise.
 
             Generate strict JSON:
-            {
-                "title": "A Click-Worthy, SEO-Optimized Title (e.g. Is it worth it in 2025?)",
-                "heroDescription": "Compelling meta-description summary (max 160 chars).",
-                "introduction": "WRITE A 500-WORD ESSAY. Use \\n\\n for paragraphs. Cover: Market Context, Brand Legacy, Design Language, Unboxing impressions.",
-                "targetAudience": "Detailed analysis of user personas (200 words). Who should buy, who should skip.",
-                "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Don't just give a number. Break it down: 'Display: 9/10 because...', 'Battery: 7/10 because...'.",
-                "pros": ["Deep Pro 1 (Full sentence explaining why)", "Deep Pro 2", "Deep Pro 3", "Deep Pro 4", "Deep Pro 5"],
-                "cons": ["Specific Flaw 1 (Full sentence)", "Specific Flaw 2", "Specific Flaw 3"],
-                "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header) inside this string. Analyze: Build Quality, Core Performance, Daily Usability, Unique Features, and Long-term Durability. Total approx 800 words.",
-                "comparisonTable": [
-                    { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
-                    { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
-                ],
-                "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-                "verdict": "A 400-word Final Verdict. Summarize the highs and lows. Give a definitive 'Buy' or 'Pass' recommendation for different budgets."
-            }
-            IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
-            IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
-            Return ONLY valid JSON string. No markdown block.
+      {
+        "title": "A Magnetic Headline (Use Numbers, Curiosity, or Strong Benefit)",
+        "heroDescription": "Meta-description that forces a click (max 160 chars).",
+        "introduction": "An engaging 500-word P.A.S.T.O.R. opener. Make them feel the problem before offering the solution.",
+        "targetAudience": "Detailed persona analysis (200 words).",
+        "quantitativeAnalysis": "Comprehensive Scoring Breakdown (300 words). Be specific like Claude Hopkins.",
+        "pros": ["Benefit-focused Pro 1", "Benefit-focused Pro 2", "Benefit-focused Pro 3", "Benefit-focused Pro 4", "Benefit-focused Pro 5"],
+        "cons": ["Honest Flaw 1 (Builds Trust)", "Honest Flaw 2", "Honest Flaw 3"],
+        "features": "THE CORE REVIEW. Write 5 distinct headers/sections using Markdown (### Header). Focus on the 'Transformation' (Benefits). Total approx 800 words.",
+        "comparisonTable": [
+          { "name": "${productName}", "price": "€€€", "rating": "REALISTIC (e.g. 8.7)", "mainFeature": "Killer Feature" },
+          { "name": "Rival", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
+        ],
+        "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
+        "verdict": "A 400-word Final Verdict. Use Cialdini's Authority. Tell them clearly whether to buy or not."
+      }
+            IMPORTANT: 'rating' MUST vary(7.5 - 9.8).
+      IMPORTANT: Use \\n\\n FREQUENTLY to break up walls of text.
+            Return ONLY valid JSON string.No markdown block.
         `;
     } else {
       // --- OPTION B: STANDARD REVIEW (800-1000 Words) ---
       prompt = `
-            Act as a Helpful Product Reviewer.
-            Your goal is to write a **SOLID, CONCISE REVIEW (800-1000 words)**.
-            Focus on balance and readability.
+  Act as a Persuasive Marketing Copywriter.
+            Your goal is to write a ** HIGH - CONVERSION REVIEW(800 - 1000 words) **.
             
             INPUT DATA:
-            Product: "${productName}"
+  Product: "${productName}"
             Raw Details: "${basicDescription}"
-            Tone: ${tone}
-            Language: ${langName}
+  Tone: ${ tone }
+  Language: ${ langName }
 
-            ${campaignsContext}
-            ${redditContext}
-            ${SALES_STORYTELLING_FRAMEWORK}
+            ${ campaignsContext }
+            ${ redditContext }
+            ${ COPYWRITING_MASTER_INSTRUCTIONS }
 
             Generate strict JSON:
-            {
-                "title": "Clear & Benefit-Driven Title",
-                "heroDescription": "Meta description (max 160 chars).",
-                "introduction": "Engaging Intro (200 words). Context and main promise.",
-                "targetAudience": "Who is this for? (50 words).",
-                "quantitativeAnalysis": "Quick Score Explanation (100 words).",
-                "pros": ["Benefit 1", "Benefit 2", "Benefit 3"],
+  {
+    "title": "Clear, Benefit-Driven Headline",
+      "heroDescription": "Meta description (max 160 chars).",
+        "introduction": "Engaging P.A.S.T.O.R. Intro (200 words). Hook and Agitate problem.",
+          "targetAudience": "Who is this for? (50 words).",
+            "quantitativeAnalysis": "Quick Score Explanation (100 words).",
+              "pros": ["Benefit 1", "Benefit 2", "Benefit 3"],
                 "cons": ["Flaw 1", "Flaw 2"],
-                "features": "Key Features Overview (300 words). Use bullet points or short paragraphs.",
-                "comparisonTable": [
-                    { "name": "${productName}", "price": "€€", "rating": "REALISTIC", "mainFeature": "Key Feature" },
-                    { "name": "Competitor", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
-                ],
-                "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
-                "verdict": "Clear Verdict (150 words). Buy or Pass?"
-            }
-            IMPORTANT: 'rating' MUST vary (7.5 - 9.8).
-            IMPORTANT: 'price' MUST be keys: '€', '€€', '€€€'.
-            Return ONLY valid JSON string. No markdown block.
+                  "features": "Key Features Overview (300 words). Use bullet points and specific facts (Scientific Advertising).",
+                    "comparisonTable": [
+                      { "name": "${productName}", "price": "€€", "rating": "REALISTIC", "mainFeature": "Key Feature" },
+                      { "name": "Competitor", "price": "€€", "rating": "LOWER", "mainFeature": "Alternative" }
+                    ],
+                      "internalLinks": [{ "slug": "slug", "category": "cat", "anchorText": "text" }],
+                        "verdict": "Clear Verdict (150 words). Buy or Pass?"
+  }
+  IMPORTANT: 'rating' MUST vary(7.5 - 9.8).
+    IMPORTANT: 'price' MUST be keys: '€', '€€', '€€€'.
+            Return ONLY valid JSON string.No markdown block.
         `;
     }
   } else {
-    prompt = `Act as Copywriter. Product: "${productName}". Details: "${basicDescription}". Lang: ${langName}. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." }`;
+    prompt = `Act as Copywriter.Product: "${productName}".Details: "${basicDescription}".Lang: ${ langName }. Generate JSON: { "optimizedTitle": "...", "optimizedDescription": "..." } `;
   }
 
   let lastError: string = "";
@@ -296,7 +319,7 @@ export async function generateSeoContent(
 
     for (const modelName of googleModels) {
       try {
-        console.log(`🤖 Trying Google Model: ${modelName}`);
+        console.log(`🤖 Trying Google Model: ${ modelName } `);
         const genAI = new GoogleGenerativeAI(googleKey);
         const model = genAI.getGenerativeModel({
           model: modelName,
@@ -308,47 +331,47 @@ export async function generateSeoContent(
         let text = response.text();
 
         // Clean and Parse
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(text); // SUCCESS! Return result.
+        text = text.replace(/```json / g, '').replace(/```/g, '').trim();
+  return JSON.parse(text); // SUCCESS! Return result.
 
-      } catch (error: any) {
-        console.warn(`❌ Google ${modelName} failed: ${error.message}`);
-        lastError = `Google Error: ${error.message}`;
-        // Continue to next Google model...
-      }
+} catch (error: any) {
+  console.warn(`❌ Google ${modelName} failed: ${error.message}`);
+  lastError = `Google Error: ${error.message}`;
+  // Continue to next Google model...
+}
     }
   } else {
-    console.log("ℹ️ No Google API Key found. Skipping to Groq...");
+  console.log("ℹ️ No Google API Key found. Skipping to Groq...");
+}
+
+// --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
+if (groqKey) {
+  console.log("🚀 Switching to Groq (Llama 3.3) Fallback...");
+  try {
+    const groq = new Groq({ apiKey: groqKey });
+    const completion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks. Escape all double quotes inside strings." },
+        { role: "user", content: prompt }
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.7,
+      // response_format: { type: "json_object" } // <--- DISABLED due to strict 400 errors
+    });
+
+    const content = completion.choices[0]?.message?.content || "{}";
+    return safeJsonParse(content, productName, language); // Use robust parser with locale
+
+  } catch (groqError: any) {
+    console.error("❌ Groq Failed:", groqError);
+    lastError += ` | Groq Error: ${groqError.message}`;
   }
+} else {
+  console.log("ℹ️ No Groq API Key found.");
+}
 
-  // --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
-  if (groqKey) {
-    console.log("🚀 Switching to Groq (Llama 3.3) Fallback...");
-    try {
-      const groq = new Groq({ apiKey: groqKey });
-      const completion = await groq.chat.completions.create({
-        messages: [
-          { role: "system", content: "You are a JSON-only API. You must return ONLY a valid JSON object. Do not include markdown code blocks. Escape all double quotes inside strings." },
-          { role: "user", content: prompt }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        // response_format: { type: "json_object" } // <--- DISABLED due to strict 400 errors
-      });
-
-      const content = completion.choices[0]?.message?.content || "{}";
-      return safeJsonParse(content, productName, language); // Use robust parser with locale
-
-    } catch (groqError: any) {
-      console.error("❌ Groq Failed:", groqError);
-      lastError += ` | Groq Error: ${groqError.message}`;
-    }
-  } else {
-    console.log("ℹ️ No Groq API Key found.");
-  }
-
-  // --- PHASE 3: TOTAL FAILURE ---
-  return { error: `ALL AI Models Failed. Last text received might be malformed. Details: ${lastError}` };
+// --- PHASE 3: TOTAL FAILURE ---
+return { error: `ALL AI Models Failed. Last text received might be malformed. Details: ${lastError}` };
 }
 
 // HELPER: ROBUST PARSER (The "Tank")
