@@ -572,7 +572,12 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                 >
                                     {child.imageUrl && (
                                         <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
-                                            <Image src={child.imageUrl} alt={SafeRender(child.title) || 'Post Image'} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 300px" />
+                                            {/* SAFETY: Ensure alt is string */}
+                                            <img
+                                                src={child.imageUrl}
+                                                alt={SafeRender(child.title) || 'Post Image'}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
                                         </div>
                                     )}
                                     <div style={{ padding: '1rem' }}>
@@ -591,11 +596,13 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </section>
             )}
 
+            {/* DISABLED RELATED PRODUCTS (Suspected Crash Cause)
             <RelatedProducts
                 currentSlug={currentSlug}
                 category={campaign.category || 'general'}
                 products={relatedProducts}
             />
+            */}
 
             <footer style={{ textAlign: 'center', padding: '3rem 1rem 6rem 1rem', borderTop: '1px solid #eee', marginTop: '3rem', backgroundColor: '#fdfdfd' }}>
                 <div className="container">
