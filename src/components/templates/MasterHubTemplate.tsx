@@ -8,9 +8,6 @@ const SafeRender = (val: any, fallback = "") => {
     if (!val) return fallback;
     if (typeof val === 'string') return val;
     if (typeof val === 'number') return String(val);
-    if (typeof val === 'object') {
-        return val.title || val.text || val.label || JSON.stringify(val);
-    }
     return String(val);
 };
 
@@ -38,11 +35,11 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     );
     const lang = campaign.language === 'es' ? 'es' : 'en';
 
-    // 2. PARSE BODY CONTENT & TOC GENERATION
-    // Robust content finder: search everywhere
+    // 2. PARSE BODY CONTENT
+    // Robust content finder
     let rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
 
-    // Safety Force to String: If Array, join. If Object, try to stringify or empty.
+    // Safety Force to String
     if (Array.isArray(rawBody)) {
         rawBody = rawBody.join('');
     } else if (typeof rawBody === 'object') {
@@ -51,13 +48,19 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
         rawBody = String(rawBody);
     }
 
-    // Helpers (ROBUST VERSION)
+    // Markdwon Helper
     const parseMarkdown = (val: any) => {
         if (!val) return "";
         let text = val;
         if (Array.isArray(val)) text = val.join(" ");
         if (typeof text !== 'string') text = String(text);
-        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Basic Markdown Support
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/### (.*?)\n/g, '<h3>$1</h3>')
+            .replace(/## (.*?)\n/g, '<h2>$1</h2>')
+            .replace(/\n\n/g, '</p><p>');
     };
 
     const stripHtml = (val: any) => {
@@ -69,12 +72,12 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     };
 
     let featuresHtml = "";
-    const toc: { text: string; id: string }[] = []; // TOC Extraction
+    const toc: { text: string; id: string }[] = [];
 
     if (rawBody) {
         let processedBody = parseMarkdown(rawBody);
 
-        // 2a. EXTRACT TOC HEADERS (H2 only for clean TOC)
+        // EXTRACTION TOC
         const h2Regex = /<h2.*?>(.*?)<\/h2>/g;
         let match;
         while ((match = h2Regex.exec(processedBody)) !== null) {
@@ -83,62 +86,33 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
             toc.push({ text: rawText, id: anchor });
         }
 
-        // 2b. INJECT IDS & STANDARDIZE FONTS
+        // INJECTION IDS & STYLES (Clean Version without Table/KeyTakeaways nonsense)
         featuresHtml = processedBody
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-            // Inject ID into H2 and Style it
             .replace(/<h2(.*?)>(.*?)<\/h2>/g, (m: string, attrs: string, text: string) => {
                 const cleanText = text.replace(/<[^>]+>/g, '');
                 const id = cleanText.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                // FONT FIX: Medium size, bold, dark
                 return `<h2 id="${id}" style="font-size: 1.7rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; color: #111; letter-spacing: -0.02em; line-height: 1.2;">${text}</h2>`;
             })
-            // Style H3
             .replace(/<h3(.*?)>(.*?)<\/h3>/g, '<h3 style="font-size: 1.35rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #333;">$2</h3>')
-            // Style P
             .replace(/<p>/g, '<p style="margin-bottom: 1.5rem; line-height: 1.8; font-size: 1.1rem; color: #333;">')
-            // Style Lists
             .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.25rem;">')
-            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">')
-            // Style Blockquotes (New Visual Pop)
-            .replace(/<blockquote>/g, '<blockquote style="border-left: 4px solid #8b5cf6; background: #f5f3ff; padding: 1.5rem; margin: 2rem 0; font-style: italic; color: #5b21b6; border-radius: 0 8px 8px 0;">');
+            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">');
     }
 
-    // 3. TARGET AUDIENCE & KEY TAKEAWAYS (Parsing)
+    // 3. TARGET AUDIENCE (Keep this, it was working and useful)
     const targetAudienceHTML = content.targetAudience ? parseMarkdown(content.targetAudience) : null;
-    const keyTakeawaysHTML = content.keyTakeaways ? parseMarkdown(content.keyTakeaways) : null;
 
-    // 4. GRID CONTENT (Related)
+    const mainImage = campaign.imageUrl || "https://placehold.co/1200x500/111/444?text=Master+Hub";
+
+    // GRID
     const safeRelated = (relatedProducts || []).filter(p => p.slug !== currentSlug);
     const hasChildren = campaign.children && campaign.children.length > 0;
     const gridItems = hasChildren ? campaign.children : safeRelated;
     const gridTitle = hasChildren ? (lang === 'es' ? 'Guías Relacionadas' : 'Related Guides') : (lang === 'es' ? 'Artículos Destacados' : 'Featured Articles');
 
-    const mainImage = campaign.imageUrl || "https://placehold.co/1200x500/111/444?text=Master+Hub";
-
-    // 5. SEO SCHEMA (JSON-LD)
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": campaign.title || campaign.productName,
-        "description": stripHtml(campaign.description || "").substring(0, 160),
-        "image": [mainImage],
-        "datePublished": campaign.createdAt,
-        "dateModified": campaign.updatedAt || campaign.createdAt,
-        "author": [{
-            "@type": "Organization",
-            "name": "Nexus Team",
-            "url": "https://nexusguides.com"
-        }]
-    };
-
     return (
         <div style={{ fontFamily: '"Inter", "Segoe UI", sans-serif', color: '#111', background: '#fff' }}>
-            {/* RICH SNIPPETS FOR GOOGLE */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
 
             {/* HERO */}
             <section style={{ background: '#0a0a0a', color: 'white', padding: '4rem 1rem 10rem', textAlign: 'center', position: 'relative' }}>
@@ -163,25 +137,15 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
             {/* --- LAYOUT: SIDEBAR + CONTENT --- */}
             <div className="container" style={{ maxWidth: '1200px', margin: '4rem auto', padding: '0 1.5rem', display: 'flex', flexWrap: 'wrap', gap: '3rem' }}>
 
-                {/* LEFT: MAIN CONTENT (Flex Grow) */}
+                {/* LEFT: MAIN CONTENT */}
                 <main style={{ flex: '1 1 600px', minWidth: 0 }}>
 
-                    {/* 1. INTRODUCTION */}
+                    {/* INTRODUCTION */}
                     <div style={{ fontSize: '1.25rem', lineHeight: 1.7, marginBottom: '3rem', color: '#222' }}>
                         <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                     </div>
 
-                    {/* 0. KEY TAKEAWAYS (New Section - Top Priority) */}
-                    {keyTakeawaysHTML && (
-                        <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #f59e0b' }}>
-                            <h3 style={{ marginTop: 0, color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                💡 {lang === 'es' ? 'En Resumen' : 'Key Takeaways'}
-                            </h3>
-                            <div dangerouslySetInnerHTML={{ __html: keyTakeawaysHTML }} style={{ lineHeight: 1.7, color: '#92400e' }} />
-                        </div>
-                    )}
-
-                    {/* 2. TARGET AUDIENCE (New Section) */}
+                    {/* TARGET AUDIENCE (Simple Blue Box) */}
                     {targetAudienceHTML && (
                         <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #3b82f6' }}>
                             <h3 style={{ marginTop: 0, color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -191,52 +155,10 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         </div>
                     )}
 
-                    {/* 2b. COMPARISON TABLE (Robust Renderer) */}
-                    {content.comparisonTable && (
-                        <div style={{ marginBottom: '4rem', overflowX: 'auto' }}>
-                            <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem' }}>
-                                {lang === 'es' ? 'Comparativa Rápida' : 'Quick Comparison'}
-                            </h3>
-                            {Array.isArray(content.comparisonTable) ? (
-                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
-                                    <thead>
-                                        <tr style={{ background: '#111', color: 'white', borderBottom: '2px solid #000' }}>
-                                            {Object.keys(content.comparisonTable[0] || {}).map((key) => (
-                                                <th key={key} style={{ padding: '1rem', textAlign: 'left', fontWeight: 600, textTransform: 'capitalize', fontSize: '0.9rem' }}>
-                                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {content.comparisonTable.map((row: any, idx: number) => (
-                                            <tr key={idx} style={{ borderBottom: '1px solid #eee', background: idx % 2 === 0 ? '#fff' : '#f9fafb' }}>
-                                                {Object.values(row).map((val: any, i) => (
-                                                    <td key={i} style={{ padding: '1rem', color: '#333', fontSize: '0.95rem' }}>{SafeRender(val)}</td>
-                                                ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            ) : (
-                                <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: parseMarkdown(String(content.comparisonTable))
-                                            .replace(/\|(.+)\|/g, (match: string) => match)
-                                            .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
-                                            .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
-                                            .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
-                                    }}
-                                    style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}
-                                />
-                            )}
-                        </div>
-                    )}
-
-                    {/* 3. ARTICLE BODY */}
+                    {/* ARTICLE BODY (CLEAN) */}
                     {featuresHtml && <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />}
 
-                    {/* 4. VERDICT */}
+                    {/* VERDICT */}
                     {content.verdict && (
                         <div style={{ marginTop: '4rem', padding: '2.5rem', background: '#f0fdf4', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
                             <h2 style={{ marginTop: 0, color: '#166534' }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
@@ -262,13 +184,6 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                                         </a>
                                     </li>
                                 ))}
-                                {content.verdict && (
-                                    <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee', fontWeight: 600 }}>
-                                        <a href="#" style={{ textDecoration: 'none', color: '#16a34a' }}>
-                                            {toc.length + 1}. {lang === 'es' ? 'Conclusión' : 'Verdict'}
-                                        </a>
-                                    </li>
-                                )}
                             </ul>
                         </div>
                     </div>
