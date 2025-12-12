@@ -49,7 +49,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     const stripHtml = (html: string) => (!html ? "" : html.replace(/<[^>]*>/g, ""));
 
     let featuresHtml = "";
-    const toc = []; // TOC Extraction
+    const toc: { text: string; id: string }[] = []; // TOC Extraction
 
     if (typeof rawBody === 'string') {
         let processedBody = parseMarkdown(rawBody);
@@ -151,9 +151,6 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
 
                 {/* RIGHT: STICKY SIDEBAR (TOC) */}
                 <aside style={{ flex: '0 0 300px', display: 'none', position: 'relative' }}>
-                    {/* We use a media query trick via JS style or assume desktop for now. Will add display: block via CSS class if possible, but inline we can just default to hidden on small? 
-                         Actually, let's use a simple responsive trick: pure CSS for sticky.
-                         We'll hide it on small screens using a specialized wrapper or simple logic.*/}
                     <div style={{ position: 'sticky', top: '2rem', display: toc.length > 0 ? 'block' : 'none' }}>
                         <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #eee' }}>
                             <h4 style={{ marginTop: 0, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', color: '#888' }}>
@@ -172,7 +169,8 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                                 {content.verdict && (
                                     <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee', fontWeight: 600 }}>
                                         <a href="#" style={{ textDecoration: 'none', color: '#16a34a' }}>
-                                            {match ? (toc.length + 1) : 8}. {lang === 'es' ? 'Conclusión' : 'Verdict'}
+                                            {/* FIX: Removed undefined 'match' variable */}
+                                            {toc.length + 1}. {lang === 'es' ? 'Conclusión' : 'Verdict'}
                                         </a>
                                     </li>
                                 )}
