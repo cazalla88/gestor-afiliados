@@ -221,6 +221,33 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
             {/* TEST 2: FEATURES */}
             <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>⚠️ No features content found.</p>" }} />
+
+            {/* TEST 3: CLUSTER CONTENT */}
+            {campaign.children && campaign.children.length > 0 && (
+                <section style={{ marginTop: '4rem', padding: '1rem', borderTop: '2px solid #333' }}>
+                    <h2 style={{ color: '#fff' }}>Cluster Content (Children)</h2>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                        {campaign.children.map((child: any) => (
+                            <Link key={child.slug} href={`/${campaign.category}/${child.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <div style={{ background: '#222', padding: '1rem', borderRadius: '8px' }}>
+                                    {child.imageUrl && (
+                                        <div style={{ marginBottom: '1rem' }}>
+                                            {/* SAFETY: Ensure alt is string */}
+                                            <img
+                                                src={child.imageUrl}
+                                                alt={SafeRender(child.title)}
+                                                style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }}
+                                            />
+                                        </div>
+                                    )}
+                                    <h3 style={{ color: '#fff', fontSize: '1.1rem' }}>{SafeRender(child.title)}</h3>
+                                    <p style={{ color: '#aaa', fontSize: '0.9rem' }}>{SafeRender(child.description)}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }
