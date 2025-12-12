@@ -936,9 +936,22 @@ export async function getAllCampaigns() {
 
 export async function deleteCampaign(slug: string) {
   try {
-    await prisma.campaign.delete({
-      where: { slug }
-    });
+    // 1. First find the campaign to get its ID (safer than relation query for updateMany sometimes)
+    const campaign = await prisma.campaign.findUnique({ where: { slug }, select: { id: true } });
+
+    if (campaign) {
+      // 2. Unlink any children (orphans) - Preventive Step
+      await prisma.campaign.updateMany({
+        where: { parentId: campaign.id },
+        data: { parentId: null }
+      });
+
+      // 3. Now delete safely
+      await prisma.campaign.delete({
+        where: { slug }
+      });
+    }
+
     return { success: true };
   } catch (error: any) {
     console.error("Delete Error:", error);
