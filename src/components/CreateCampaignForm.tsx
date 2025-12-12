@@ -9,6 +9,7 @@ import { generateSeoContent, debugAiConnection, createCampaign, updateCampaign, 
 import { CATEGORIES, type CategorySlug } from "@/lib/categories";
 import LandingTemplate from "@/components/templates/LandingTemplate";
 import BlogTemplate from "@/components/templates/BlogTemplate";
+import MasterHubTemplate from "@/components/templates/MasterHubTemplate";
 
 interface CreateCampaignFormProps {
     editSlug?: string;
@@ -244,6 +245,12 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
                 {formData.type === 'landing' ? (
                     <LandingTemplate
                         product={previewData}
+                        currentSlug="preview"
+                        relatedProducts={[]}
+                    />
+                ) : (formData.type === 'hub_principal' || formData.type === 'subhub') ? (
+                    <MasterHubTemplate
+                        campaign={previewData}
                         currentSlug="preview"
                         relatedProducts={[]}
                     />
