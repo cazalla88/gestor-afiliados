@@ -474,15 +474,28 @@ function safeJsonParse(text: string, fallbackName: string, language: 'en' | 'es'
     throw new Error("No JSON braces");
   } catch (e) {
     console.warn("⚠️ JSON Parse failed. Engaging Emergency Regex Extraction...");
-    // 2. Emergency Regex Extraction
-    // We manually hunt for keys even if syntax is broken
+    // 2. Emergency Regex Extraction (The "Jaws of Life")
+    // Use [\s\S]*? for non-greedy multiline matching
     const extract = (key: string) => {
-      const match = text.match(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`));
+      // Try standard JSON format "key": "value"
+      const match = text.match(new RegExp(`"${key}"\\s*:\\s*"([\\s\\S]*?)"`));
       return match ? match[1] : "";
     };
 
     const title = extract("title") || extract("optimizedTitle") || `${fallbackName} Review`;
-    const intro = extract("introduction") || extract("heroDescription") || (isEs ? "Contenido generado, revisando detalles." : "Content generated but JSON was malformed.");
+    const intro = extract("introduction") || extract("heroDescription") || (isEs ? "Contenido generado." : "Content generated.");
+
+    // NEW: Robust Body Recovery
+    let bodyContent = extract("articleBody") || extract("features") || "";
+    // If extraction failed but text exists, it might be raw markdown without JSON keys
+    if (!bodyContent && text.includes("##")) {
+      // Assume the whole text after the first big header is content
+      const headerIndex = text.indexOf("##");
+      if (headerIndex !== -1) bodyContent = text.substring(headerIndex);
+    }
+    if (!bodyContent) bodyContent = isEs ? "Error al generar contenido detallado." : "Error generating detailed content.";
+
+    const keyTakeaways = extract("keyTakeaways");
 
     // Localized Fallbacks
     const fallbackPros = isEs
@@ -492,25 +505,21 @@ function safeJsonParse(text: string, fallbackName: string, language: 'en' | 'es'
       ? ["Precio Premium", "Curva de Aprendizaje"]
       : ["Premium Price", "Learning Curve"];
     const fallbackVerdict = isEs
-      ? "En conclusión, este producto representa una opción sólida para quienes buscan calidad y rendimiento sin compromisos. Aunque su precio puede ser un factor a considerar, las prestaciones que ofrece justifican la inversión para el usuario exigente."
-      : "In conclusion, this product represents a solid choice for those seeking quality and performance without compromise.";
+      ? "En conclusión, este producto es una opción sólida. La IA generó este resumen básico."
+      : "In conclusion, this product is a solid choice. AI generated this basic summary.";
 
     // Construct a safe fallback object
     return {
       title: title,
-      heroDescription: extract("heroDescription") || title,
       introduction: intro,
       targetAudience: extract("targetAudience") || (isEs ? "Público General" : "General Audience"),
-      quantitativeAnalysis: "8.5/10", // Clean Score
+      keyTakeaways: keyTakeaways, // Now we rescue the card!
+      quantitativeAnalysis: "8.5/10",
       pros: fallbackPros,
       cons: fallbackCons,
-      features: extract("features") || (isEs ? "Características Estándar" : "Standard Features"),
-      comparisonTable: [
-        { name: fallbackName, price: "€€€", rating: 8.8, mainFeature: isEs ? "Rendimiento" : "Performance" },
-        { name: isEs ? "Alternativa" : "Alternative", price: "€€", rating: 7.5, mainFeature: isEs ? "Precio" : "Price" }
-      ],
-      internalLinks: [],
-      verdict: extract("verdict") || fallbackVerdict
+      features: bodyContent, // Map articleBody to features for Frontend compatibility
+      verdict: extract("verdict") || fallbackVerdict,
+      comparisonTable: []
     };
   }
 }
