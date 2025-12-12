@@ -183,35 +183,36 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         </div>
                     )}
 
-                    {/* TARGET AUDIENCE (Premium Card Design) */}
+                    {/* TARGET AUDIENCE (Premium Card Design - Matching Style) */}
                     {targetAudienceHTML && (
                         <div style={{
                             background: '#ffffff',
                             borderRadius: '12px',
                             padding: '2rem',
                             marginBottom: '3rem',
-                            borderLeft: '6px solid #2563eb', // Vivid Blue Accent
-                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)', // Elegant Shadow
+                            borderLeft: '6px solid #2563eb', // Royal Blue Accent
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
                             border: '1px solid #f3f4f6'
                         }}>
                             <h3 style={{
                                 marginTop: 0,
-                                color: '#111827',
+                                color: '#1e40af', // Dark Blue for Text
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.75rem',
                                 fontSize: '1.25rem',
                                 fontWeight: 700,
-                                letterSpacing: '-0.01em'
+                                textTransform: 'uppercase', // MATCHING UPPERCASE STYLE
+                                letterSpacing: '0.05em'
                             }}>
                                 <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                                {lang === 'es' ? '¿Para quién es realmente esto?' : 'Who is this really for?'}
+                                {lang === 'es' ? '¿PARA QUIÉN ES REALMENTE ESTO?' : 'WHO IS THIS REALLY FOR?'}
                             </h3>
                             <div
                                 dangerouslySetInnerHTML={{ __html: targetAudienceHTML }}
                                 style={{
                                     lineHeight: 1.8,
-                                    color: '#4b5563',
+                                    color: '#1e3a8a', // Darker Blue Text Body
                                     fontSize: '1.05rem',
                                     marginTop: '1rem'
                                 }}
