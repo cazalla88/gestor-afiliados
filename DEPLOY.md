@@ -120,9 +120,9 @@ En Vercel Dashboard > Settings > Environment Variables, añade:
 
 ```env
 # Google AI (OBLIGATORIO)
-NEXT_PUBLIC_GEMINI_API_KEY=AIza...tu_key_aqui
+NEXT_PUBLIC_GEMINI_API_KEY=YOUR_KEY_HERE
 # O alternativamente:
-GOOGLE_API_KEY=AIza...tu_key_aqui
+GOOGLE_API_KEY=YOUR_KEY_HERE
 
 # Seguridad (USA LOS GENERADOS)
 ADMIN_USER=admin
