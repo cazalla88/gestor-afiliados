@@ -285,17 +285,9 @@ export async function generateSeoContent(
         "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong> The most important thing...</li><li><strong>Takeaway 2:</strong> Don't forget...</li><li><strong>Takeaway 3:</strong> The smart choice is...</li></ul>",
 
         "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with a powerful hook. Ex: 'Buying a ${productName} used to be simple. Now it's a minefield...' (Write 300+ words of context & authority).</p>",
-        "features": [
-           // CRITICAL: GENERATE MINIMUM 6 SECTIONS. 
-           // LENGTH: 400-600 WORDS PER SECTION. 
-           // STYLE: Use bolding for emphasis. Use short paragraphs for readability.
-           "<h2>1. Define tu presupuesto: La cruda realidad</h2><p>Hablemos claro de dinero... (Explain Entry vs Mid vs High range with brutal honesty. 500 words)</p>",
-           "<h2>2. Dime para qué lo usas (Perfiles)</h2><p>No existe el 'mejor' ${productName}, existe el mejor para TI... (Create 4 distinct profiles. 500 words)</p>",
-           "<h2>3. La Gran Batalla: Opción A vs Opción B</h2><p>La eterna duda... (Analyze the main technology split in this niche. 500 words)</p>",
-           "<h2>4. Specs que importan (y cuáles ignorar)</h2><p>Los fabricantes quieren confundirte con números... (Deep dive into technical specs. 500 words)</p>",
-           "<h2>5. Errores de novato que te costarán caros</h2><p>He visto a mucha gente equivocarse en esto... (List 5 critical mistakes. 400 words)</p>",
-           "<h2>6. Preguntas Frecuentes (FAQ)</h2><p><strong>¿Pregunta Real 1?</strong><br>Respuesta directa y experta...</p><p><strong>¿Pregunta Real 2?</strong><br>Respuesta directa y experta...</p> (3-4 Q&A pairs)."
-        ],
+
+        
+        "articleBody": "## 1. Budget: The Truth\nWrite 400 words about budget...\n\n## 2. Profiles\nWrite 400 words about users...\n\n## 3. The Battle\nWrite comparison...\n\n## 4. Specs\nWrite technical details...\n\n## 5. Mistakes\nWrite common errors...\n\n## 6. FAQ\nQ: ...?\nA: ...",
 
         "verdict": "<p><strong>Veredicto del Editor (2026):</strong> Después de analizar el mercado, mi conclusión es clara. Si priorizas A, ve a por X. No gastes de más en Y. (Write a 200-word strategic closing summary. Make a stand).</p>",
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",

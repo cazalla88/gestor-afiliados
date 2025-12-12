@@ -223,11 +223,41 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                     {/* ARTICLE BODY (CLEAN) */}
                     {featuresHtml && <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />}
 
-                    {/* VERDICT */}
+                    {/* VERDICT (Premium Green Card Design) */}
                     {content.verdict && (
-                        <div style={{ marginTop: '4rem', padding: '2.5rem', background: '#f0fdf4', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
-                            <h2 style={{ marginTop: 0, color: '#166534' }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
-                            <div dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }} style={{ fontSize: '1.15rem', lineHeight: 1.7, color: '#14532d' }} />
+                        <div style={{
+                            marginTop: '4rem',
+                            background: '#ffffff',
+                            borderRadius: '12px',
+                            padding: '2rem',
+                            marginBottom: '3rem',
+                            borderLeft: '6px solid #16a34a', // Green-600 Accent
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h2 style={{
+                                marginTop: 0,
+                                color: '#15803d', // Green-700
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                fontSize: '1.25rem',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>🏁</span>
+                                {lang === 'es' ? 'VEREDICTO FINAL' : 'FINAL VERDICT'}
+                            </h2>
+                            <div
+                                dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }}
+                                style={{
+                                    lineHeight: 1.8,
+                                    color: '#14532d', // Deep Green Text
+                                    fontSize: '1.05rem',
+                                    marginTop: '1rem'
+                                }}
+                            />
                         </div>
                     )}
                 </main>
