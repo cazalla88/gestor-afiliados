@@ -5,7 +5,7 @@ import BlogTemplate from '@/components/templates/BlogTemplate';
 import MasterHubTemplate from '@/components/templates/MasterHubTemplate';
 import LandingTemplate from '@/components/templates/LandingTemplate';
 
-export const dynamic = 'force_dynamic';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
     const { category, slug } = await params;
