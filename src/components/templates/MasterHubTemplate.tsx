@@ -79,11 +79,14 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
             .replace(/<p>/g, '<p style="margin-bottom: 1.5rem; line-height: 1.8; font-size: 1.1rem; color: #333;">')
             // Style Lists
             .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.25rem;">')
-            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">');
+            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">')
+            // Style Blockquotes (New Visual Pop)
+            .replace(/<blockquote>/g, '<blockquote style="border-left: 4px solid #8b5cf6; background: #f5f3ff; padding: 1.5rem; margin: 2rem 0; font-style: italic; color: #5b21b6; border-radius: 0 8px 8px 0;">');
     }
 
-    // 3. TARGET AUDIENCE (Parsing)
+    // 3. TARGET AUDIENCE & KEY TAKEAWAYS (Parsing)
     const targetAudienceHTML = content.targetAudience ? parseMarkdown(content.targetAudience) : null;
+    const keyTakeawaysHTML = content.keyTakeaways ? parseMarkdown(content.keyTakeaways) : null;
 
     // 4. GRID CONTENT (Related)
     const safeRelated = (relatedProducts || []).filter(p => p.slug !== currentSlug);
@@ -148,6 +151,16 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                     </div>
 
+                    {/* 0. KEY TAKEAWAYS (New Section - Top Priority) */}
+                    {keyTakeawaysHTML && (
+                        <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #f59e0b' }}>
+                            <h3 style={{ marginTop: 0, color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                💡 {lang === 'es' ? 'En Resumen' : 'Key Takeaways'}
+                            </h3>
+                            <div dangerouslySetInnerHTML={{ __html: keyTakeawaysHTML }} style={{ lineHeight: 1.7, color: '#92400e' }} />
+                        </div>
+                    )}
+
                     {/* 2. TARGET AUDIENCE (New Section) */}
                     {targetAudienceHTML && (
                         <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #3b82f6' }}>
@@ -167,14 +180,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                             <div
                                 dangerouslySetInnerHTML={{
                                     __html: parseMarkdown(content.comparisonTable)
-                                        // Simple Markdown Table to HTML conversion if needed
-                                        .replace(/\|(.+)\|/g, (match) => {
-                                            // Crude conversion: split by | and wrap in td/th
-                                            // Realistically, we'd need a robust parser, but many LLMs output HTML tables if asked.
-                                            // If it's pure text, let's just wrap it in a pre-styled div for now unless it's proper HTML.
-                                            return match;
-                                        })
-                                        // If AI returns HTML <table>, style it
+                                        .replace(/\|(.+)\|/g, (match) => match) // Placeholder for more complex parsing
                                         .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
                                         .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
                                         .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
@@ -182,7 +188,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                                 style={{
                                     border: '1px solid #e5e7eb',
                                     borderRadius: '12px',
-                                    overflow: 'hidden' // contain corners
+                                    overflow: 'hidden'
                                 }}
                             />
                         </div>
@@ -220,7 +226,6 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                                 {content.verdict && (
                                     <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee', fontWeight: 600 }}>
                                         <a href="#" style={{ textDecoration: 'none', color: '#16a34a' }}>
-                                            {/* FIX: Removed undefined 'match' variable */}
                                             {toc.length + 1}. {lang === 'es' ? 'Conclusión' : 'Verdict'}
                                         </a>
                                     </li>
@@ -236,7 +241,6 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         aside { display: block !important; }
                     }
                 `}</style>
-
             </div>
 
             {/* RELATED GRID */}
