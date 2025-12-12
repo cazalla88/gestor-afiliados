@@ -393,52 +393,65 @@ export async function generateSeoContent(
   console.log("🔐 DEBUG: Using Google Key:", googleKey ? "YES" : "NO", "Groq Key:", groqKey ? "YES" : "NO");
 
   // --- PHASE 1: TRY GOOGLE GEMINI (Priority with Multi-Key Failover) ---
-  if (googleKey) {
-    // Split keys by comma to support rotation
-    const apiKeys = googleKey.split(',').map(k => k.trim()).filter(k => k.length > 0);
+  // SECURITY UPDATE: Using Server-Side Pool (GEMINI_API_KEYS_POOL)
+  // This prevents keys from being exposed in NEXT_PUBLIC_ client bundles.
+  const serverPool = process.env.GEMINI_API_KEYS_POOL || process.env.GOOGLE_API_KEY;
+  const publicKeys = googleKey; // Fallback from function args
 
-    const googleModels = [
-      "gemini-1.5-flash",           // <--- MOST STABLE & FASTEST (Primary)
-      "gemini-1.5-pro",             // High Quality Backup
-    ];
+  // Combine keys (Server > Public)
+  const allKeysSource = serverPool ? `${serverPool},${publicKeys || ''}` : publicKeys;
 
-    // KEY ROTATION LOOP
-    for (const currentKey of apiKeys) {
-      console.log(`🔑 Testing API Key: ...${currentKey.slice(-4)}`);
+  if (allKeysSource) {
+    // Split keys by comma & Clean up
+    const apiKeys = allKeysSource.split(',').map(k => k.trim()).filter(k => k.length > 0 && !k.includes("YOUR_KEY"));
+    const uniqueKeys = Array.from(new Set(apiKeys));
 
-      for (const modelName of googleModels) {
-        try {
-          console.log(`🤖 Trying Google Model: ${modelName} `);
-          const genAI = new GoogleGenerativeAI(currentKey);
-          const model = genAI.getGenerativeModel({
-            model: modelName,
-            generationConfig: { responseMimeType: "application/json" }
-          });
+    if (uniqueKeys.length === 0) {
+      console.error("❌ No valid API Keys found in POOL. Check Vercel Env Vars.");
+    } else {
+      const googleModels = [
+        "gemini-1.5-flash",           // Primary
+        "gemini-1.5-pro",             // Backup
+      ];
 
-          const result = await model.generateContent(prompt);
-          const response = await result.response;
-          let text = response.text();
+      // KEY ROTATION LOOP
+      for (const currentKey of uniqueKeys) {
+        // Obfuscate log
+        const safeKeyLog = "..." + currentKey.slice(-4);
+        console.log(`🔑 Testing API Key: ${safeKeyLog}`);
 
-          // Clean and Parse
-          text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-          return JSON.parse(text); // SUCCESS! Return result.
+        for (const modelName of googleModels) {
+          try {
+            console.log(`🤖 Trying Google Model: ${modelName} `);
+            const genAI = new GoogleGenerativeAI(currentKey);
+            const model = genAI.getGenerativeModel({
+              model: modelName,
+              generationConfig: { responseMimeType: "application/json" }
+            });
 
-        } catch (error: any) {
-          console.warn(`❌ Google ${modelName} failed with Key ...${currentKey.slice(-4)}: ${error.message}`);
-          lastError = `Google Error: ${error.message}`;
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            let text = response.text();
 
-          // If Quota Error (429), break model loop to Switch Key immediately
-          if (error.message.includes('429') || error.message.includes('Quota')) {
-            console.warn("⚠️ Quota Exceeded. Switching API Key...");
-            break; // Exit model loop -> Next Key
+            // Clean and Parse
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(text); // SUCCESS! Return result.
+
+          } catch (error: any) {
+            console.warn(`❌ Google ${modelName} failed with Key ${safeKeyLog}: ${error.message}`);
+            lastError = `Google Error: ${error.message}`;
+
+            // If Quota Error (429) or Forbidden (403), switch key
+            if (error.message.includes('429') || error.message.includes('Quota') || error.message.includes('403')) {
+              console.warn(`⚠️ Key ${safeKeyLog} Exhausted. Switching to next key...`);
+              break; // Exit model loop -> Next Key
+            }
           }
-          // If not quota error (e.g. overload), maybe try next model with same key? 
-          // Continue inner loop...
         }
       }
     }
   } else {
-    console.log("ℹ️ No Google API Key found. Skipping to Groq...");
+    console.log("ℹ️ No Google API Keys found. Skipping to Groq...");
   }
 
   // --- PHASE 2: TRY GROQ (Fallback/Alternative) ---
