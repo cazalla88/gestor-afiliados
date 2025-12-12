@@ -576,7 +576,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
 
             {/* CLUSTER CONTENT (HUB CHILDREN) */}
-            {campaign.children && campaign.children.length > 0 && (
+            {/* CLUSTER DISABLED */ false && campaign.children && campaign.children.length > 0 && (
                 <section className="container" style={{ margin: '4rem auto', maxWidth: '1200px', padding: '0 1rem' }}>
                     <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem', borderLeft: '4px solid #7c3aed', paddingLeft: '1rem' }}>
                         {lang === 'es' ? `Explora más en esta Guía` : `More in this Guide`}
