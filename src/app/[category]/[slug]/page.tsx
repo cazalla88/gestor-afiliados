@@ -1,12 +1,11 @@
-
-
 import { getCampaign, getCampaignsByCategory } from "@/app/actions";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from 'next';
-import LandingTemplate from "@/components/templates/LandingTemplate";
-import BlogTemplate from "@/components/templates/BlogTemplate";
+import BlogTemplate from '@/components/templates/BlogTemplate';
+import MasterHubTemplate from '@/components/templates/MasterHubTemplate';
+import LandingTemplate from '@/components/templates/LandingTemplate';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force_dynamic';
 
 export async function generateMetadata({ params }: { params: any }): Promise<Metadata> {
     const { category, slug } = await params;
@@ -137,6 +136,47 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
     // Fetch related products for internal linking
     const relatedProducts = await getCampaignsByCategory(product.category || 'general', 5);
 
+    // 4. Render Template based on Type
+    // NEW: Use MasterHubTemplate for Main Hubs strictly
+    if (product.type === 'hub_principal') {
+        return (
+            <>
+                {jsonLd && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    />
+                )}
+                <MasterHubTemplate
+                    campaign={product}
+                    currentSlug={slug}
+                />
+            </>
+        );
+    }
+
+    // Existing Blog/Subhub Logic
+    if (product.type === 'blog' || product.type === 'subhub') {
+        return (
+            <>
+                {jsonLd && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    />
+                )}
+                <BlogTemplate
+                    campaign={product}
+                    currentSlug={slug}
+                    relatedProducts={relatedProducts}
+                />
+            </>
+        );
+    }
+
+    // Assume it's a 'landing' type if not caught above
+    const isLanding = product.type === 'landing';
+
     return (
         <>
             {jsonLd && (
@@ -145,16 +185,16 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
                 />
             )}
-            {/* ROUTING LOGIC: Blog, Hub, Subhub -> BlogTemplate | Landing -> LandingTemplate */}
-            {['blog', 'hub_principal', 'subhub'].includes(product.type) ? (
-                <BlogTemplate
-                    campaign={product}
+            {isLanding ? (
+                <LandingTemplate
+                    product={product}
                     currentSlug={slug}
                     relatedProducts={relatedProducts}
                 />
             ) : (
-                <LandingTemplate
-                    product={product}
+                // Fallback (should have been caught above)
+                <BlogTemplate
+                    campaign={product}
                     currentSlug={slug}
                     relatedProducts={relatedProducts}
                 />
