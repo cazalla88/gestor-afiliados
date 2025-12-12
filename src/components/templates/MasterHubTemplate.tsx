@@ -68,31 +68,14 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
 
         featuresHtml = processedBody
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "") // Anti-XSS básico
-            .replace(/<h2>/g, '<h2 style="font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1.5rem; color: #111; font-family: inherit;">')
-            .replace(/<h3>/g, '<h3 style="font-size: 1.4rem; margin-top: 2rem; margin-bottom: 1rem; color: #333; font-family: inherit;">')
-            .replace(/<p>/g, '<p style="margin-bottom: 1.2rem; line-height: 1.8; font-size: 1.05rem; color: #444; font-family: inherit;">')
-            .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; font-family: inherit;">')
-            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6;">');
+            .replace(/<h2>/g, '<h2 style="font-size: 1.75rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; color: #111; letter-spacing: -0.02em; line-height: 1.2;">')
+            .replace(/<h3>/g, '<h3 style="font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #222; letter-spacing: -0.01em; line-height: 1.3;">')
+            .replace(/<p>/g, '<p style="margin-bottom: 1.5rem; line-height: 1.75; font-size: 1.05rem; color: #333;">')
+            .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.2rem;">')
+            .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">');
     }
 
-    // 3. Extract Headers for TOC (Table of Contents)
-    const toc = [];
-    const h2Regex = /<h2.*?>(.*?)<\/h2>/g;
-    let match;
-    while ((match = h2Regex.exec(featuresHtml)) !== null) {
-        // Simple slugify for anchor
-        const anchor = match[1].replace(/<[^>]+>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        // Inject ID into HTML (This is a bit hacky on compiled HTML, but works for display)
-        // Ideally we'd do this before Replace, but let's do Client Side Scroll or just simple list for now
-        toc.push(match[1].replace(/<[^>]+>/g, ''));
-    }
-
-    // We need to inject IDs into the HTML to make anchors work, but for now let's just show the list as "Structure"
-    // Better: Add IDs to the replaced H2s above
-    featuresHtml = featuresHtml.replace(/<h2(.*?)>(.*?)<\/h2>/g, (m, p1, p2) => {
-        const id = p2.replace(/<[^>]+>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        return `<h2 id="${id}"${p1}>${p2}</h2>`;
-    });
+    // TOC REMOVED AS REQUESTED
 
     // 3. Determine Grid Content (Children vs Related Fallback)
     // Filter out current page from related products just in case
@@ -117,7 +100,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
             <section style={{
                 background: '#0a0a0a',
                 color: 'white',
-                padding: '4rem 1rem 6rem',
+                padding: '4rem 1rem 8rem',
                 textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden'
@@ -136,74 +119,68 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                     <h1 style={{
                         fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
                         fontWeight: 800,
-                        lineHeight: 1.2,
+                        lineHeight: 1.15,
                         marginBottom: '2rem',
-                        letterSpacing: '-0.02em'
+                        letterSpacing: '-0.03em'
                     }}>
                         {SafeRender(campaign.title || campaign.productName)}
                     </h1>
 
-                    <div style={{ maxWidth: '800px', margin: '0 auto 3rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', color: '#aaa', fontSize: '0.9rem' }}>
+                        <span>By <strong style={{ color: '#fff' }}>Nexus Team</strong></span>
+                        <span>•</span>
+                        <span>{date}</span>
+                    </div>
+
+                </div>
+
+                {/* Background Gradient */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'radial-gradient(circle at 50% 0%, #222 0%, #0a0a0a 70%)', zIndex: 1 }}></div>
+            </section>
+
+            {/* HERO IMAGE (OVERLAPPING) */}
+            <div className="container" style={{ maxWidth: '1000px', margin: '-6rem auto 0', position: 'relative', zIndex: 3, padding: '0 1rem' }}>
+                <div style={{
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+                    background: '#222',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                    {mainImage ? (
                         <img
                             src={mainImage}
                             alt={SafeRender(campaign.title)}
                             style={{ width: '100%', height: 'auto', display: 'block' }}
                         />
-                    </div>
+                    ) : (
+                        <div style={{ color: '#555', fontSize: '1.5rem', fontWeight: 600, padding: '4rem', textAlign: 'center' }}>No Image Available</div>
+                    )}
                 </div>
-            </section>
+            </div>
 
             {/* MAIN CONTENT */}
-            <main className="container" style={{ maxWidth: '800px', margin: '-4rem auto 0', padding: '0 1.5rem 4rem', position: 'relative', zIndex: 10 }}>
-                <div style={{ background: 'white', borderRadius: '16px', padding: '3rem', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+            <main className="container" style={{ maxWidth: '800px', margin: '4rem auto 0', padding: '0 1.5rem 4rem', position: 'relative', zIndex: 10 }}>
 
-                    {/* TABLE OF CONTENTS (New) */}
-                    {toc.length > 0 && (
-                        <div style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '12px', marginBottom: '3rem', border: '1px solid #e9ecef' }}>
-                            <h3 style={{ marginTop: 0, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#888' }}>
-                                {lang === 'es' ? 'En este artículo' : 'In this guide'}
-                            </h3>
-                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                {toc.map((item, i) => {
-                                    const anchor = item.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                                    return (
-                                        <li key={i} style={{ marginBottom: '0.5rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
-                                            <a href={`#${anchor}`} style={{ textDecoration: 'none', color: '#2563eb', fontWeight: 500 }}>
-                                                {item}
-                                            </a>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* 1. INTRODUCTION */}
-                    <div style={{ fontSize: '1.15rem', lineHeight: 1.8, marginBottom: '4rem', color: '#222', fontFamily: 'inherit' }}>
-                        {/* Parse intro markdown too just in case */}
-                        <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
-                    </div>
-
-                    {/* DEBUG: DUMP CONTENT KEYS */}
-                    {/* <div style={{ background: '#eee', padding: '1rem', marginBottom: '2rem', fontSize: '0.7rem', overflow: 'auto' }}>
-                        <strong>DEBUG DATA (Remove later):</strong>
-                        <pre>{JSON.stringify(content, null, 2)}</pre>
-                    </div> */}
-
-                    {/* 2. FEATURES / ARTICLE BODY */}
-                    {featuresHtml && (
-                        <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />
-                    )}
-
-                    {/* 3. VERDICT / CONCLUSION (New) */}
-                    {content.verdict && (
-                        <div style={{ marginTop: '4rem', padding: '2rem', background: '#f0fdf4', borderRadius: '12px', borderLeft: '5px solid #16a34a' }}>
-                            <h2 style={{ marginTop: 0, color: '#166534' }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
-                            <div dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }} style={{ fontSize: '1.1rem', lineHeight: 1.7 }} />
-                        </div>
-                    )}
-
+                {/* 1. INTRODUCTION */}
+                <div style={{ fontSize: '1.15rem', lineHeight: 1.7, marginBottom: '3rem', color: '#333', fontFamily: 'inherit' }}>
+                    {/* Parse intro markdown too just in case */}
+                    <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                 </div>
+
+                {/* 2. FEATURES / ARTICLE BODY */}
+                {featuresHtml && (
+                    <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />
+                )}
+
+                {/* 3. VERDICT / CONCLUSION */}
+                {content.verdict && (
+                    <div style={{ marginTop: '4rem', padding: '2.5rem', background: '#f0fdf4', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
+                        <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#166534', fontSize: '1.6rem', fontWeight: 700 }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
+                        <div dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }} style={{ fontSize: '1.1rem', lineHeight: 1.7, color: '#14532d' }} />
+                    </div>
+                )}
+
             </main>
 
             {/* CLUSTER / CHILDREN SECTION */}
