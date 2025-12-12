@@ -39,6 +39,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     const lang = campaign.language === 'es' ? 'es' : 'en';
 
     // 2. PARSE BODY CONTENT & TOC GENERATION
+    // Robust content finder: search everywhere
     let rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
 
     // Safety Force to String: If Array, join. If Object, try to stringify or empty.
@@ -190,26 +191,45 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         </div>
                     )}
 
-                    {/* 2b. COMPARISON TABLE (New Visual) */}
+                    {/* 2b. COMPARISON TABLE (Robust Renderer) */}
                     {content.comparisonTable && (
                         <div style={{ marginBottom: '4rem', overflowX: 'auto' }}>
                             <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem' }}>
                                 {lang === 'es' ? 'Comparativa Rápida' : 'Quick Comparison'}
                             </h3>
-                            <div
-                                dangerouslySetInnerHTML={{
-                                    __html: parseMarkdown(content.comparisonTable)
-                                        .replace(/\|(.+)\|/g, (match: string) => match) // Placeholder for more complex parsing
-                                        .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
-                                        .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
-                                        .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
-                                }}
-                                style={{
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden'
-                                }}
-                            />
+                            {Array.isArray(content.comparisonTable) ? (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <thead>
+                                        <tr style={{ background: '#111', color: 'white', borderBottom: '2px solid #000' }}>
+                                            {Object.keys(content.comparisonTable[0] || {}).map((key) => (
+                                                <th key={key} style={{ padding: '1rem', textAlign: 'left', fontWeight: 600, textTransform: 'capitalize', fontSize: '0.9rem' }}>
+                                                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {content.comparisonTable.map((row: any, idx: number) => (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #eee', background: idx % 2 === 0 ? '#fff' : '#f9fafb' }}>
+                                                {Object.values(row).map((val: any, i) => (
+                                                    <td key={i} style={{ padding: '1rem', color: '#333', fontSize: '0.95rem' }}>{SafeRender(val)}</td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: parseMarkdown(String(content.comparisonTable))
+                                            .replace(/\|(.+)\|/g, (match: string) => match)
+                                            .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
+                                            .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
+                                            .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
+                                    }}
+                                    style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}
+                                />
+                            )}
                         </div>
                     )}
 
