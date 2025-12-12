@@ -716,19 +716,27 @@ export async function createCampaign(data: any) {
     // === AUTO-IMAGE FETCHING END ===
     console.log("🔍 DEBUG: Final Gallery Count:", galleryImages.length);
 
-    // BACKUP STRATEGY: Save images in content JSON too
-    const contentData = {
-      introduction: data.introduction,
-      targetAudience: data.targetAudience,
-      quantitativeAnalysis: data.quantitativeAnalysis,
-      features: data.features,
-      pros: data.pros,
-      cons: data.cons,
-      comparisonTable: data.comparisonTable,
-      verdict: data.verdict,
-      internalLinks: data.internalLinks,
-      galleryImagesBackup: galleryImages // <--- Backup here
-    };
+    // BACKUP STRATEGY: Prefer explicit 'content' object from client, fallback to manual extraction
+    let contentData: any = {};
+
+    if (data.content && typeof data.content === 'object' && !Array.isArray(data.content)) {
+      contentData = { ...data.content };
+    } else {
+      contentData = {
+        introduction: data.introduction,
+        targetAudience: data.targetAudience,
+        quantitativeAnalysis: data.quantitativeAnalysis,
+        features: data.features,
+        pros: data.pros,
+        cons: data.cons,
+        comparisonTable: data.comparisonTable,
+        verdict: data.verdict,
+        internalLinks: data.internalLinks
+      };
+    }
+
+    // Always attach image backup
+    contentData.galleryImagesBackup = galleryImages;
 
     let campaign;
     try {
@@ -809,17 +817,25 @@ export async function updateCampaign(slug: string, data: any) {
         description: data.heroDescription || data.description || data.introduction?.substring(0, 160) || "",
         affiliateLink: data.affiliateLink,
         imageUrl: data.imageUrl,
-        content: JSON.stringify({
-          introduction: data.introduction,
-          targetAudience: data.targetAudience,
-          quantitativeAnalysis: data.quantitativeAnalysis,
-          features: data.features,
-          pros: data.pros,
-          cons: data.cons,
-          comparisonTable: data.comparisonTable,
-          verdict: data.verdict,
-          galleryImagesBackup: galleryImagesBackup // <--- SAVE IT
-        }),
+        content: JSON.stringify((() => {
+          let contentToSave: any = {};
+          if (data.content && typeof data.content === 'object' && !Array.isArray(data.content)) {
+            contentToSave = { ...data.content };
+          } else {
+            contentToSave = {
+              introduction: data.introduction,
+              targetAudience: data.targetAudience,
+              quantitativeAnalysis: data.quantitativeAnalysis,
+              features: data.features,
+              pros: data.pros,
+              cons: data.cons,
+              comparisonTable: data.comparisonTable,
+              verdict: data.verdict,
+            };
+          }
+          contentToSave.galleryImagesBackup = galleryImagesBackup;
+          return contentToSave;
+        })()),
       }
     });
 
