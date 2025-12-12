@@ -93,8 +93,29 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
 
     const mainImage = campaign.imageUrl || "https://placehold.co/1200x500/111/444?text=Master+Hub";
 
+    // 5. SEO SCHEMA (JSON-LD)
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": campaign.title || campaign.productName,
+        "description": stripHtml(campaign.description || "").substring(0, 160),
+        "image": [mainImage],
+        "datePublished": campaign.createdAt,
+        "dateModified": campaign.updatedAt || campaign.createdAt,
+        "author": [{
+            "@type": "Organization",
+            "name": "Nexus Team",
+            "url": "https://nexusguides.com"
+        }]
+    };
+
     return (
         <div style={{ fontFamily: '"Inter", "Segoe UI", sans-serif', color: '#111', background: '#fff' }}>
+            {/* RICH SNIPPETS FOR GOOGLE */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
 
             {/* HERO */}
             <section style={{ background: '#0a0a0a', color: 'white', padding: '4rem 1rem 10rem', textAlign: 'center', position: 'relative' }}>
@@ -134,6 +155,36 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                                 🎯 {lang === 'es' ? '¿Para quién es esto?' : 'Who is this for?'}
                             </h3>
                             <div dangerouslySetInnerHTML={{ __html: targetAudienceHTML }} style={{ lineHeight: 1.7, color: '#1e3a8a' }} />
+                        </div>
+                    )}
+
+                    {/* 2b. COMPARISON TABLE (New Visual) */}
+                    {content.comparisonTable && (
+                        <div style={{ marginBottom: '4rem', overflowX: 'auto' }}>
+                            <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem' }}>
+                                {lang === 'es' ? 'Comparativa Rápida' : 'Quick Comparison'}
+                            </h3>
+                            <div
+                                dangerouslySetInnerHTML={{
+                                    __html: parseMarkdown(content.comparisonTable)
+                                        // Simple Markdown Table to HTML conversion if needed
+                                        .replace(/\|(.+)\|/g, (match) => {
+                                            // Crude conversion: split by | and wrap in td/th
+                                            // Realistically, we'd need a robust parser, but many LLMs output HTML tables if asked.
+                                            // If it's pure text, let's just wrap it in a pre-styled div for now unless it's proper HTML.
+                                            return match;
+                                        })
+                                        // If AI returns HTML <table>, style it
+                                        .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
+                                        .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
+                                        .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
+                                }}
+                                style={{
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '12px',
+                                    overflow: 'hidden' // contain corners
+                                }}
+                            />
                         </div>
                     )}
 
