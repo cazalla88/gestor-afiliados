@@ -284,13 +284,12 @@ export async function generateSeoContent(
         "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
         "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong> The most important thing...</li><li><strong>Takeaway 2:</strong> Don't forget...</li><li><strong>Takeaway 3:</strong> The smart choice is...</li></ul>",
 
-        "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with a powerful hook. Ex: 'Buying a ${productName} used to be simple. Now it's a minefield...' (Write 300+ words of context & authority).</p>",
-
+        "introduction": "<p><strong>(DO NOT REPEAT TITLE).</strong> Start with hook. Context & authority (300 words).</p>",
         
-        "articleBody": "## 1. Budget: The Truth\nWrite 400 words about budget...\n\n## 2. Profiles\nWrite 400 words about users...\n\n## 3. The Battle\nWrite comparison...\n\n## 4. Specs\nWrite technical details...\n\n## 5. Mistakes\nWrite common errors...\n\n## 6. FAQ\nQ: ...?\nA: ...",
+        "articleBody": "## 1. Budget\n(Explain ranges. 400w)\n\n## 2. Profiles\n(User types. 400w)\n\n## 3. The Battle\n(Comparison. 500w)\n\n## 4. Specs\n(Tech deep dive. 500w)\n\n## 5. Mistakes\n(Common errors. 400w)\n\n## 6. FAQ\n(3 Q&A pairs)",
 
-        "verdict": "<p><strong>Veredicto del Editor (2026):</strong> Después de analizar el mercado, mi conclusión es clara. Si priorizas A, ve a por X. No gastes de más en Y. (Write a 200-word strategic closing summary. Make a stand).</p>",
-        "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
+        "verdict": "<p><strong>Veredicto (2026):</strong> Final summary. (200 words).</p>",
+        "targetAudience": "Target audience summary.",
         "internalLinks": [
           { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
           { "anchorText": "${productName} Gama Alta", "slug": "gama-alta", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
