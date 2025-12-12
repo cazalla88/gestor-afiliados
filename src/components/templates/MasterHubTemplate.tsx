@@ -40,10 +40,13 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     );
     const lang = campaign.language === 'es' ? 'es' : 'en';
 
-    // 2. feature parsing robusto
+    // 2. feature parsing robusto (SEARCH IN ALL KEYS)
+    // Emergency Fallback: Buscamos el texto en cualquier propiedad probable
+    const rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
+
     let featuresHtml = "";
-    if (typeof content.features === 'string') {
-        featuresHtml = content.features
+    if (typeof rawBody === 'string') {
+        featuresHtml = rawBody
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "") // Anti-XSS básico
             .replace(/<h2>/g, '<h2 style="font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1.5rem; color: #111;">')
             .replace(/<h3>/g, '<h3 style="font-size: 1.4rem; margin-top: 2rem; margin-bottom: 1rem; color: #333;">')
