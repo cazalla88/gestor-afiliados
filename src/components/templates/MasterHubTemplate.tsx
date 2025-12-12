@@ -104,12 +104,8 @@ export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubPr
                 </div>
 
                 {/* 2. FEATURES / ARTICLE BODY */}
-                {featuresHtml ? (
+                {featuresHtml && (
                     <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />
-                ) : (
-                    <p style={{ padding: '2rem', background: '#fdf2f8', color: '#be185d', borderRadius: '8px', textAlign: 'center' }}>
-                        ✨ El contenido detallado de esta guía se está generando.
-                    </p>
                 )}
 
             </div>
@@ -165,13 +161,12 @@ export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubPr
                 </section>
             )}
 
-            {/* --- FOOTER --- */}
-            <footer style={{ backgroundColor: '#111', color: '#666', padding: '3rem 1rem', textAlign: 'center', fontSize: '0.9rem' }}>
+            {/* --- FOOTER REMOVED (Global Footer used instead) --- */}
+            {/* <footer style={{ backgroundColor: '#111', color: '#666', padding: '3rem 1rem', textAlign: 'center', fontSize: '0.9rem' }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                     <p>&copy; {new Date().getFullYear()} Nexus Guides. All rights reserved.</p>
                 </div>
-            </footer>
-
+            </footer> */}
         </article>
     );
 }
