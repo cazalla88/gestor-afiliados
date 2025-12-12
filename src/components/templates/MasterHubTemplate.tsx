@@ -199,7 +199,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                             <div
                                 dangerouslySetInnerHTML={{
                                     __html: parseMarkdown(content.comparisonTable)
-                                        .replace(/\|(.+)\|/g, (match) => match) // Placeholder for more complex parsing
+                                        .replace(/\|(.+)\|/g, (match: string) => match) // Placeholder for more complex parsing
                                         .replace(/<table/g, '<table style="width: 100%; border-collapse: collapse; margin-bottom: 1rem; border: 1px solid #eee;"')
                                         .replace(/<th/g, '<th style="background: #f9fafb; padding: 1rem; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;"')
                                         .replace(/<td/g, '<td style="padding: 1rem; border-bottom: 1px solid #eee; color: #444;"')
