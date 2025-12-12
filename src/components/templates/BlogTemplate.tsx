@@ -38,11 +38,11 @@ const LABELS = {
         by: "Por",
         whoFor: "🎯 ¿Para quién es esto?",
         score: "📊 Puntuación",
-        features: "Características Principales",
+        features: "Características Clave",
         pros: "✅ Lo Bueno",
         cons: "❌ Lo Malo",
-        comparison: "Comparativa vs Competidores",
-        verdict: "Veredicto Final",
+        comparison: "Comparativa",
+        verdict: "Veredicto",
         checkPrice: "Ver Mejor Precio para",
         buyNow: "Comprar Ahora",
         product: "Producto",
@@ -52,6 +52,17 @@ const LABELS = {
         disclaimer: "En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.",
         rights: "AffiliateNexus. Todos los derechos reservados."
     }
+};
+
+// HELPER: Prevent 500 Errors due to "Object as Child"
+const SafeRender = (val: any, fallback = "") => {
+    if (!val) return fallback;
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number') return String(val);
+    if (typeof val === 'object') {
+        return val.title || val.text || val.label || JSON.stringify(val);
+    }
+    return String(val);
 };
 
 export default function BlogTemplate({ campaign, currentSlug, relatedProducts, isEditable, onImageUpdate }: BlogTemplateProps) {
@@ -231,7 +242,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                             <span className={styles.date}>{date}</span>
                         </div>
 
-                        <h1 className={styles.heroTitle} style={{ maxWidth: '1000px', margin: '0 auto 1.5rem auto' }}>{campaign.title}</h1>
+                        <h1 className={styles.heroTitle} style={{ maxWidth: '1000px', margin: '0 auto 1.5rem auto' }}>{SafeRender(campaign.title)}</h1>
 
                         <div className={styles.author}>
                             <div className={styles.avatar} style={{ background: '#111', color: '#fff' }}>N</div>
@@ -585,9 +596,9 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                         <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 'bold', letterSpacing: '0.5px' }}>
                                             {child.type === 'subhub' ? '📚 GUIDE' : '📝 REVIEW'}
                                         </span>
-                                        <h3 style={{ fontSize: '1.1rem', margin: '0.5rem 0', fontWeight: '600', lineHeight: '1.3' }}>{child.title}</h3>
+                                        <h3 style={{ fontSize: '1.1rem', margin: '0.5rem 0', fontWeight: '600', lineHeight: '1.3' }}>{SafeRender(child.title)}</h3>
                                         <p style={{ fontSize: '0.9rem', color: '#666', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                            {child.description}
+                                            {SafeRender(child.description)}
                                         </p>
                                     </div>
                                 </div>
