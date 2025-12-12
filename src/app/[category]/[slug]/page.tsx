@@ -150,6 +150,7 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
                 <MasterHubTemplate
                     campaign={product}
                     currentSlug={slug}
+                    relatedProducts={relatedProducts} // Fallback content
                 />
             </>
         );

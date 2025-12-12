@@ -16,11 +16,12 @@ const SafeRender = (val: any, fallback = "") => {
 };
 
 interface MasterHubProps {
-    campaign: any; // Usamos any para ser flexibles con la data que viene de Prisma/Mongo
+    campaign: any;
     currentSlug: string;
+    relatedProducts?: any[];
 }
 
-export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubProps) {
+export default function MasterHubTemplate({ campaign, currentSlug, relatedProducts }: MasterHubProps) {
     // 1. Extracción Segura de Datos
     const content = campaign.content || {};
     const date = new Date(campaign.updatedAt || campaign.createdAt).toLocaleDateString(
@@ -40,6 +41,21 @@ export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubPr
             .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">')
             .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6;">');
     }
+
+    // 3. Determine Grid Content (Children vs Related Fallback)
+    // Filter out current page from related products just in case
+    const safeRelated = (relatedProducts || []).filter(p => p.slug !== currentSlug);
+    const hasChildren = campaign.children && campaign.children.length > 0;
+
+    // If we have children, use them. If not, use generic related products from category.
+    const gridItems = hasChildren ? campaign.children : safeRelated;
+    const gridTitle = hasChildren
+        ? (lang === 'es' ? 'Guías Relacionadas' : 'Related Guides')
+        : (lang === 'es' ? 'Artículos Destacados' : 'Featured Articles');
+    const labelText = hasChildren
+        ? (lang === 'es' ? 'Explora en profundidad' : 'Deep Dive')
+        : (lang === 'es' ? 'Más sobre este tema' : 'More on this topic');
+
 
     return (
         <article style={{ fontFamily: 'Inter, sans-serif', color: '#333', backgroundColor: '#fff' }}>
@@ -110,21 +126,21 @@ export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubPr
 
             </div>
 
-            {/* --- CLUSTER SECTION (SUB-GUIDES) --- */}
-            {campaign.children && campaign.children.length > 0 && (
+            {/* --- CLUSTER SECTION (SUB-GUIDES OR RELATED) --- */}
+            {gridItems && gridItems.length > 0 && (
                 <section style={{ backgroundColor: '#f8f9fa', padding: '5rem 1rem' }}>
                     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
                         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                             <span style={{ color: '#7c3aed', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.9rem' }}>
-                                {lang === 'es' ? 'Explora en profundidad' : 'Deep Dive'}
+                                {labelText}
                             </span>
                             <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', color: '#111' }}>
-                                {lang === 'es' ? 'Guías Relacionadas' : 'Related Guides'}
+                                {gridTitle}
                             </h2>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-                            {campaign.children.map((child: any) => (
+                            {gridItems.map((child: any) => (
                                 <Link key={child.slug} href={`/${campaign.category}/${child.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                                     <div style={{
                                         backgroundColor: '#fff',
@@ -147,10 +163,10 @@ export default function MasterHubTemplate({ campaign, currentSlug }: MasterHubPr
                                         </div>
                                         <div style={{ padding: '1.5rem' }}>
                                             <h3 style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0 0 0.5rem 0', lineHeight: 1.3 }}>
-                                                {SafeRender(child.title)}
+                                                {SafeRender(child.title || child.productName)}
                                             </h3>
                                             <p style={{ fontSize: '0.95rem', color: '#666', lineHeight: 1.6, margin: 0 }}>
-                                                {SafeRender(child.description)}
+                                                {SafeRender(child.description).slice(0, 100)}...
                                             </p>
                                         </div>
                                     </div>
