@@ -392,36 +392,49 @@ export async function generateSeoContent(
   console.log("📝 DEBUG: Prompt Preview:", prompt.substring(0, 500) + "...");
   console.log("🔐 DEBUG: Using Google Key:", googleKey ? "YES" : "NO", "Groq Key:", groqKey ? "YES" : "NO");
 
-  // --- PHASE 1: TRY GOOGLE GEMINI (Priority) ---
+  // --- PHASE 1: TRY GOOGLE GEMINI (Priority with Multi-Key Failover) ---
   if (googleKey) {
-    // PRIORITY CHANGE: Use 1.5-flash ONLY as primary to avoid 404s on experimental models
+    // Split keys by comma to support rotation
+    const apiKeys = googleKey.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
     const googleModels = [
       "gemini-1.5-flash",           // <--- MOST STABLE & FASTEST (Primary)
       "gemini-1.5-pro",             // High Quality Backup
-      "gemini-2.0-flash"            // Experimental (Try last)
     ];
 
-    for (const modelName of googleModels) {
-      try {
-        console.log(`🤖 Trying Google Model: ${modelName} `);
-        const genAI = new GoogleGenerativeAI(googleKey);
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          generationConfig: { responseMimeType: "application/json" }
-        });
+    // KEY ROTATION LOOP
+    for (const currentKey of apiKeys) {
+      console.log(`🔑 Testing API Key: ...${currentKey.slice(-4)}`);
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let text = response.text();
+      for (const modelName of googleModels) {
+        try {
+          console.log(`🤖 Trying Google Model: ${modelName} `);
+          const genAI = new GoogleGenerativeAI(currentKey);
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: { responseMimeType: "application/json" }
+          });
 
-        // Clean and Parse
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(text); // SUCCESS! Return result.
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          let text = response.text();
 
-      } catch (error: any) {
-        console.warn(`❌ Google ${modelName} failed: ${error.message}`);
-        lastError = `Google Error: ${error.message}`;
-        // Continue to next Google model...
+          // Clean and Parse
+          text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+          return JSON.parse(text); // SUCCESS! Return result.
+
+        } catch (error: any) {
+          console.warn(`❌ Google ${modelName} failed with Key ...${currentKey.slice(-4)}: ${error.message}`);
+          lastError = `Google Error: ${error.message}`;
+
+          // If Quota Error (429), break model loop to Switch Key immediately
+          if (error.message.includes('429') || error.message.includes('Quota')) {
+            console.warn("⚠️ Quota Exceeded. Switching API Key...");
+            break; // Exit model loop -> Next Key
+          }
+          // If not quota error (e.g. overload), maybe try next model with same key? 
+          // Continue inner loop...
+        }
       }
     }
   } else {
