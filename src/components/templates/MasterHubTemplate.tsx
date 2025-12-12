@@ -2,9 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Campaign } from '@prisma/client';
 
-// --- SAFE RENDER HELPER (Crucial para evitar Crash 500) ---
+// --- SAFE RENDER HELPER ---
 const SafeRender = (val: any, fallback = "") => {
     if (!val) return fallback;
     if (typeof val === 'string') return val;
@@ -22,9 +21,8 @@ interface MasterHubProps {
 }
 
 export default function MasterHubTemplate({ campaign, currentSlug, relatedProducts }: MasterHubProps) {
-    // 1. Extracción Segura de Datos
+    // 1. DATA PREPARATION
     let content = campaign.content || {};
-    // FIX: Prisma returns 'content' as a String if defined as such in schema, must parse manually
     if (typeof content === 'string') {
         try {
             content = JSON.parse(content);
@@ -40,175 +38,176 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     );
     const lang = campaign.language === 'es' ? 'es' : 'en';
 
-    // 2. feature parsing robusto (SEARCH IN ALL KEYS + HANDLE ARRAY)
-    // Emergency Fallback: Buscamos el texto en cualquier propiedad probable
+    // 2. PARSE BODY CONTENT & TOC GENERATION
     let rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
-
-    // FIX: If AI returns an array of sections (common in Hub prompt), join them
     if (Array.isArray(rawBody)) {
         rawBody = rawBody.join('');
     }
 
-    // HELPER: Convert Markdown bold to HTML bold if AI messed up
-    const parseMarkdown = (text: string) => {
-        if (!text) return "";
-        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    };
-
-    // HELPER: Strip HTML tags for clean card text
-    const stripHtml = (html: string) => {
-        if (!html) return "";
-        return html.replace(/<[^>]*>/g, "");
-    };
+    // Helpers
+    const parseMarkdown = (text: string) => (!text ? "" : text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
+    const stripHtml = (html: string) => (!html ? "" : html.replace(/<[^>]*>/g, ""));
 
     let featuresHtml = "";
+    const toc = []; // TOC Extraction
+
     if (typeof rawBody === 'string') {
-        // Parse Markdown first
         let processedBody = parseMarkdown(rawBody);
 
+        // 2a. EXTRACT TOC HEADERS (H2 only for clean TOC)
+        const h2Regex = /<h2.*?>(.*?)<\/h2>/g;
+        let match;
+        while ((match = h2Regex.exec(processedBody)) !== null) {
+            const rawText = match[1].replace(/<[^>]+>/g, '');
+            const anchor = rawText.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            toc.push({ text: rawText, id: anchor });
+        }
+
+        // 2b. INJECT IDS & STANDARDIZE FONTS
         featuresHtml = processedBody
-            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "") // Anti-XSS básico
-            .replace(/<h2>/g, '<h2 style="font-size: 1.75rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; color: #111; letter-spacing: -0.02em; line-height: 1.2;">')
-            .replace(/<h3>/g, '<h3 style="font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #222; letter-spacing: -0.01em; line-height: 1.3;">')
-            .replace(/<p>/g, '<p style="margin-bottom: 1.5rem; line-height: 1.75; font-size: 1.05rem; color: #333;">')
-            .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.2rem;">')
+            .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+            // Inject ID into H2 and Style it
+            .replace(/<h2(.*?)>(.*?)<\/h2>/g, (m, attrs, text) => {
+                const cleanText = text.replace(/<[^>]+>/g, '');
+                const id = cleanText.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                // FONT FIX: Medium size, bold, dark
+                return `<h2 id="${id}" style="font-size: 1.7rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; color: #111; letter-spacing: -0.02em; line-height: 1.2;">${text}</h2>`;
+            })
+            // Style H3
+            .replace(/<h3(.*?)>(.*?)<\/h3>/g, '<h3 style="font-size: 1.35rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #333;">$2</h3>')
+            // Style P
+            .replace(/<p>/g, '<p style="margin-bottom: 1.5rem; line-height: 1.8; font-size: 1.1rem; color: #333;">')
+            // Style Lists
+            .replace(/<ul>/g, '<ul style="margin-bottom: 1.5rem; padding-left: 1.25rem;">')
             .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">');
     }
 
-    // TOC REMOVED AS REQUESTED
+    // 3. TARGET AUDIENCE (Parsing)
+    const targetAudienceHTML = content.targetAudience ? parseMarkdown(content.targetAudience) : null;
 
-    // 3. Determine Grid Content (Children vs Related Fallback)
-    // Filter out current page from related products just in case
+    // 4. GRID CONTENT (Related)
     const safeRelated = (relatedProducts || []).filter(p => p.slug !== currentSlug);
     const hasChildren = campaign.children && campaign.children.length > 0;
-
-    // If we have children, use them. If not, use generic related products from category.
     const gridItems = hasChildren ? campaign.children : safeRelated;
-    const gridTitle = hasChildren
-        ? (lang === 'es' ? 'Guías Relacionadas' : 'Related Guides')
-        : (lang === 'es' ? 'Artículos Destacados' : 'Featured Articles');
-    const labelText = hasChildren
-        ? (lang === 'es' ? 'Explora en profundidad' : 'Deep Dive')
-        : (lang === 'es' ? 'Más sobre este tema' : 'More on this topic');
+    const gridTitle = hasChildren ? (lang === 'es' ? 'Guías Relacionadas' : 'Related Guides') : (lang === 'es' ? 'Artículos Destacados' : 'Featured Articles');
 
     const mainImage = campaign.imageUrl || "https://placehold.co/1200x500/111/444?text=Master+Hub";
 
     return (
         <div style={{ fontFamily: '"Inter", "Segoe UI", sans-serif', color: '#111', background: '#fff' }}>
 
-            {/* HERO SECTION */}
-            <section style={{
-                background: '#0a0a0a',
-                color: 'white',
-                padding: '4rem 1rem 8rem',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
+            {/* HERO */}
+            <section style={{ background: '#0a0a0a', color: 'white', padding: '4rem 1rem 10rem', textAlign: 'center', position: 'relative' }}>
                 <div className="container" style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-
-                    {/* BREADCRUMBS */}
-                    <nav aria-label="Breadcrumb" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Link href={`/`} style={{ textDecoration: 'none', color: '#888' }}>Home</Link>
-                        <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>/</span>
-                        <span style={{ color: '#fff', fontWeight: 500 }}>
-                            {SafeRender(campaign.category).charAt(0).toUpperCase() + SafeRender(campaign.category).slice(1)}
-                        </span>
+                    <nav style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: '2rem' }}>
+                        <span style={{ textTransform: 'uppercase', letterSpacing: '1px' }}>{campaign.category}</span>
                     </nav>
-
-                    <h1 style={{
-                        fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
-                        fontWeight: 800,
-                        lineHeight: 1.15,
-                        marginBottom: '2rem',
-                        letterSpacing: '-0.03em'
-                    }}>
+                    <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '2rem' }}>
                         {SafeRender(campaign.title || campaign.productName)}
                     </h1>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', color: '#aaa', fontSize: '0.9rem' }}>
-                        <span>By <strong style={{ color: '#fff' }}>Nexus Team</strong></span>
-                        <span>•</span>
-                        <span>{date}</span>
-                    </div>
-
+                    <div style={{ color: '#aaa', fontSize: '0.9rem' }}>By <strong style={{ color: '#fff' }}>Nexus Team</strong> • {date}</div>
                 </div>
-
-                {/* Background Gradient */}
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'radial-gradient(circle at 50% 0%, #222 0%, #0a0a0a 70%)', zIndex: 1 }}></div>
             </section>
 
-            {/* HERO IMAGE (OVERLAPPING) */}
-            <div className="container" style={{ maxWidth: '1000px', margin: '-6rem auto 0', position: 'relative', zIndex: 3, padding: '0 1rem' }}>
-                <div style={{
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-                    background: '#222',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                }}>
-                    {mainImage ? (
-                        <img
-                            src={mainImage}
-                            alt={SafeRender(campaign.title)}
-                            style={{ width: '100%', height: 'auto', display: 'block' }}
-                        />
-                    ) : (
-                        <div style={{ color: '#555', fontSize: '1.5rem', fontWeight: 600, padding: '4rem', textAlign: 'center' }}>No Image Available</div>
-                    )}
+            {/* HERO IMAGE */}
+            <div className="container" style={{ maxWidth: '1000px', margin: '-8rem auto 0', position: 'relative', zIndex: 3, padding: '0 1rem' }}>
+                <div style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', background: '#222' }}>
+                    <img src={mainImage} alt={campaign.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
                 </div>
             </div>
 
-            {/* MAIN CONTENT */}
-            <main className="container" style={{ maxWidth: '800px', margin: '4rem auto 0', padding: '0 1.5rem 4rem', position: 'relative', zIndex: 10 }}>
+            {/* --- LAYOUT: SIDEBAR + CONTENT --- */}
+            <div className="container" style={{ maxWidth: '1200px', margin: '4rem auto', padding: '0 1.5rem', display: 'flex', flexWrap: 'wrap', gap: '3rem' }}>
 
-                {/* 1. INTRODUCTION */}
-                <div style={{ fontSize: '1.15rem', lineHeight: 1.7, marginBottom: '3rem', color: '#333', fontFamily: 'inherit' }}>
-                    {/* Parse intro markdown too just in case */}
-                    <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
-                </div>
+                {/* LEFT: MAIN CONTENT (Flex Grow) */}
+                <main style={{ flex: '1 1 600px', minWidth: 0 }}>
 
-                {/* 2. FEATURES / ARTICLE BODY */}
-                {featuresHtml && (
-                    <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />
-                )}
-
-                {/* 3. VERDICT / CONCLUSION */}
-                {content.verdict && (
-                    <div style={{ marginTop: '4rem', padding: '2.5rem', background: '#f0fdf4', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
-                        <h2 style={{ marginTop: 0, marginBottom: '1rem', color: '#166534', fontSize: '1.6rem', fontWeight: 700 }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
-                        <div dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }} style={{ fontSize: '1.1rem', lineHeight: 1.7, color: '#14532d' }} />
+                    {/* 1. INTRODUCTION */}
+                    <div style={{ fontSize: '1.25rem', lineHeight: 1.7, marginBottom: '3rem', color: '#222' }}>
+                        <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                     </div>
-                )}
 
-            </main>
-
-            {/* CLUSTER / CHILDREN SECTION */}
-            {gridItems && gridItems.length > 0 && (
-                <section style={{ backgroundColor: '#f8f9fa', padding: '5rem 1rem' }}>
-                    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 800, letterSpacing: '2px', color: '#8b5cf6', textTransform: 'uppercase' }}>{labelText}</span>
-                            <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', fontWeight: 800 }}>{gridTitle}</h2>
+                    {/* 2. TARGET AUDIENCE (New Section) */}
+                    {targetAudienceHTML && (
+                        <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #3b82f6' }}>
+                            <h3 style={{ marginTop: 0, color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                🎯 {lang === 'es' ? '¿Para quién es esto?' : 'Who is this for?'}
+                            </h3>
+                            <div dangerouslySetInnerHTML={{ __html: targetAudienceHTML }} style={{ lineHeight: 1.7, color: '#1e3a8a' }} />
                         </div>
+                    )}
 
+                    {/* 3. ARTICLE BODY */}
+                    {featuresHtml && <div dangerouslySetInnerHTML={{ __html: featuresHtml }} />}
+
+                    {/* 4. VERDICT */}
+                    {content.verdict && (
+                        <div style={{ marginTop: '4rem', padding: '2.5rem', background: '#f0fdf4', borderRadius: '16px', border: '1px solid #bbf7d0' }}>
+                            <h2 style={{ marginTop: 0, color: '#166534' }}>{lang === 'es' ? 'Veredicto Final' : 'Final Verdict'}</h2>
+                            <div dangerouslySetInnerHTML={{ __html: parseMarkdown(content.verdict) }} style={{ fontSize: '1.15rem', lineHeight: 1.7, color: '#14532d' }} />
+                        </div>
+                    )}
+                </main>
+
+                {/* RIGHT: STICKY SIDEBAR (TOC) */}
+                <aside style={{ flex: '0 0 300px', display: 'none', position: 'relative' }}>
+                    {/* We use a media query trick via JS style or assume desktop for now. Will add display: block via CSS class if possible, but inline we can just default to hidden on small? 
+                         Actually, let's use a simple responsive trick: pure CSS for sticky.
+                         We'll hide it on small screens using a specialized wrapper or simple logic.*/}
+                    <div style={{ position: 'sticky', top: '2rem', display: toc.length > 0 ? 'block' : 'none' }}>
+                        <div style={{ background: '#fff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <h4 style={{ marginTop: 0, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.9rem', color: '#888' }}>
+                                {lang === 'es' ? 'Análisis' : 'Analysis'}
+                            </h4>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {toc.map((item, i) => (
+                                    <li key={i} style={{ marginBottom: '0.75rem', fontSize: '0.95rem', lineHeight: 1.4 }}>
+                                        <a href={`#${item.id}`} style={{ textDecoration: 'none', color: '#444', transition: 'color 0.2s', display: 'block' }}
+                                            onMouseEnter={(e) => e.currentTarget.style.color = '#2563eb'}
+                                            onMouseLeave={(e) => e.currentTarget.style.color = '#444'}>
+                                            {i + 1}. {item.text}
+                                        </a>
+                                    </li>
+                                ))}
+                                {content.verdict && (
+                                    <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee', fontWeight: 600 }}>
+                                        <a href="#" style={{ textDecoration: 'none', color: '#16a34a' }}>
+                                            {match ? (toc.length + 1) : 8}. {lang === 'es' ? 'Conclusión' : 'Verdict'}
+                                        </a>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+                {/* HACK: Enable Sidebar only on Desktop via style injection */}
+                <style jsx>{`
+                    aside { display: none !important; }
+                    @media (min-width: 1024px) {
+                        aside { display: block !important; }
+                    }
+                `}</style>
+
+            </div>
+
+            {/* RELATED GRID */}
+            {gridItems && gridItems.length > 0 && (
+                <section style={{ backgroundColor: '#f8f9fa', padding: '5rem 0' }}>
+                    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+                        <h2 style={{ fontSize: '2rem', fontWeight: 800, textAlign: 'center', marginBottom: '3rem' }}>{gridTitle}</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
                             {gridItems.map((child: any) => (
-                                <a key={child.slug} href={`/${child.category || 'general'}/${child.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', transition: 'transform 0.2s', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }} className="hover-card">
-                                    <div style={{ height: '200px', overflow: 'hidden', background: '#f0f0f0' }}>
-                                        {child.imageUrl ? (
-                                            <img src={child.imageUrl} alt={child.title || child.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        ) : (
-                                            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)' }} />
-                                        )}
+                                <Link key={child.slug} href={`/${child.category || 'general'}/${child.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', height: '100%' }}>
+                                        <div style={{ height: '200px', background: '#eee' }}>
+                                            {child.imageUrl && <img src={child.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                                        </div>
+                                        <div style={{ padding: '1.5rem' }}>
+                                            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.2rem' }}>{SafeRender(child.title || child.productName)}</h3>
+                                            <p style={{ fontSize: '0.9rem', color: '#666' }}>{stripHtml(child.description || "").slice(0, 80)}...</p>
+                                        </div>
                                     </div>
-                                    <div style={{ padding: '1.5rem' }}>
-                                        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>{SafeRender(child.title || child.productName)}</h3>
-                                        <p style={{ fontSize: '0.95rem', color: '#666', lineHeight: 1.5 }}>
-                                            {SafeRender(child.description ? stripHtml(child.description).substring(0, 100) + '...' : (lang === 'es' ? 'Leer guía completa...' : 'Read full guide...'))}
-                                        </p>
-                                    </div>
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </div>
