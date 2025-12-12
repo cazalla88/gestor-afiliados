@@ -96,6 +96,9 @@ export default function CreateCampaignForm({ editSlug }: CreateCampaignFormProps
             // SPREAD FIRST so explicit fields below overwrite accidental AI hallucinations
             ...generatedBlogData,
 
+            // EXPLICITLY SAVE CONTENT JSON
+            content: generatedBlogData,
+
             id: slug,
             type: formData.type, // FORCE TYPE from selector
             productName: formData.productName,
