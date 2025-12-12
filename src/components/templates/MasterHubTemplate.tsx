@@ -145,13 +145,39 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                         <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                     </div>
 
-                    {/* TARGET AUDIENCE (Simple Blue Box) */}
+                    {/* TARGET AUDIENCE (Premium Card Design) */}
                     {targetAudienceHTML && (
-                        <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', borderLeft: '4px solid #3b82f6' }}>
-                            <h3 style={{ marginTop: 0, color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                🎯 {lang === 'es' ? '¿Para quién es esto?' : 'Who is this for?'}
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: '12px',
+                            padding: '2rem',
+                            marginBottom: '3rem',
+                            borderLeft: '6px solid #2563eb', // Vivid Blue Accent
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)', // Elegant Shadow
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h3 style={{
+                                marginTop: 0,
+                                color: '#111827',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                fontSize: '1.25rem',
+                                fontWeight: 700,
+                                letterSpacing: '-0.01em'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>🎯</span>
+                                {lang === 'es' ? '¿Para quién es realmente esto?' : 'Who is this really for?'}
                             </h3>
-                            <div dangerouslySetInnerHTML={{ __html: targetAudienceHTML }} style={{ lineHeight: 1.7, color: '#1e3a8a' }} />
+                            <div
+                                dangerouslySetInnerHTML={{ __html: targetAudienceHTML }}
+                                style={{
+                                    lineHeight: 1.8,
+                                    color: '#4b5563',
+                                    fontSize: '1.05rem',
+                                    marginTop: '1rem'
+                                }}
+                            />
                         </div>
                     )}
 
