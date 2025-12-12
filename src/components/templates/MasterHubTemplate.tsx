@@ -100,8 +100,9 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
             .replace(/<li>/g, '<li style="margin-bottom: 0.5rem; line-height: 1.6; color: #333;">');
     }
 
-    // 3. TARGET AUDIENCE (Keep this, it was working and useful)
+    // 3. TARGET AUDIENCE & KEY TAKEAWAYS
     const targetAudienceHTML = content.targetAudience ? parseMarkdown(content.targetAudience) : null;
+    const keyTakeawaysHTML = content.keyTakeaways ? parseMarkdown(content.keyTakeaways) : null;
 
     const mainImage = campaign.imageUrl || "https://placehold.co/1200x500/111/444?text=Master+Hub";
 
@@ -144,6 +145,43 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                     <div style={{ fontSize: '1.25rem', lineHeight: 1.7, marginBottom: '3rem', color: '#222' }}>
                         <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
                     </div>
+
+                    {/* KEY TAKEAWAYS (Premium Card Design) */}
+                    {keyTakeawaysHTML && (
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: '12px',
+                            padding: '2rem',
+                            marginBottom: '3rem',
+                            borderLeft: '6px solid #d97706', // Amber-600 Accent
+                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h3 style={{
+                                marginTop: 0,
+                                color: '#b45309',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                fontSize: '1.25rem',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>💡</span>
+                                {lang === 'es' ? 'En Resumen: Lo Vital' : 'Key Takeaways'}
+                            </h3>
+                            <div
+                                dangerouslySetInnerHTML={{ __html: keyTakeawaysHTML }}
+                                style={{
+                                    lineHeight: 1.8,
+                                    color: '#78350f', // Amber-900 for text
+                                    fontSize: '1.05rem',
+                                    marginTop: '1rem'
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* TARGET AUDIENCE (Premium Card Design) */}
                     {targetAudienceHTML && (
