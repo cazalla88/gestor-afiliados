@@ -40,9 +40,14 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     );
     const lang = campaign.language === 'es' ? 'es' : 'en';
 
-    // 2. feature parsing robusto (SEARCH IN ALL KEYS)
+    // 2. feature parsing robusto (SEARCH IN ALL KEYS + HANDLE ARRAY)
     // Emergency Fallback: Buscamos el texto en cualquier propiedad probable
-    const rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
+    let rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
+
+    // FIX: If AI returns an array of sections (common in Hub prompt), join them
+    if (Array.isArray(rawBody)) {
+        rawBody = rawBody.join('');
+    }
 
     let featuresHtml = "";
     if (typeof rawBody === 'string') {
