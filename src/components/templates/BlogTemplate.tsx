@@ -220,7 +220,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
             <div dangerouslySetInnerHTML={{ __html: campaign.description || "" }} />
 
             {/* TEST 2: FEATURES */}
-            {/* <div dangerouslySetInnerHTML={{ __html: featuresHtml || "" }} /> */}
+            <div dangerouslySetInnerHTML={{ __html: featuresHtml || "<p>⚠️ No features content found.</p>" }} />
         </div>
     );
 }
