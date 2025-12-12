@@ -86,7 +86,7 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
         featuresHtml = processedBody
             .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
             // Inject ID into H2 and Style it
-            .replace(/<h2(.*?)>(.*?)<\/h2>/g, (m, attrs, text) => {
+            .replace(/<h2(.*?)>(.*?)<\/h2>/g, (m: string, attrs: string, text: string) => {
                 const cleanText = text.replace(/<[^>]+>/g, '');
                 const id = cleanText.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                 // FONT FIX: Medium size, bold, dark
