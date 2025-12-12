@@ -40,18 +40,37 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
 
     // 2. PARSE BODY CONTENT & TOC GENERATION
     let rawBody = content.features || content.articleBody || content.body || content.text || content.content || "";
+
+    // Safety Force to String: If Array, join. If Object, try to stringify or empty.
     if (Array.isArray(rawBody)) {
         rawBody = rawBody.join('');
+    } else if (typeof rawBody === 'object') {
+        rawBody = JSON.stringify(rawBody);
+    } else {
+        rawBody = String(rawBody);
     }
 
-    // Helpers
-    const parseMarkdown = (text: string) => (!text ? "" : text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
-    const stripHtml = (html: string) => (!html ? "" : html.replace(/<[^>]*>/g, ""));
+    // Helpers (ROBUST VERSION)
+    const parseMarkdown = (val: any) => {
+        if (!val) return "";
+        let text = val;
+        if (Array.isArray(val)) text = val.join(" ");
+        if (typeof text !== 'string') text = String(text);
+        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    };
+
+    const stripHtml = (val: any) => {
+        if (!val) return "";
+        let text = val;
+        if (Array.isArray(val)) text = val.join(" ");
+        if (typeof text !== 'string') text = String(text);
+        return text.replace(/<[^>]*>/g, "");
+    };
 
     let featuresHtml = "";
     const toc: { text: string; id: string }[] = []; // TOC Extraction
 
-    if (typeof rawBody === 'string') {
+    if (rawBody) {
         let processedBody = parseMarkdown(rawBody);
 
         // 2a. EXTRACT TOC HEADERS (H2 only for clean TOC)
