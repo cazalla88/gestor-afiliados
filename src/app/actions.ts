@@ -282,6 +282,7 @@ export async function generateSeoContent(
       {
         "title": "The Definitive Guide to ${productName} in 2026: What you really need",
         "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
+        "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong> The most important thing...</li><li><strong>Takeaway 2:</strong> Don't forget...</li><li><strong>Takeaway 3:</strong> The smart choice is...</li></ul>",
         "introduction": "<p><strong>(DO NOT REPEAT THE TITLE HERE).</strong> Start directly with a powerful hook. Ex: 'Buying a ${productName} used to be simple. Now it's a minefield...' (Write 300+ words of context & authority).</p>",
         "features": [
            // CRITICAL: GENERATE MINIMUM 6 SECTIONS. 
@@ -294,6 +295,7 @@ export async function generateSeoContent(
            "<h2>5. Errores de novato que te costarán caros</h2><p>He visto a mucha gente equivocarse en esto... (List 5 critical mistakes. 400 words)</p>",
            "<h2>6. Preguntas Frecuentes (FAQ)</h2><p><strong>¿Pregunta Real 1?</strong><br>Respuesta directa y experta...</p><p><strong>¿Pregunta Real 2?</strong><br>Respuesta directa y experta...</p> (3-4 Q&A pairs)."
         ],
+        "comparisonTable": "| Perfil/Gama | Recomendación | Precio Approx | Lo mejor |\n|---|---|---|---|\n| Económico | Modelo X | € | Batería |\n| Pro | Modelo Y | €€€ | Pantalla |",
         "verdict": "<p><strong>Veredicto del Editor (2026):</strong> Después de analizar el mercado, mi conclusión es clara. Si priorizas A, ve a por X. No gastes de más en Y. (Write a 200-word strategic closing summary. Make a stand).</p>",
         "targetAudience": "From beginners looking for their first ${productName} to enthusiasts wanting the best specs.",
         "internalLinks": [
