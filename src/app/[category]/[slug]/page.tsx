@@ -147,19 +147,11 @@ export default async function DynamicCategoryPage({ params }: { params: any }) {
             )}
             {/* ROUTING LOGIC: Blog, Hub, Subhub -> BlogTemplate | Landing -> LandingTemplate */}
             {['blog', 'hub_principal', 'subhub'].includes(product.type) ? (
-                // DEBUG: ISOLATION TEST - REPLACE BLOGTEMPLATE
-                // <BlogTemplate
-                //     campaign={product}
-                //     currentSlug={slug}
-                //     relatedProducts={relatedProducts}
-                // />
-                <div style={{ padding: '4rem', textAlign: 'center' }}>
-                    <h1>✅ DEBUG MODE: ISOLATION TEST</h1>
-                    <p>Si ves esto, el error está dentro de BlogTemplate.tsx</p>
-                    <pre style={{ textAlign: 'left', background: '#eee', padding: '1rem' }}>
-                        Type: {product.type} / Slug: {slug}
-                    </pre>
-                </div>
+                <BlogTemplate
+                    campaign={product}
+                    currentSlug={slug}
+                    relatedProducts={relatedProducts}
+                />
             ) : (
                 <LandingTemplate
                     product={product}

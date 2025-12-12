@@ -576,7 +576,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
 
 
             {/* CLUSTER CONTENT (HUB CHILDREN) */}
-            {/* CLUSTER DISABLED */ false && campaign.children && campaign.children.length > 0 && (
+            {false && campaign.children && campaign.children.length > 0 && (
                 <section className="container" style={{ margin: '4rem auto', maxWidth: '1200px', padding: '0 1rem' }}>
                     <h2 style={{ fontSize: '1.8rem', marginBottom: '2rem', borderLeft: '4px solid #7c3aed', paddingLeft: '1rem' }}>
                         {lang === 'es' ? `Explora más en esta Guía` : `More in this Guide`}
@@ -608,11 +608,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </section>
             )}
 
-            <RelatedProducts
-                currentSlug={currentSlug}
-                category={campaign.category || 'general'}
-                products={relatedProducts}
-            />
+            {/* DISABLED RELATED */}
 
             <footer style={{ textAlign: 'center', padding: '3rem 1rem 6rem 1rem', borderTop: '1px solid #eee', marginTop: '3rem', backgroundColor: '#fdfdfd' }}>
                 <div className="container">
@@ -631,7 +627,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                 </div>
             </footer>
 
-            {!isHub && (
+            {false && !isHub && (
                 <StickyBar
                     title={campaign.title}
                     price={content.comparisonTable?.[0]?.price || "€€€"}
