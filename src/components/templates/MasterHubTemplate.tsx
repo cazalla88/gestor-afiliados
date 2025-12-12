@@ -23,7 +23,17 @@ interface MasterHubProps {
 
 export default function MasterHubTemplate({ campaign, currentSlug, relatedProducts }: MasterHubProps) {
     // 1. Extracción Segura de Datos
-    const content = campaign.content || {};
+    let content = campaign.content || {};
+    // FIX: Prisma returns 'content' as a String if defined as such in schema, must parse manually
+    if (typeof content === 'string') {
+        try {
+            content = JSON.parse(content);
+        } catch (e) {
+            console.error("Error parsing MasterHub content:", e);
+            content = {};
+        }
+    }
+
     const date = new Date(campaign.updatedAt || campaign.createdAt).toLocaleDateString(
         campaign.language === 'es' ? 'es-ES' : 'en-US',
         { year: 'numeric', month: 'long', day: 'numeric' }
@@ -118,6 +128,12 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                 <div style={{ fontSize: '1.15rem', lineHeight: 1.8, marginBottom: '4rem', color: '#222' }}>
                     <div dangerouslySetInnerHTML={{ __html: campaign.description || "" }} />
                 </div>
+
+                {/* DEBUG: DUMP CONTENT KEYS */}
+                {/* <div style={{ background: '#eee', padding: '1rem', marginBottom: '2rem', fontSize: '0.7rem', overflow: 'auto' }}>
+                    <strong>DEBUG DATA (Remove later):</strong>
+                    <pre>{JSON.stringify(content, null, 2)}</pre>
+                </div> */}
 
                 {/* 2. FEATURES / ARTICLE BODY */}
                 {featuresHtml && (
