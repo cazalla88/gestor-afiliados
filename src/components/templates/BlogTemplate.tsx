@@ -229,7 +229,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                             <>
                                 <span style={{ margin: '0 0.5rem', opacity: 0.5 }}>/</span>
                                 <Link href={`/${campaign.parent.category || campaign.category}/${campaign.parent.slug}`} style={{ textDecoration: 'none', color: '#db2777', fontWeight: 600 }}>
-                                    {campaign.parent.title}
+                                    {SafeRender(campaign.parent.title)}
                                 </Link>
                             </>
                         )}
@@ -589,7 +589,7 @@ export default function BlogTemplate({ campaign, currentSlug, relatedProducts, i
                                 >
                                     {child.imageUrl && (
                                         <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
-                                            <Image src={child.imageUrl} alt={child.title || 'Post Image'} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 300px" />
+                                            <Image src={child.imageUrl} alt={SafeRender(child.title) || 'Post Image'} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 300px" />
                                         </div>
                                     )}
                                     <div style={{ padding: '1rem' }}>
