@@ -115,30 +115,31 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
     return (
         <div style={{ fontFamily: '"Inter", "Segoe UI", sans-serif', color: '#111', background: '#fff' }}>
 
-            {/* HERO */}
-            <section style={{ background: '#0a0a0a', color: 'white', padding: '6rem 1rem 3rem', textAlign: 'center' }}>
-                <div className="container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-                    <nav style={{ fontSize: '0.8rem', color: '#db2777', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1.5rem' }}>
+            {/* HERO - COMPACT & PREMIUM */}
+            <section style={{ background: '#0a0a0a', color: 'white', padding: '4rem 1rem 7rem', textAlign: 'center' }}>
+                <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <nav style={{ fontSize: '0.8rem', color: '#db2777', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1rem' }}>
                         {campaign.category || 'TECH'}
                     </nav>
                     <h1 style={{
-                        fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                        fontSize: 'clamp(1.8rem, 4vw, 3.2rem)', // COMPACT TITLE
                         fontWeight: 800,
-                        lineHeight: 1.1,
+                        lineHeight: 0.95, // TIGHT LINE HEIGHT
                         marginBottom: '1.5rem',
                         maxWidth: '100%',
-                        color: '#fff'
+                        color: '#fff',
+                        textWrap: 'balance'
                     }}>
                         {SafeRender(campaign.title || campaign.productName)}
                     </h1>
                     <div style={{
                         color: '#888',
-                        fontSize: '0.95rem',
+                        fontSize: '0.9rem',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '0.5rem',
-                        marginTop: '2rem'
+                        marginTop: '1.5rem'
                     }}>
                         <span style={{ height: '1px', width: '30px', background: '#333' }}></span>
                         <span>By <strong style={{ color: '#fff' }}>Nexus Team</strong></span>
@@ -149,16 +150,15 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                 </div>
             </section>
 
-            {/* BANNER IMAGE (Limited Height) */}
+            {/* BANNER IMAGE (Limited Height & Soft Shadow) */}
             {mainImage && (
-                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+                <div className="container" style={{ maxWidth: '1100px', margin: '-5rem auto 0', padding: '0 1rem', position: 'relative', zIndex: 10 }}>
                     <div style={{
                         borderRadius: '16px',
                         overflow: 'hidden',
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                        marginTop: '2rem',
-                        height: '400px', // Fixed height for Banner look
-                        position: 'relative'
+                        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.4)', // SOFT SHADOW
+                        height: '400px',
+                        background: '#222'
                     }}>
                         <img
                             src={mainImage}
@@ -180,9 +180,18 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
                 {/* LEFT: MAIN CONTENT */}
                 <main style={{ flex: '1 1 600px', minWidth: 0 }}>
 
-                    {/* INTRODUCTION */}
-                    <div style={{ fontSize: '1.25rem', lineHeight: 1.7, marginBottom: '3rem', color: '#222' }}>
-                        <div dangerouslySetInnerHTML={{ __html: parseMarkdown(campaign.description || "") }} />
+                    {/* INTRODUCTION (Smart Parse) */}
+                    <div style={{ fontSize: '1.2rem', lineHeight: 1.7, marginBottom: '3rem', color: '#333' }}>
+                        {(() => {
+                            let text = campaign.description || "";
+                            try {
+                                if (text.trim().startsWith('{')) {
+                                    const parsed = JSON.parse(text);
+                                    text = parsed.introduction || parsed.heroDescription || "";
+                                }
+                            } catch (e) { /* Not JSON */ }
+                            return <div dangerouslySetInnerHTML={{ __html: parseMarkdown(text) }} />;
+                        })()}
                     </div>
 
                     {/* KEY TAKEAWAYS (Premium Card Design) */}
