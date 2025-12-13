@@ -75,7 +75,11 @@ export default function SiloBuilderForm() {
             saveFormData.set('slug', slug);
             saveFormData.set('description', finalContext);
             saveFormData.set('affiliateLink', '#');
-            if (parentId) saveFormData.set('parentId', parentId);
+
+            // FIX: Only send parentId if it's a real ID, ignore the placeholder "manual_link_later"
+            if (parentId && parentId !== 'manual_link_later') {
+                saveFormData.set('parentId', parentId);
+            }
 
             await createCampaign(saveFormData);
 
