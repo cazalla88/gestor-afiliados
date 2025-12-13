@@ -1554,9 +1554,7 @@ export async function getHomePageData() {
     });
 
     const latest = await prisma.campaign.findMany({
-      where: {
-        type: { notIn: ['hub_principal'] } // Exclude main hubs from latest feed logic usually
-      },
+      // REMOVED FILTER: Show EVERYTHING including Hubs for now
       take: 6,
       orderBy: { createdAt: 'desc' },
       select: { title: true, slug: true, category: true, imageUrl: true, type: true, createdAt: true, productName: true }
