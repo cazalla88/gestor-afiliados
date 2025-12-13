@@ -138,6 +138,18 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                 <div>
                     <h1>{t.dashboard.title}</h1>
                     <p className={styles.statsCount}>{t.dashboard.total} {list.length} {t.dashboard.campaigns}</p>
+
+                    {/* --- DEBUG PANEL --- */}
+                    <div style={{ background: '#330000', color: '#ffaaaa', padding: '1rem', marginTop: '1rem', borderRadius: '8px', border: '1px solid red' }}>
+                        <strong>🕵️‍♂️ DEBUG MODE:</strong> Total Recibido del Server: {campaigns.length}
+                        <ul style={{ fontSize: '0.8rem', marginTop: '0.5rem', maxHeight: '150px', overflowY: 'auto' }}>
+                            {campaigns.map((c: any) => (
+                                <li key={c.id || c.slug}>
+                                    [{c.type}] <strong>{c.productName}</strong> (Cat: {c.category}, Slug: {c.slug})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1, justifyContent: 'flex-end' }}>
                     {/* Premium Search Input */}
@@ -208,6 +220,7 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className={styles.createBtn}
+                        style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
                     >
                         {t.dashboard.create}
                     </button>
