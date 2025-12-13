@@ -116,24 +116,63 @@ export default function MasterHubTemplate({ campaign, currentSlug, relatedProduc
         <div style={{ fontFamily: '"Inter", "Segoe UI", sans-serif', color: '#111', background: '#fff' }}>
 
             {/* HERO */}
-            <section style={{ background: '#0a0a0a', color: 'white', padding: '4rem 1rem 10rem', textAlign: 'center', position: 'relative' }}>
-                <div className="container" style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-                    <nav style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: '2rem' }}>
-                        <span style={{ textTransform: 'uppercase', letterSpacing: '1px' }}>{campaign.category}</span>
+            <section style={{ background: '#0a0a0a', color: 'white', padding: '6rem 1rem 3rem', textAlign: 'center' }}>
+                <div className="container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
+                    <nav style={{ fontSize: '0.8rem', color: '#db2777', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1.5rem' }}>
+                        {campaign.category || 'TECH'}
                     </nav>
-                    <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '2rem' }}>
+                    <h1 style={{
+                        fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                        fontWeight: 800,
+                        lineHeight: 1.1,
+                        marginBottom: '1.5rem',
+                        maxWidth: '100%',
+                        color: '#fff'
+                    }}>
                         {SafeRender(campaign.title || campaign.productName)}
                     </h1>
-                    <div style={{ color: '#aaa', fontSize: '0.9rem' }}>By <strong style={{ color: '#fff' }}>Nexus Team</strong> • {date}</div>
+                    <div style={{
+                        color: '#888',
+                        fontSize: '0.95rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        marginTop: '2rem'
+                    }}>
+                        <span style={{ height: '1px', width: '30px', background: '#333' }}></span>
+                        <span>By <strong style={{ color: '#fff' }}>Nexus Team</strong></span>
+                        <span style={{ color: '#444' }}>•</span>
+                        <span>{date}</span>
+                        <span style={{ height: '1px', width: '30px', background: '#333' }}></span>
+                    </div>
                 </div>
             </section>
 
-            {/* HERO IMAGE */}
-            <div className="container" style={{ maxWidth: '1000px', margin: '-8rem auto 0', position: 'relative', zIndex: 3, padding: '0 1rem' }}>
-                <div style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', background: '#222' }}>
-                    <img src={mainImage} alt={campaign.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
+            {/* BANNER IMAGE (Limited Height) */}
+            {mainImage && (
+                <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
+                    <div style={{
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                        marginTop: '2rem',
+                        height: '400px', // Fixed height for Banner look
+                        position: 'relative'
+                    }}>
+                        <img
+                            src={mainImage}
+                            alt={campaign.title}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                objectPosition: 'center center' // Ensure important part is visible
+                            }}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* --- LAYOUT: SIDEBAR + CONTENT --- */}
             <div className="container" style={{ maxWidth: '1200px', margin: '4rem auto', padding: '0 1.5rem', display: 'flex', flexWrap: 'wrap', gap: '3rem' }}>
