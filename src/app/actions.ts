@@ -852,16 +852,30 @@ export async function generateBattleContent(productA: any, productB: any, apiKey
 
 // === DB Actions ===
 
-export async function createCampaign(data: any) {
-  // FORCE REDEPLOY: Syntax checked, manual gallery logic active
+export async function createCampaign(inputPayload: any) {
+  // FORCE REDEPLOY: Normalize input (FormData vs JSON)
+
+  // 1. Normalize Input
+  let data = inputPayload;
+  if (inputPayload instanceof FormData) {
+    data = Object.fromEntries(inputPayload);
+  }
+
+  console.log("📦 CREATE CAMPAIGN RECEIVED:", JSON.stringify(data, null, 2));
+
   try {
+    // 2. Validate Essential Data
+    if (!data.productName && !data.title) {
+      return { error: "Validation Error: Product Name is required." };
+    }
+
     // === AUTO-IMAGE FETCHING START ===
     let galleryImages: string[] = [];
     let mainImage = data.imageUrl;
     let skipAutoFetch = false;
 
     // 1. MANUAL OVERRIDE: Did user provide manual gallery URLs?
-    if (data.manualGallery && data.manualGallery.trim().length > 0) {
+    if (data.manualGallery && typeof data.manualGallery === 'string' && data.manualGallery.trim().length > 0) {
       console.log("🖼️ Using Manual Gallery Images provided by user.");
       galleryImages = data.manualGallery
         .split(/[\n,]+/) // Split by newline or comma
@@ -992,7 +1006,7 @@ export async function createCampaign(data: any) {
     try {
       campaign = await prisma.campaign.create({
         data: {
-          slug: data.id,
+          slug: data.slug || data.id,
           type: data.type,
           category: data.category || 'general',
           language: data.language || 'en',
