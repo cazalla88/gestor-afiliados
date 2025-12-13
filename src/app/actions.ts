@@ -1064,8 +1064,14 @@ export async function createCampaign(inputPayload: any) {
   }
 }
 
-export async function updateCampaign(slug: string, data: any) {
+export async function updateCampaign(slug: string, inputPayload: any) {
   try {
+    // 1. Normalize Input
+    let data = inputPayload;
+    if (inputPayload instanceof FormData) {
+      data = Object.fromEntries(inputPayload);
+    }
+
     // Process Manual Gallery Override for Updates
     let galleryImagesBackup = data.galleryImagesBackup; // Try to keep existing if passed
 
