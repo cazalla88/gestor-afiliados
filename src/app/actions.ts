@@ -132,7 +132,7 @@ export async function generateSeoContent(
   productName: string,
   basicDescription: string,
   apiKey: string,
-  type: 'landing' | 'blog' | 'hub_principal' | 'subhub' = 'landing',
+  type: 'landing' | 'blog' | 'hub_principal' | 'hub_secundario' | 'subhub' = 'landing',
   language: 'en' | 'es' = 'en',
   tone: string = 'Professional',
   existingCampaigns: any[] = [],
@@ -226,83 +226,304 @@ export async function generateSeoContent(
 
   // --- NEW: MASTER HUB & SUB-HUB LOGIC (Universal Expert Authority) ---
   // --- 3. MASTER HUB STRATEGY (The "Silo" Core) ---
+  // --- NEW: MASTER HUB & SUB-HUB LOGIC (Universal Expert Authority) ---
+  // --- 3. MASTER HUB STRATEGY (The "Silo" Core) ---
   if (type === 'hub_principal') {
     prompt = `
       ROLE: You are the Editor-in-Chief of a world-renowned Tech Publication (like The Verge, Wirecutter, or Xataka). You are a cynical, highly experienced expert who hates marketing fluff.
       
       GOAL: Write the definitive, authoritative "Buying Guide 2026" for the Master Hub: "${productName}".
-      This page is the SEO PILLAR of the website. It must be better than anything currently on Page 1 of Google.
+      This page is the SEO PILLAR of the website. It serves as a ROUTER to direct traffic to specific sub-categories.
 
       TONE: 
       - Authoritative, Critical, Expert.
       - Conversational but Professional ("Tú" in Spanish).
       - NO FLUFF. Every sentence must add value. If it's filler, DELETE IT.
-      - OPINIONATED. Don't be neutral. Guide the user. Tell them what matters and what is marketing BS.
+      - OPINIONATED. Don't be neutral. Guide the user. Tell them what matters.
       
       LANGUAGE: ${langName} (CRITICAL: Output must be 100% in ${langName}).
-      CURRENCY: EUROS (€) ONLY. DO NOT USE DOLLARS ($) UNDER ANY CIRCUMSTANCES.
-      MARKET: SPAIN/EUROPE. Cite European prices and availability.
+      CURRENCY: EUROS (€) ONLY.
+      MARKET: SPAIN/EUROPE.
 
-      STRUCTURE & CONTENT REQUIREMENTS (STRICT):
+      STRUCTURE & CONTENT REQUIREMENTS (STRICT - Write this inside 'articleBody'):
       
-      1. **HOOK (Introduction)**: 
-         - Do NOT start with "In today's world...". Start with the User's Pain.
-         - Tell them why buying ${productName} in 2026 is hard/confusing and promise a solution.
-         - DO NOT repeat the Title.
-      
-      2. **STEP 1: BUDGET (The Truth about Money)**: 
-         - Don't just list prices. Explain what you LOSE if you pay less, and what you GAIN if you pay more.
-         - Define the "Sweet Spot" (Calidad/Precio) for this specific niche.
-      
-      3. **STEP 2: USE CASES (User Personas)**: 
-         - "Tell me who you are and I'll tell you what to buy".
-         - Create 4-5 vivid profiles (e.g., "The Power User", "The Student", "The Casual").
-         - Be specific.
-      
-      4. **STEP 3: THE GREAT DEBATE (Dichotomy)**: 
-         - Android vs iPhone / OLED vs QLED / Silla de Malla vs Piel.
-         - Analyze the pros/cons deeply. Who wins in 2026?
+      (Note: 'introduction' field handles the Hook. 'articleBody' handles the rest).
 
-      5. **STEP 4: TECHNICAL SPECS (Decoded)**: 
-         - "How to read the specs sheet without getting scammed".
-         - Pick the 3 most important specs. Explain them like you are talking to a smart friend.
-         - Ignore the vanity metrics.
+      1. **SECTION 1: THE QUICK MAP (Router)**
+         - Title: "## Qué vas a encontrar aquí"
+         - Create a bullet list acting as a directory:
+           * "Si buscas lo más barato posible → [Ir a Baratos]"
+           * "Si buscas calidad/precio → [Ir a Gama Media]"
+           * "Si eres [Perfil 1] → [Ir a Opción]"
+           (Use markdown links. If URL unknown, use #).
 
-      6. **STEP 5: ROOKIE MISTAKES**: 
-         - "How to throw your money away".
-         - List specific, common errors people make in this niche.
+      2. **SECTION 2: BUDGET (The Truth)**
+         - Title: "## Presupuesto: Qué esperas por lo que pagas"
+         - Explain price ranges (Low, Mid, High) and the "Sweet Spot".
+         - Use H3 headers for ranges.
 
-      7. **STEP 6: FAQ (Real Answers)**: 
-         - Answer the real questions people type into Google. Give direct answers.
+      3. **SECTION 3: USER PROFILES**
+         - Title: "## Dime quién eres y te diré qué comprar"
+         - Define 3-5 vivid personas (Student, Pro, Casual, etc.).
+         - Tell each one what to look for.
 
-      8. **VERDICT (The Editor's Note)**: 
-         - A final, high-level summary of the market state in 2026.
+      4. **SECTION 4: THE GREAT DEBATE**
+         - Title: "## El Gran Debate: [Topic A] vs [Topic B]"
+         - Analyze the main dichotomy of this niche (e.g. Android vs iPhone, OLED vs QLED).
+         - Be objective but give a winner.
+
+      5. **SECTION 5: SPECS DECODED**
+         - Title: "## Especificaciones: Qué importa y qué es humo"
+         - Decode the technical sheet. Ignore vanity metrics.
+
+      6. **SECTION 6: ROOKIE MISTAKES**
+         - Title: "## Errores de Novato"
+         - List common ways people waste money in this niche.
+
+      7. **SECTION 7: FAQ**
+         - Title: "## Preguntas Frecuentes"
+         - Real questions, direct answers.
 
       OUTPUT FORMAT (JSON):
       {
-        "title": "The Definitive Guide to ${productName} in 2026: What you really need",
-        "seoMetaDescription": "Don't buy a ${productName} without reading this. The ultimate 2026 guide: budgets, types, specs to look for, and top recommendations.",
-        "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong> The most important thing...</li><li><strong>Takeaway 2:</strong> Don't forget...</li><li><strong>Takeaway 3:</strong> The smart choice is...</li></ul>",
+        "title": "Guía ${productName} 2026: Qué necesitas de verdad",
+        "seoMetaDescription": "La guía definitiva de ${productName} para 2026. Presupuestos, perfiles y recomendaciones honestas.",
+        "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong>...</li><li><strong>Takeaway 2:</strong>...</li><li><strong>Takeaway 3:</strong>...</li></ul>",
 
-        "introduction": "<p><strong>(DO NOT REPEAT TITLE).</strong> Start with hook. Context & authority (300 words).</p>",
+        "introduction": "<p><strong>(HOOK ONLY).</strong> 3-5 lines. Address the user's pain/confusion directly. Do not repeat title.</p>",
         
-        "articleBody": "## 1. Budget\n(Explain ranges. 400w)\n\n## 2. Profiles\n(User types. 400w)\n\n## 3. The Battle\n(Comparison. 500w)\n\n## 4. Specs\n(Tech deep dive. 500w)\n\n## 5. Mistakes\n(Common errors. 400w)\n\n## 6. FAQ\n(3 Q&A pairs)",
+        "articleBody": "## Qué vas a encontrar aquí\n(Router content...)\n\n## Presupuesto: Qué esperas por lo que pagas\n(Budget content...)\n\n## Dime quién eres y te diré qué comprar\n(Profiles content...)\n\n## El Gran Debate\n(Debate content...)\n\n## Especificaciones\n(Specs content...)\n\n## Errores de Novato\n(Mistakes content...)\n\n## Preguntas Frecuentes\n(FAQ content...)",
 
-        "verdict": "<p><strong>Veredicto (2026):</strong> Final summary. (200 words).</p>",
-        "targetAudience": "Target audience summary.",
+        "verdict": "<p><strong>Veredicto del Editor:</strong> Resumen final de 4-6 líneas. Cierra con autoridad.</p>",
+        "targetAudience": "From bargain hunters to power users.",
         "internalLinks": [
-          { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
-          { "anchorText": "${productName} Gama Alta", "slug": "gama-alta", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
-          { "anchorText": "Mejora tu experiencia (Accesorios)", "slug": "accesorios", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" }
+           { "anchorText": "Mejores ${productName} Baratos", "slug": "baratos", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" },
+           { "anchorText": "${productName} Gama Alta", "slug": "gama-alta", "category": "${type === 'hub_principal' ? productName.toLowerCase() : 'general'}" }
         ]
       }
     `;
   }
+  else if (type === 'hub_secundario') {
+    prompt = `
+      ROLE: You are the same cynical, expert Editor-in-Chief.
+      OBJETIVO: Write a SUB-HUB GUIDE for the niche: "${productName}".
+
+      CONTEXT & STRATEGY DATA (Critical):
+      """
+      ${basicDescription}
+      """
+      
+      INSTRUCTION FOR CONTEXT:
+      1. Check if the "CONTEXT & STRATEGY DATA" above is a JSON object (containing 'money_posts', 'authority_posts', etc.).
+      2. IF IT IS JSON: You MUST use the EXACT 'nombre' and 'url' from that JSON for all your links. DO NOT INVENT LINKS or SLUGS.
+      3. IF IT IS NOT JSON: Generate the content based on your knowledge of the niche "${productName}".
+
+      This is NOT a product comparison. It is a GUIDE to the SEGMENT.
+      Goal: Help the user decide if this segment is for them and route them to specific comparisons (Money Posts).
+
+      TONE: Direct, Critical, No Fluff. 100% ${langName}.
+      CURRENCY: EUROS (€).
+
+      STRUCTURE (Write inside 'articleBody'):
+
+      1. **INTRO (The Hook)**
+         - Title: "## Para quién es esta guía"
+         - Define clearly what "${productName}" means.
+         - Mention the price range if provided in JSON context.
+
+      2. **RANGES/SEGMENTS**
+         - Title: "## Rangos dentro de este nicho"
+         - Break it down (e.g. Low vs Mid vs High).
+         - AT THE END OF EACH SUB-SECTION: Link to the specific "Money Post" from the JSON context (if available).
+
+      3. **CRITERIA (What matters)**
+         - Title: "## Qué priorizar (y qué da igual)"
+         - Technical specs that matter.
+         - Link to "Authority Posts" from JSON if relevant.
+
+      4. **USER PROFILES**
+         - Title: "## Perfiles Típicos"
+         - Give specific advice for profiles.
+         - Link to "subhubs_relacionados" from JSON if relevant.
+
+      5. **ROOKIE MISTAKES**
+         - Title: "## Errores Típicos"
+         - List 4-6 common ways to waste money.
+
+      6. **FAQ**
+         - Title: "## Preguntas Frecuentes"
+         - Specific to this sub-niche.
+
+      7. **FINAL CTA**
+         - Title: "## Y ahora, ¿qué hago?"
+         - Summary and Direct links to the MAIN "Money Posts" from the JSON.
+         - Use the exact anchor texts provided in the JSON.
+
+      OUTPUT FORMAT (JSON):
+      {
+        "title": "${productName} 2026: La Guía Definitiva",
+        "seoMetaDescription": "Todo sobre ${productName} en 2026. Análisis de precios, perfiles y recomendaciones.",
+        "keyTakeaways": "<ul><li><strong>Takeaway 1:</strong>...</li><li><strong>Takeaway 2:</strong>...</li><li><strong>Takeaway 3:</strong>...</li></ul>",
+        
+        "introduction": "<p><strong>(HOOK only).</strong> 3-5 lines definining the niche.</p>",
+
+        "articleBody": "## Para quién es esta guía\n(Intro content...)\n\n## Rangos dentro de este nicho\n(Ranges content + Links to Money Posts...)\n\n## Qué priorizar (y qué da igual)\n(Criteria content + Links to Authority Posts...)\n\n## Perfiles Típicos\n(Profiles content + Links to Related Subhubs...)\n\n## Errores Típicos\n(Mistakes...)\n\n## Preguntas Frecuentes\n(FAQ...)\n\n## Y ahora, ¿qué hago?\n(CTA Content with Final Links to Money Posts...)",
+
+        "verdict": "<p><strong>Conclusión del Experto:</strong> Resumen final de autoridad.</p>",
+        "targetAudience": "Niche specific audience.",
+        "internalLinks": [] 
+      }
+      (NOTE: Populate 'internalLinks' array with the links you used in the text, using the exact URLs from the JSON context).
+    `;
+  }
   else if (type === 'blog') {
-    if (contentDepth === 'deep') {
-      // --- OPTION A: PILLAR PAGE (2000+ Words) ---
+    // --- SPECIAL LOGIC: DETECT "MONEY POST" OR "AUTHORITY POST" JSON STRATEGY ---
+    let strategyType = 'standard'; // standard | money_post | authority_post
+
+    try {
+      if (basicDescription.trim().startsWith('{')) {
+        if (basicDescription.includes('productos')) {
+          strategyType = 'money_post';
+        } else if (basicDescription.includes('tipo_autoridad') || basicDescription.includes('posts_dinero_relacionados')) {
+          strategyType = 'authority_post';
+        }
+      }
+    } catch (e) { }
+
+    if (strategyType === 'money_post') {
       prompt = `
-            Act as a LEGENDARY Direct Response Copywriter(Master Level like Dan Kennedy or Gary Halbert).
+            ROLE: You are the Editor-in-Chief of a top Tech Site (Wirecutter style).
+            GOAL: Write a HIGH-CONVERTING COMPARISON GUIDE (Money Post) for "${productName}".
+            
+            DATA JSON (STRICT SOURCE OF TRUTH):
+            """
+            ${basicDescription}
+            """
+
+            CRITICAL INSTRUCTION:
+            - You MUST use the "DATA JSON" above for ALL product details, links, and names.
+            - DO NOT invent products. Use ONLY the ones in the 'productos' array.
+            - DO NOT invent prices. Use vague terms ("budget-friendly").
+
+            STRUCTURE (Write inside 'articleBody'):
+
+            1. **INTRO (H2)**
+               - 2-4 short paragraphs.
+               - Who is this for? What is the price range?
+               - Don't sell yet.
+
+            2. **QUICK SUMMARY (H2)**
+               - Title: "## Resumen rápido: los ganadores"
+               - List 2-4 top picks from the JSON (Best Overall, Best Budget).
+               - One line summary + "Ideal for X".
+
+            3. **HOW WE CHOSE (H2)**
+               - Explain criteria (Performance, Price, etc.).
+               - Link to at least 1 'authority_post' from JSON (using exact URL).
+
+            4. **PRODUCT ANALYSIS (H2)**
+               - Title: "## Análisis de cada modelo"
+               - FOR EACH PRODUCT in 'productos' array from JSON, create an H3 section:
+                 ### [Product Name]
+                 - **Resumen:** 1 paragraph.
+                 - **Para quién SÍ:** Bullet list (from 'perfil_ideal').
+                 - **Para quién NO:** Bullet list (from 'no_recomendado_para').
+                 - **Lo Mejor:** Bullets (from 'puntos_fuertes').
+                 - **Lo Peor:** Bullets (from 'puntos_debiles').
+                 - **Specs:** Key specs list.
+                 - **CTA:** "Ver precio en tienda" (Use 'url_afiliado' from JSON).
+
+            5. **BUYING GUIDE (H2)**
+               - Title: "## Qué modelo elegir según tu caso"
+               - Sub-sections (H3) for specific scenarios (e.g. "If you want cheapest...").
+               - Recommend specific products from the list.
+
+            6. **FAQ (H2)**
+               - 4-7 real questions. Link to Hub/Subhub if relevant.
+
+            7. **VERDICT (H2)**
+               - Final summary.
+               - Repeat Top 2 recommendations with affiliate links.
+
+            OUTPUT FORMAT (JSON):
+            {
+               "title": "Use 'titulo_post' from JSON or '${productName}'",
+               "seoMetaDescription": "Comparison summary...",
+               "keyTakeaways": "<ul><li><strong>Top Pick:</strong>...</li><li><strong>Budget Pick:</strong>...</ul>",
+               "introduction": "<p><strong>(Hook).</strong> Short intro.</p>",
+               "articleBody": "## Resumen rápido: los ganadores\n(Content...)\n\n## Análisis de cada modelo\n(Product 1... Product 2...)\n\n## Qué modelo elegir\n(Guide...)\n\n## Preguntas Frecuentes\n(FAQ...)\n\n## Veredicto Final\n(Verdict...)",
+               "verdict": "<p><strong>Editor's Choice:</strong> Final recommendation.</p>",
+               "targetAudience": "Buyers looking for ${productName}.",
+               "internalLinks": []
+            }
+        `;
+    }
+    else if (strategyType === 'authority_post') {
+      prompt = `
+            ROLE: You are the Editor-in-Chief. Expert, Direct, No Fluff.
+            GOAL: Write an AUTHORITY GUIDE (Educational) for "${productName}".
+            OBJECTIVE: Educate the user so they can choose wisely in the Money Posts. Do NOT sell directly here.
+
+            DATA JSON (STRICT SOURCE OF TRUTH):
+            """
+            ${basicDescription}
+            """
+
+            CRITICAL INSTRUCTION:
+            - Use ONLY URLs/Titles from JSON. Do not invent links.
+            - Do NOT compare specific products (that's for Money Posts).
+
+            STRUCTURE (Write inside 'articleBody'):
+
+            1. **INTRO (H2)**
+               - Why is this topic confusing? What will value will user get?
+               - Mention HUB url naturally.
+
+            2. **STEP 1: BUDGET (H2)**
+               - Why start here? Explain price tiers.
+               - Link to 'subhubs_por_presupuesto' from JSON.
+
+            3. **STEP 2: USE CASE (H2)**
+               - Explain different user needs.
+               - Link to 'subhubs_por_uso'.
+
+            4. **STEP 3: TYPES/ECOSYSTEMS (H2)**
+               - Big decisions (e.g. Android vs iPhone).
+               - Link to 'subhubs_por_tipo'.
+
+            5. **SPECS DECODED (H2)**
+               - Explain technical concepts (RAM, Hz, etc) simply.
+               - What matters vs What is marketing fluff.
+
+            6. **ROOKIE MISTAKES (H2)**
+               - 5-7 common buying errors.
+
+            7. **SCENARIOS (H2)**
+               - Title: "## Qué haría yo en tu lugar"
+               - 3-5 concrete cases ("I have low budget", "I want best camera").
+               - Route to specific Money Posts or Sub-Hubs.
+
+            8. **NEXT STEPS (H2)**
+               - Summary.
+               - Final list of recommended links (Sub-Hubs + Money Posts).
+
+            OUTPUT FORMAT (JSON):
+            {
+               "title": "Use 'titulo_post' from JSON or '${productName}'",
+               "seoMetaDescription": "Educational guide...",
+               "keyTakeaways": "<ul><li><strong>Tip 1:</strong>...</li><li><strong>Tip 2:</strong>...</ul>",
+               "introduction": "<p><strong>(Hook).</strong> Short intro.</p>",
+               "articleBody": "## Paso 1: Presupuesto\n(Content...)\n\n## Paso 2: Uso\n(Content...)\n\n## Especificaciones\n(Content...)\n\n## Qué haría yo en tu lugar\n(Content...)\n\n## Siguientes pasos\n(Content...)",
+               "verdict": "<p><strong>Expert Advice:</strong> Final thought.</p>",
+               "targetAudience": "Users researching ${productName}.",
+               "internalLinks": []
+            }
+        `;
+    }
+    else if (contentDepth === 'deep') {
+      // --- OPTION A: PILLAR PAGE (Standard Blog) ---
+      prompt = `
+            Act as a LEGENDARY Direct Response Copywriter.
             Your goal is to write a ** PILLAR PAGE REVIEW ** that converts cold traffic into obsessed buyers.
             ** AUTHORITY LEVEL: GOD MODE.Write with absolute confidence.**
 
