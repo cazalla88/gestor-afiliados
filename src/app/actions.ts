@@ -1036,6 +1036,13 @@ export async function createCampaign(data: any) {
     requestIndexing(finalUrl).catch(err => console.error("⚠️ Background Indexing Error:", err));
     // -----------------------------
 
+    // FORCE CACHE UPDATE
+    import('next/cache').then(({ revalidatePath }) => {
+      revalidatePath('/dashboard');
+      revalidatePath('/');
+      if (campaign.category) revalidatePath(`/categories/${campaign.category}`);
+    });
+
     return { success: true, slug: campaign.slug, type: campaign.type };
   } catch (error: any) {
     console.error("DB Create Error:", error);
@@ -1197,6 +1204,12 @@ export async function deleteCampaign(slug: string) {
       // 3. Now delete safely
       await prisma.campaign.delete({
         where: { slug }
+      });
+
+      // FORCE CACHE UPDATE
+      import('next/cache').then(({ revalidatePath }) => {
+        revalidatePath('/dashboard');
+        revalidatePath('/');
       });
     }
 

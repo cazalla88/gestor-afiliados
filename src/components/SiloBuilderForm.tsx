@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { generateSeoContent, createCampaign } from '@/app/actions';
+import { useState, useEffect } from 'react';
+import { generateSeoContent, createCampaign, getAvailableHubs } from '@/app/actions';
 
 // --- ICONS (Fixed Size SVG) ---
 const IconMaster = () => (
@@ -31,8 +31,26 @@ const IconAuth = () => (
 
 export default function SiloBuilderForm() {
     const [selectedType, setSelectedType] = useState<'hub_principal' | 'subhub' | 'blog' | 'authority'>('hub_principal');
+    const [availableHubs, setAvailableHubs] = useState<any[]>([]);
     const [jsonDetected, setJsonDetected] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Load Hubs on mount
+    useEffect(() => {
+        getAvailableHubs().then(hubs => setAvailableHubs(hubs));
+    }, []);
+
+    // Filter parents based on selected type hierarchy
+    const filteredParents = availableHubs.filter(h => {
+        // If creating a Sub-Hub, Parent MUST be a Master Hub
+        if (selectedType === 'subhub') return h.type === 'hub_principal';
+
+        // If creating a Post, Parent should typically be a Sub-Hub (or Master)
+        if (selectedType === 'blog' || selectedType === 'authority') {
+            return h.type === 'subhub' || h.type === 'hub_principal';
+        }
+        return false;
+    });
 
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
@@ -313,18 +331,29 @@ export default function SiloBuilderForm() {
                     </div>
                 </div>
 
-                {/* PARENT SELECTOR (Dynamic) */}
+                {/* PARENT SELECTOR (Dynamic & Filtered) */}
                 {selectedType !== 'hub_principal' && (
                     <div style={{ padding: '1rem', background: '#18181b', borderRadius: '8px', border: '1px border #333 dashed' }}>
                         <label style={styles.label}>
-                            🔗 Asignar Padre (Para crear la ruta SEO)
+                            🔗 Asignar Padre (Selecciona el Hub/Sub-Hub superior)
                         </label>
                         <select
                             name="parentId"
                             style={styles.input}
                         >
-                            <option value="">-- Selecciona un Hub Padre (Opcional por ahora) --</option>
-                            <option value="manual_link_later">[Se enlazará automáticamente por Slug]</option>
+                            <option value="">-- Sin Padre (Huérfano) --</option>
+
+                            {filteredParents.length > 0 ? (
+                                filteredParents.map(h => (
+                                    <option key={h.id} value={h.id}>
+                                        {h.type === 'hub_principal' ? '👑' : '📂'} {h.title} ({h.slug})
+                                    </option>
+                                ))
+                            ) : (
+                                <option disabled>No se encontraron Hubs compatibles</option>
+                            )}
+
+                            <option value="manual_link_later" style={{ color: '#888' }}>[Omitir por ahora]</option>
                         </select>
                     </div>
                 )}
@@ -338,7 +367,6 @@ export default function SiloBuilderForm() {
                                 ✅ JSON Estratégico Detectado
                             </span>
                         ) : (
-                            // HERE IS THE BLUE TAG REQUESTED
                             <span style={{ ...styles.tag, background: 'rgba(37, 99, 235, 0.2)', color: '#60a5fa', border: '1px solid #2563eb' }}>
                                 📄 Modo Texto / Fuente Libre
                             </span>
