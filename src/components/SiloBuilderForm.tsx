@@ -39,6 +39,7 @@ export default function SiloBuilderForm() {
         try {
             const title = formData.get('title') as string;
             const slug = formData.get('slug') as string;
+            const category = formData.get('category') as string || 'general';
             const rawContext = formData.get('context') as string;
             const parentId = formData.get('parentId') as string;
 
@@ -47,8 +48,14 @@ export default function SiloBuilderForm() {
             if (selectedType === 'blog' || selectedType === 'authority') backendType = 'blog';
 
             let finalContext = rawContext;
+            // Auto-inject authority type if missing from JSON context
             if (selectedType === 'authority' && !rawContext.includes('tipo_autoridad')) {
-                finalContext = JSON.stringify({ tipo_autoridad: "educational_guide", ...JSON.parse(rawContext || "{}") });
+                try {
+                    const parsed = JSON.parse(rawContext || "{}");
+                    finalContext = JSON.stringify({ tipo_autoridad: "educational_guide", ...parsed });
+                } catch (e) {
+                    // If text mode, leave as is
+                }
             }
 
             const aiResult = await generateSeoContent(
@@ -64,6 +71,7 @@ export default function SiloBuilderForm() {
             const saveFormData = new FormData();
             saveFormData.set('productName', title);
             saveFormData.set('type', backendType);
+            saveFormData.set('category', category); // Add category to save
             saveFormData.set('slug', slug);
             saveFormData.set('description', finalContext);
             saveFormData.set('affiliateLink', '#');
@@ -97,7 +105,7 @@ export default function SiloBuilderForm() {
         if (slugInput) slugInput.value = slug;
     }
 
-    // --- STYLES OBJECTS (To guarantee look) ---
+    // --- STYLES OBJECTS ---
     const styles = {
         container: {
             background: '#0f0f10',
@@ -109,7 +117,7 @@ export default function SiloBuilderForm() {
         },
         header: {
             textAlign: 'center' as const,
-            marginBottom: '2rem'
+            marginBottom: '1rem'
         },
         title: {
             fontSize: '1.8rem',
@@ -120,6 +128,12 @@ export default function SiloBuilderForm() {
             WebkitTextFillColor: 'transparent'
         },
         subtitle: { color: '#888', fontSize: '0.95rem' },
+        categorySection: {
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            marginBottom: '1.5rem'
+        },
         grid: {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
@@ -127,7 +141,7 @@ export default function SiloBuilderForm() {
             marginBottom: '2rem'
         },
         card: (isActive: boolean, color: string) => ({
-            background: isActive ? `${color}15` : '#18181b', // 15 = roughly 10% opacity hex
+            background: isActive ? `${color}15` : '#18181b',
             border: isActive ? `2px solid ${color}` : '1px solid #333',
             padding: '1.5rem',
             borderRadius: '12px',
@@ -139,8 +153,6 @@ export default function SiloBuilderForm() {
             transition: 'all 0.2s ease',
             color: isActive ? color : '#71717a'
         }),
-        inputGroup: { marginBottom: '1.5rem' },
-        label: { display: 'block', fontSize: '0.9rem', color: '#a1a1aa', marginBottom: '0.5rem' },
         input: {
             width: '100%',
             padding: '0.75rem',
@@ -151,6 +163,18 @@ export default function SiloBuilderForm() {
             fontSize: '0.95rem',
             outline: 'none',
             fontFamily: 'inherit'
+        },
+        selectCategory: {
+            padding: '0.75rem 1rem',
+            background: '#000',
+            border: '1px solid #444',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '1rem',
+            outline: 'none',
+            cursor: 'pointer',
+            minWidth: '200px',
+            textAlign: 'center' as const
         },
         textarea: {
             width: '100%',
@@ -178,12 +202,15 @@ export default function SiloBuilderForm() {
             marginTop: '1rem',
             transition: 'transform 0.1s'
         },
+        label: { display: 'block', fontSize: '0.9rem', color: '#a1a1aa', marginBottom: '0.5rem' },
         tag: {
             fontSize: '0.75rem',
-            padding: '0.2rem 0.5rem',
-            borderRadius: '4px',
+            padding: '0.3rem 0.8rem',
+            borderRadius: '6px',
             marginLeft: '0.5rem',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.05em'
         }
     };
 
@@ -196,9 +223,21 @@ export default function SiloBuilderForm() {
                 <p style={styles.subtitle}>Selecciona tu pieza de contenido para construir la autoridad.</p>
             </div>
 
+            {/* CATEGORY SELECTOR (CENTERED) */}
+            <div style={styles.categorySection}>
+                <label style={{ ...styles.label, marginBottom: '0.5rem', color: '#fff' }}>⬇ Categoría ⬇</label>
+                <select name="category" style={styles.selectCategory} defaultValue="tecnologia">
+                    <option value="tecnologia">Tecnología</option>
+                    <option value="hogar">Hogar</option>
+                    <option value="deportes">Deportes</option>
+                    <option value="moda">Moda</option>
+                    <option value="salud">Salud</option>
+                    <option value="general">_General (Sin Categoría)</option>
+                </select>
+            </div>
+
             {/* 1. TYPE SELECTOR (CARDS) */}
             <div style={styles.grid}>
-
                 {/* MASTER HUB */}
                 <div onClick={() => setSelectedType('hub_principal')} style={styles.card(selectedType === 'hub_principal', '#f59e0b')}>
                     <IconMaster />
@@ -234,7 +273,6 @@ export default function SiloBuilderForm() {
                         <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Guía Educativa</div>
                     </div>
                 </div>
-
             </div>
 
             {/* 2. MAIN INPUTS */}
@@ -294,8 +332,9 @@ export default function SiloBuilderForm() {
                                 ✅ JSON Estratégico Detectado
                             </span>
                         ) : (
-                            <span style={{ ...styles.tag, background: '#1e3a8a', color: '#60a5fa', border: '1px solid #2563eb' }}>
-                                📝 Modo Texto / Fuente Libre
+                            // HERE IS THE BLUE TAG REQUESTED
+                            <span style={{ ...styles.tag, background: 'rgba(37, 99, 235, 0.2)', color: '#60a5fa', border: '1px solid #2563eb' }}>
+                                📄 Modo Texto / Fuente Libre
                             </span>
                         )}
                     </div>
