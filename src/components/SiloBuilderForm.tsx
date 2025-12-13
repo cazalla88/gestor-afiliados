@@ -99,7 +99,11 @@ export default function SiloBuilderForm() {
                 saveFormData.set('parentId', parentId);
             }
 
-            await createCampaign(saveFormData);
+            const result = await createCampaign(saveFormData);
+
+            if (!result.success) {
+                throw new Error(result.error || "Error desconocido al guardar en base de datos.");
+            }
 
             alert("¡Contenido Creado con Éxito!");
             window.location.reload();
