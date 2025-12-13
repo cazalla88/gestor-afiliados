@@ -230,12 +230,14 @@ export default function SiloBuilderForm() {
             {/* CATEGORY SELECTOR (CENTERED) */}
             <div style={styles.categorySection}>
                 <label style={{ ...styles.label, marginBottom: '0.5rem', color: '#fff' }}>⬇ Categoría ⬇</label>
-                <select name="category" style={styles.selectCategory} defaultValue="tecnologia">
-                    <option value="tecnologia">Tecnología</option>
-                    <option value="hogar">Hogar</option>
-                    <option value="deportes">Deportes</option>
-                    <option value="moda">Moda</option>
-                    <option value="salud">Salud</option>
+                <select name="category" style={styles.selectCategory} defaultValue="tech">
+                    <option value="tech">Tecnología</option>
+                    <option value="home">Hogar</option>
+                    <option value="sports">Deportes</option>
+                    <option value="fashion">Moda</option>
+                    <option value="beauty">Belleza</option>
+                    <option value="books">Libros</option>
+                    <option value="toys">Juguetes</option>
                     <option value="general">_General (Sin Categoría)</option>
                 </select>
             </div>

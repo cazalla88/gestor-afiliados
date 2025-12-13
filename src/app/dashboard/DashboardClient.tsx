@@ -13,6 +13,7 @@ import { useLanguage } from "@/context/LanguageContext";
 export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
     const { t, language } = useLanguage();
     const router = useRouter();
+    console.log("📊 DASHBOARD DATA:", campaigns); // DEBUG: Check if new campaigns arrive
     const [list, setList] = useState(campaigns);
     const [searchQuery, setSearchQuery] = useState("");
 
