@@ -2,7 +2,7 @@
 
 import { deleteCampaign, duplicateCampaign, analyzeTrends, createCampaign } from "@/app/actions";
 import { useRouter } from "next/navigation";
-import CreateCampaignForm from "@/components/CreateCampaignForm";
+import SiloBuilderForm from "@/components/SiloBuilderForm";
 import styles from "./dashboard.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -236,8 +236,8 @@ export default function DashboardClient({ campaigns }: { campaigns: any[] }) {
                         >
                             ✕
                         </button>
-                        <div style={{ padding: '2rem' }}>
-                            <CreateCampaignForm />
+                        <div style={{ padding: '0rem 2rem 2rem 2rem' }}>
+                            <SiloBuilderForm />
                         </div>
                     </div>
                 </div>
