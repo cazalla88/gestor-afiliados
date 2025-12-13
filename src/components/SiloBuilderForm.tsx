@@ -86,20 +86,23 @@ export default function SiloBuilderForm() {
 
             if (aiResult.error) throw new Error(aiResult.error);
 
-            const saveFormData = new FormData();
-            saveFormData.set('productName', title);
-            saveFormData.set('type', backendType);
-            saveFormData.set('category', category); // Add category to save
-            saveFormData.set('slug', slug);
-            saveFormData.set('description', finalContext);
-            saveFormData.set('affiliateLink', '#');
+            // Construct Plain Object Payload (Safer than FormData for manual construction)
+            const payload = {
+                productName: title,
+                title: title, // Explicitly set title
+                type: backendType,
+                category: category,
+                slug: slug,
+                description: finalContext,
+                affiliateLink: '#',
+                parentId: (parentId && parentId !== 'manual_link_later') ? parentId : null,
+                // Merge AI Results (Introduction, Content, Features, etc.)
+                ...aiResult
+            };
 
-            // FIX: Only send parentId if it's a real ID, ignore the placeholder "manual_link_later"
-            if (parentId && parentId !== 'manual_link_later') {
-                saveFormData.set('parentId', parentId);
-            }
+            console.log("🚀 Enviando Payload a DB:", payload); // Debug log
 
-            const result = await createCampaign(saveFormData);
+            const result = await createCampaign(payload);
 
             if (!result.success) {
                 throw new Error(result.error || "Error desconocido al guardar en base de datos.");
