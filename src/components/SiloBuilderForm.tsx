@@ -1,16 +1,33 @@
 "use client";
 
 import { useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { generateSeoContent } from '@/app/actions';
-// Ensure generateSeoContent is updated to accept the new types, or we ignore TS for legacy string compat
-import { createCampaign } from '@/app/actions';
+import { generateSeoContent, createCampaign } from '@/app/actions';
 
-// --- ICONS ---
-const IconMaster = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" /></svg>;
-const IconSubHub = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>;
-const IconMoney = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const IconAuth = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.499 5.24 50.552 50.552 0 00-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>;
+// --- ICONS (Fixed Size SVG) ---
+const IconMaster = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+);
+const IconSubHub = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+    </svg>
+);
+const IconMoney = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"></line>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+    </svg>
+);
+const IconAuth = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+    </svg>
+);
 
 export default function SiloBuilderForm() {
     const [selectedType, setSelectedType] = useState<'hub_principal' | 'subhub' | 'blog' | 'authority'>('hub_principal');
@@ -20,28 +37,20 @@ export default function SiloBuilderForm() {
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
         try {
-            // Prepare Data
             const title = formData.get('title') as string;
             const slug = formData.get('slug') as string;
             const rawContext = formData.get('context') as string;
             const parentId = formData.get('parentId') as string;
 
-            // Map UI Types to Backend Types
-            // 'blog' in backend handles both Money Post (with json) and Authority (with json)
-            // 'hub_secundario' is 'subhub'
             let backendType = 'hub_principal';
-            if (selectedType === 'subhub') backendType = 'hub_secundario'; // or 'subhub' depending on your actions.ts update
+            if (selectedType === 'subhub') backendType = 'hub_secundario';
             if (selectedType === 'blog' || selectedType === 'authority') backendType = 'blog';
 
-            // Add hidden markers for Authority if selected
             let finalContext = rawContext;
             if (selectedType === 'authority' && !rawContext.includes('tipo_autoridad')) {
-                // Inject a flag if user didn't paste full JSON, to guide AI
                 finalContext = JSON.stringify({ tipo_autoridad: "educational_guide", ...JSON.parse(rawContext || "{}") });
             }
 
-            // 1. Generate Content (AI)
-            // Note: passing empty strings for unused legacy fields
             const aiResult = await generateSeoContent(
                 title,
                 finalContext,
@@ -52,30 +61,13 @@ export default function SiloBuilderForm() {
 
             if (aiResult.error) throw new Error(aiResult.error);
 
-            // 2. Save to DB
-            // Using existing createCampaign action. We might need to adapt it slightly 
-            // if it expects specific form data structure, but usually it takes direct args too?
-            // Actually, createCampaign is a server action that takes FormData. 
-            // So we might need to recreate a FormData object or call a direct DB function.
-            // For now, let's assume we re-use the createCampaign logic but properly.
-
-            // Simulating the FormData expected by createCampaign
             const saveFormData = new FormData();
             saveFormData.set('productName', title);
             saveFormData.set('type', backendType);
             saveFormData.set('slug', slug);
             saveFormData.set('description', finalContext);
-            saveFormData.set('affiliateLink', '#'); // Placeholder
+            saveFormData.set('affiliateLink', '#');
             if (parentId) saveFormData.set('parentId', parentId);
-
-            // Hack: Append the AI Result as a hidden field or handle inside createCampaign?
-            // The current createCampaign calls generateSeoContent internally if not provided.
-            // To be safe and clean, we should let createCampaign do the generation 
-            // OR we pass the generated content.
-
-            // Let's call createCampaign directly, relying on IT to call the AI.
-            // This avoids double generation.
-            // We just need to ensure createCampaign uses the correct type.
 
             await createCampaign(saveFormData);
 
@@ -105,110 +97,172 @@ export default function SiloBuilderForm() {
         if (slugInput) slugInput.value = slug;
     }
 
+    // --- STYLES OBJECTS (To guarantee look) ---
+    const styles = {
+        container: {
+            background: '#0f0f10',
+            padding: '2rem',
+            borderRadius: '16px',
+            color: '#fff',
+            maxWidth: '100%',
+            border: '1px solid #27272a'
+        },
+        header: {
+            textAlign: 'center' as const,
+            marginBottom: '2rem'
+        },
+        title: {
+            fontSize: '1.8rem',
+            fontWeight: 'bold',
+            marginBottom: '0.5rem',
+            background: 'linear-gradient(90deg, #fff, #aaa)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+        },
+        subtitle: { color: '#888', fontSize: '0.95rem' },
+        grid: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '1rem',
+            marginBottom: '2rem'
+        },
+        card: (isActive: boolean, color: string) => ({
+            background: isActive ? `${color}15` : '#18181b', // 15 = roughly 10% opacity hex
+            border: isActive ? `2px solid ${color}` : '1px solid #333',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            gap: '1rem',
+            transition: 'all 0.2s ease',
+            color: isActive ? color : '#71717a'
+        }),
+        inputGroup: { marginBottom: '1.5rem' },
+        label: { display: 'block', fontSize: '0.9rem', color: '#a1a1aa', marginBottom: '0.5rem' },
+        input: {
+            width: '100%',
+            padding: '0.75rem',
+            background: '#000',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '0.95rem',
+            outline: 'none',
+            fontFamily: 'inherit'
+        },
+        textarea: {
+            width: '100%',
+            minHeight: '200px',
+            background: '#0a0a0a',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            padding: '1rem',
+            color: '#d4d4d8',
+            fontFamily: 'monospace',
+            fontSize: '0.9rem',
+            outline: 'none',
+            resize: 'vertical' as const
+        },
+        button: {
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '12px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            marginTop: '1rem',
+            transition: 'transform 0.1s'
+        },
+        tag: {
+            fontSize: '0.75rem',
+            padding: '0.2rem 0.5rem',
+            borderRadius: '4px',
+            marginLeft: '0.5rem',
+            fontWeight: 'bold'
+        }
+    };
+
     return (
-        <form action={handleSubmit} className="w-full max-w-5xl mx-auto p-6 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl">
+        <form action={handleSubmit} style={styles.container}>
 
             {/* HEADER */}
-            <div className="mb-8 text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Silo Architect <span className="text-amber-400">v2.0</span></h2>
-                <p className="text-slate-400">Selecciona tu pieza de contenido para construir la autoridad.</p>
+            <div style={styles.header}>
+                <h2 style={styles.title}>Silo Architect <span style={{ color: '#fbbf24' }}>v2.0</span></h2>
+                <p style={styles.subtitle}>Selecciona tu pieza de contenido para construir la autoridad.</p>
             </div>
 
             {/* 1. TYPE SELECTOR (CARDS) */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div style={styles.grid}>
 
                 {/* MASTER HUB */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedType('hub_principal')}
-                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'hub_principal'
-                        ? 'border-amber-500 bg-amber-500/10 text-white'
-                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
-                        }`}
-                >
+                <div onClick={() => setSelectedType('hub_principal')} style={styles.card(selectedType === 'hub_principal', '#f59e0b')}>
                     <IconMaster />
-                    <div>
-                        <div className="font-bold">Master Hub</div>
-                        <div className="text-xs opacity-70">La Raíz (Padre)</div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: selectedType === 'hub_principal' ? '#fff' : 'inherit' }}>Master Hub</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Raíz (Padre)</div>
                     </div>
-                </button>
+                </div>
 
                 {/* SUB HUB */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedType('subhub')}
-                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'subhub'
-                        ? 'border-blue-500 bg-blue-500/10 text-white'
-                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
-                        }`}
-                >
+                <div onClick={() => setSelectedType('subhub')} style={styles.card(selectedType === 'subhub', '#3b82f6')}>
                     <IconSubHub />
-                    <div>
-                        <div className="font-bold">Sub-Hub</div>
-                        <div className="text-xs opacity-70">El Nicho (Hijo)</div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: selectedType === 'subhub' ? '#fff' : 'inherit' }}>Sub-Hub</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Nicho (Hijo)</div>
                     </div>
-                </button>
+                </div>
 
                 {/* MONEY POST */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedType('blog')}
-                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'blog'
-                        ? 'border-emerald-500 bg-emerald-500/10 text-white'
-                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
-                        }`}
-                >
+                <div onClick={() => setSelectedType('blog')} style={styles.card(selectedType === 'blog', '#10b981')}>
                     <IconMoney />
-                    <div>
-                        <div className="font-bold">Money Post</div>
-                        <div className="text-xs opacity-70">La Venta (Comparativa)</div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: selectedType === 'blog' ? '#fff' : 'inherit' }}>Money Post</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Comparativa</div>
                     </div>
-                </button>
+                </div>
 
                 {/* AUTHORITY POST */}
-                <button
-                    type="button"
-                    onClick={() => setSelectedType('authority')}
-                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'authority'
-                        ? 'border-purple-500 bg-purple-500/10 text-white'
-                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
-                        }`}
-                >
+                <div onClick={() => setSelectedType('authority')} style={styles.card(selectedType === 'authority', '#a855f7')}>
                     <IconAuth />
-                    <div>
-                        <div className="font-bold">Authority</div>
-                        <div className="text-xs opacity-70">Educativo (Guía)</div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: selectedType === 'authority' ? '#fff' : 'inherit' }}>Authority</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>Guía Educativa</div>
                     </div>
-                </button>
+                </div>
 
             </div>
 
             {/* 2. MAIN INPUTS */}
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
                 {/* TITLE & SLUG */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">Título del Contenido (H1)</label>
+                        <label style={styles.label}>Título del Contenido (H1)</label>
                         <input
                             name="title"
                             type="text"
                             required
                             placeholder="Ej: Mejores Móviles Baratos 2026"
                             onChange={autoSlug}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                            style={styles.input}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">URL Slug (Automático)</label>
-                        <div className="flex bg-slate-950 border border-slate-700 rounded-lg overflow-hidden">
-                            <span className="bg-slate-900 text-slate-500 p-3 text-sm border-r border-slate-700">/</span>
+                        <label style={styles.label}>URL Slug (Automático)</label>
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#000', border: '1px solid #333', borderRadius: '8px' }}>
+                            <span style={{ padding: '0.75rem', color: '#555', borderRight: '1px solid #333', fontSize: '0.9rem' }}>/</span>
                             <input
                                 id="slugInput"
                                 name="slug"
                                 type="text"
                                 required
-                                className="w-full bg-transparent p-3 text-white outline-none placeholder-slate-600"
+                                style={{ ...styles.input, border: 'none', background: 'transparent' }}
                                 placeholder="mejores-moviles-baratos"
                             />
                         </div>
@@ -217,39 +271,30 @@ export default function SiloBuilderForm() {
 
                 {/* PARENT SELECTOR (Dynamic) */}
                 {selectedType !== 'hub_principal' && (
-                    <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                        <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <div style={{ padding: '1rem', background: '#18181b', borderRadius: '8px', border: '1px border #333 dashed' }}>
+                        <label style={styles.label}>
                             🔗 Asignar Padre (Para crear la ruta SEO)
                         </label>
                         <select
                             name="parentId"
-                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none"
+                            style={styles.input}
                         >
                             <option value="">-- Selecciona un Hub Padre (Opcional por ahora) --</option>
-                            {/* 
-                         TODO: Fetch real hubs from DB passed as props or via Server Component wrapper.
-                         For now, user can manually set ID or we rely on 'General' 
-                      */}
-                            <option value="manual_link_later">[Se enlazará automáticamente por Slug si coincide]</option>
+                            <option value="manual_link_later">[Se enlazará automáticamente por Slug]</option>
                         </select>
-                        <p className="text-xs text-slate-500 mt-2">
-                            * Al asignar un padre, se crean los Breadcrumbs y esquemas de silo automáticamente.
-                        </p>
                     </div>
                 )}
 
                 {/* 3. STRATEGY CONTEXT (The Brain) */}
                 <div>
-                    <div className="flex justify-between items-end mb-2">
-                        <label className="block text-sm font-medium text-slate-400">
-                            Estrategia / Contexto / Fuente
-                        </label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+                        <label style={styles.label}>Estrategia / Contexto / Fuente</label>
                         {jsonDetected ? (
-                            <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20 animate-pulse">
+                            <span style={{ ...styles.tag, background: '#064e3b', color: '#34d399', border: '1px solid #059669' }}>
                                 ✅ JSON Estratégico Detectado
                             </span>
                         ) : (
-                            <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">
+                            <span style={{ ...styles.tag, background: '#1e3a8a', color: '#60a5fa', border: '1px solid #2563eb' }}>
                                 📝 Modo Texto / Fuente Libre
                             </span>
                         )}
@@ -259,11 +304,11 @@ export default function SiloBuilderForm() {
                         name="context"
                         required
                         onChange={handleContextChange}
-                        placeholder={selectedType === 'blog' ? 'Pega el JSON de comparativa O el texto de un artículo fuente...' : 'Define el objetivo del Hub o pega el JSON de estructura...'}
-                        className="w-full h-60 bg-slate-950 border border-slate-700 rounded-lg p-4 text-sm text-slate-300 font-mono focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                        placeholder={selectedType === 'blog' ? 'Pega el JSON de comparativa aquí...' : 'Define el objetivo del Hub...'}
+                        style={styles.textarea}
                     ></textarea>
-                    <p className="text-xs text-slate-500 mt-2">
-                        Tip: Pega un JSON (<code>{`{ ... }`}</code>) para control total, o texto plano para que la IA lo use de inspiración.
+                    <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.5rem' }}>
+                        Pega un JSON (<code>{`{ ... }`}</code>) para activar los modos avanzados.
                     </p>
                 </div>
 
@@ -271,19 +316,13 @@ export default function SiloBuilderForm() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all ${loading
-                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white transform hover:scale-[1.01]'
-                        }`}
+                    style={{
+                        ...styles.button,
+                        opacity: loading ? 0.7 : 1,
+                        cursor: loading ? 'wait' : 'pointer'
+                    }}
                 >
-                    {loading ? (
-                        <span className="flex items-center justify-center gap-2">
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Generando Contenido IA...
-                        </span>
-                    ) : (
-                        "🚀 Generar y Publicar Silo"
-                    )}
+                    {loading ? "Generando Contenido IA..." : "🚀 Generar y Publicar Silo"}
                 </button>
 
             </div>
