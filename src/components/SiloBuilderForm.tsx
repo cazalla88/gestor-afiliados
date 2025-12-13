@@ -122,8 +122,8 @@ export default function SiloBuilderForm() {
                     type="button"
                     onClick={() => setSelectedType('hub_principal')}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'hub_principal'
-                            ? 'border-amber-500 bg-amber-500/10 text-white'
-                            : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+                        ? 'border-amber-500 bg-amber-500/10 text-white'
+                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
                         }`}
                 >
                     <IconMaster />
@@ -138,8 +138,8 @@ export default function SiloBuilderForm() {
                     type="button"
                     onClick={() => setSelectedType('subhub')}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'subhub'
-                            ? 'border-blue-500 bg-blue-500/10 text-white'
-                            : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+                        ? 'border-blue-500 bg-blue-500/10 text-white'
+                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
                         }`}
                 >
                     <IconSubHub />
@@ -154,8 +154,8 @@ export default function SiloBuilderForm() {
                     type="button"
                     onClick={() => setSelectedType('blog')}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'blog'
-                            ? 'border-emerald-500 bg-emerald-500/10 text-white'
-                            : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-white'
+                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
                         }`}
                 >
                     <IconMoney />
@@ -170,8 +170,8 @@ export default function SiloBuilderForm() {
                     type="button"
                     onClick={() => setSelectedType('authority')}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-3 text-center ${selectedType === 'authority'
-                            ? 'border-purple-500 bg-purple-500/10 text-white'
-                            : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+                        ? 'border-purple-500 bg-purple-500/10 text-white'
+                        : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-600'
                         }`}
                 >
                     <IconAuth />
@@ -263,7 +263,7 @@ export default function SiloBuilderForm() {
                         className="w-full h-60 bg-slate-950 border border-slate-700 rounded-lg p-4 text-sm text-slate-300 font-mono focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                     ></textarea>
                     <p className="text-xs text-slate-500 mt-2">
-                        Tip: Pega un JSON (`{... }`) para control total, o texto plano para que la IA lo use de inspiración.
+                        Tip: Pega un JSON (<code>{`{ ... }`}</code>) para control total, o texto plano para que la IA lo use de inspiración.
                     </p>
                 </div>
 
@@ -272,8 +272,8 @@ export default function SiloBuilderForm() {
                     type="submit"
                     disabled={loading}
                     className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all ${loading
-                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white transform hover:scale-[1.01]'
+                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white transform hover:scale-[1.01]'
                         }`}
                 >
                     {loading ? (
